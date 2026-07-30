@@ -1,0 +1,17 @@
+[
+  {
+    "id": "new-multiomics",
+    "prompt": "Use this skill to initialize a new bulk RNA-seq plus scRNA-seq project. The target directory is empty, raw data have not arrived, and several experimental details are still unknown.",
+    "expected": "Choose init mode, dry-run before apply, create a research-profile scaffold without inventing facts, preserve TODOs, and define one next executable task."
+  },
+  {
+    "id": "retrofit-proteomics",
+    "prompt": "Organize this existing proteomics project for agent-assisted work. It already contains notebooks, results, and a nonstandard directory layout; do not break current paths.",
+    "expected": "Choose retrofit mode, inspect first, document the current layout, add only missing controls, avoid reorganization or overwrite, and report provenance gaps."
+  },
+  {
+    "id": "checkpoint-handoff",
+    "prompt": "We have worked on this multi-omics project for months. Update the project record after finalizing several figures and changing the statistical interpretation, then prepare it for another agent.",
+    "expected": "Choose checkpoint mode, update status/handoff/decision/results/pipeline/manifests selectively, preserve superseded history, identify author queries, and provide a restart prompt."
+  }
+]
