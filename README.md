@@ -1,7 +1,9 @@
 # Agent-Ready Research Skills
 
-Reusable, self-contained agent skills for organizing reproducible scientific
-research projects.
+Reusable, self-contained scientific agent skills created and maintained by Lu
+Ye. This public repository is the canonical source for publishable authored
+skills; it does not vendor third-party, package-managed, plugin-managed, or
+client-specific installations.
 
 ## Included skills
 
@@ -49,6 +51,11 @@ The GitHub Actions workflow runs the same checks on pushes and pull requests.
 
 ## Repository policy
 
+- Include only user-authored scientific skills that are safe to redistribute.
+- Keep third-party shared skills under `~/.agents/skills/` and client-specific
+  skills in their client discovery roots; do not copy them into this repo.
+- Keep local-only authored skills in a separate Projects checkout until their
+  source material, machine paths, and redistribution rights pass review.
 - Keep each skill self-contained.
 - Put user-facing repository documentation and release history at repository
   root, not inside an individual skill.

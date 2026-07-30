@@ -5,6 +5,11 @@ skill-scoped semantic-version tags.
 
 ## Unreleased
 
+### Changed
+
+- Clarified that the collection contains only user-authored, redistributable
+  scientific skills and excludes third-party or client-managed installations.
+
 ### Added
 
 - Migrated and substantially refined `critical-paper-reading` with explicit
