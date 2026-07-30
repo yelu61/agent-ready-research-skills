@@ -34,9 +34,22 @@ class BulkRnaSeqRouterTests(unittest.TestCase):
         result = ROUTER.route("tcga", "clinical", {"survival", "subtype"})
         self.assertEqual(result["backends"], ["tcga-toolkit"])
 
+    def test_routes_specialized_cancer_tasks_to_tcga_toolkit(self) -> None:
+        result = ROUTER.route("local", "maf", {"mutation", "tmb"})
+        self.assertEqual(result["backends"], ["tcga-toolkit"])
+
     def test_routes_mixed_specialized_request_to_both_backends(self) -> None:
         result = ROUTER.route("local", "raw-counts", {"deg", "cnv"})
         self.assertEqual(result["backends"], ["rnaseq-templates", "tcga-toolkit"])
+
+    def test_keeps_geo_survival_in_generic_backend(self) -> None:
+        result = ROUTER.route("geo", "normalized", {"survival"})
+        self.assertEqual(result["backends"], ["rnaseq-templates"])
+
+    def test_unknown_request_requires_clarification(self) -> None:
+        result = ROUTER.route("unknown", "unknown", set())
+        self.assertTrue(result["needs_clarification"])
+        self.assertIsNone(result["primary_backend"])
 
     def test_reports_incompatible_expression_scales(self) -> None:
         tpm = ROUTER.route("local", "tpm", {"deseq2"})
@@ -85,6 +98,28 @@ class BulkRnaSeqRouterTests(unittest.TestCase):
             )
             self.assertEqual(result["rnaseq-templates"]["version"], "0.9.0")
             self.assertEqual(result["tcga-toolkit"]["version"], "0.3.0")
+
+    def test_accepts_tcga_toolkit_directory_as_configured_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary) / "TCGA"
+            toolkit = repo / "tcga_toolkit"
+            for relative in ROUTER.TCGA_SENTINELS:
+                target = repo / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("placeholder\n", encoding="utf-8")
+
+            with patch.dict(
+                os.environ, {"TCGA_TOOLKIT_ROOT": str(toolkit)}, clear=False
+            ):
+                result = ROUTER.discover_one(
+                    "TCGA",
+                    "TCGA_TOOLKIT_ROOT",
+                    ROUTER.TCGA_SENTINELS,
+                    Path(temporary),
+                )
+
+            self.assertTrue(result["found"])
+            self.assertEqual(Path(result["root"]).resolve(), repo.resolve())
 
 
 if __name__ == "__main__":
