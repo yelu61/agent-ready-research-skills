@@ -8,6 +8,7 @@ research projects.
 | Skill | Purpose | Status |
 |---|---|---|
 | [`manage-agent-ready-research-project`](skills/manage-agent-ready-research-project/) | Initialize, retrofit, checkpoint, audit, hand off, and archive an evidence-traceable research workspace | Core |
+| [`bulk-rnaseq-analysis`](skills/bulk-rnaseq-analysis/) | Route reproducible bulk RNA-seq work between the RNAseq-Templates and TCGA analysis backends | Core |
 
 Each directory under `skills/` is independently installable. Runtime
 instructions, scripts, references, and assets required by a skill must remain
@@ -18,16 +19,17 @@ inside that skill directory.
 After the repository has been published, ask Codex to install the skill from:
 
 ```text
-https://github.com/OWNER/agent-ready-research-skills/tree/main/skills/manage-agent-ready-research-project
+https://github.com/yelu61/agent-ready-research-skills/tree/main/skills/<skill-name>
 ```
 
 For local development, clone the repository and link the skill into the shared
 Agent Skills discovery directory:
 
 ```bash
+skill_name="manage-agent-ready-research-project"
 ln -s \
-  "$HOME/Projects/agent-ready-research-skills/skills/manage-agent-ready-research-project" \
-  "$HOME/.agents/skills/manage-agent-ready-research-project"
+  "$HOME/Projects/agent-ready-research-skills/skills/$skill_name" \
+  "$HOME/.agents/skills/$skill_name"
 ```
 
 Restart or open a new Codex task after first installation. Edits made through
@@ -54,4 +56,3 @@ The GitHub Actions workflow runs the same checks on pushes and pull requests.
 - Validate before committing.
 - Use skill-scoped release tags, for example
   `manage-agent-ready-research-project-v1.0.0`.
-

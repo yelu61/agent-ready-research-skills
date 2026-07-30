@@ -5,9 +5,14 @@ skill-scoped semantic-version tags.
 
 ## Unreleased
 
-### Planned
+### Added
 
-- Publish the first GitHub release after remote repository creation.
+- Migrated `bulk-rnaseq-analysis` from RNAseq-Templates into the central skill
+  collection while preserving RNAseq-Templates and TCGA as independent
+  analysis backends.
+- Added deterministic routing, backend discovery, scientific input-scale
+  warnings, forward-test prompts, and automated router tests for
+  `bulk-rnaseq-analysis`.
 
 ## manage-agent-ready-research-project-v1.0.0 - 2026-07-30
 
@@ -19,4 +24,3 @@ skill-scoped semantic-version tags.
 - Project-memory, portability, staleness, and manifest audit tool.
 - Research and manuscript templates, conditional references, agent metadata,
   and forward-test prompts.
-

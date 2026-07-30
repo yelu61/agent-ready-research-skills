@@ -1,0 +1,17 @@
+[
+  {
+    "id": "local-counts-deg",
+    "prompt": "I have a local bulk RNA-seq raw-count matrix and sample metadata for three treatment groups. Select the correct workflow for QC, design-aware differential expression, GSEA, and a reproducible report.",
+    "expected": "Route to RNAseq-Templates, verify integer-like counts and metadata, select a design-aware template, validate before execution, and report the result and provenance contract."
+  },
+  {
+    "id": "tcga-multiomics",
+    "prompt": "Use TCGA expression, clinical, MAF, and CNV data to test a molecular subtype, survival association, and mutation context, with a reproducible run bundle.",
+    "expected": "Route to the TCGA toolkit, inspect cohort and clinical fields, select the relevant toolkit tasks, validate configurations, and preserve native run metadata."
+  },
+  {
+    "id": "mixed-scale-conflict",
+    "prompt": "I discovered a signature in a local TPM matrix, want DESeq2 differential expression, and then want to validate the signature in TCGA with survival analysis.",
+    "expected": "Flag that DESeq2 cannot use TPM, separate local discovery from TCGA validation, route the two stages to the appropriate backends, and define the signature handoff artifact."
+  }
+]
