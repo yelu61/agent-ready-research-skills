@@ -7,6 +7,9 @@ skill-scoped semantic-version tags.
 
 ### Added
 
+- Migrated and substantially refined `critical-paper-reading` with explicit
+  source-completeness gating, claim–evidence provenance, causal calibration,
+  domain-specific validity checks, reading modes, and forward-test prompts.
 - Migrated `bulk-rnaseq-analysis` from RNAseq-Templates into the central skill
   collection while preserving RNAseq-Templates and TCGA as independent
   analysis backends.

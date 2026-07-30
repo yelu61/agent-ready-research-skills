@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-cell-spatial-full-read",
+    "prompt": "Critically read the attached single-cell or spatial omics paper. I want more than a summary: identify the real problem, map each central claim to its evidence, distinguish association from causality, assess cohort, batch, annotation, composition, statistics, and validation limitations, and propose concrete follow-up studies.",
+    "expected": "Uses full critical-read mode; states source completeness; builds a claim-evidence map; applies the single-cell or spatial lens; calibrates causal strength; identifies decisive missing evidence; and proposes prioritized, actionable follow-ups."
+  },
+  {
+    "id": "computational-method-reviewer",
+    "prompt": "Review this computational method paper as a strict but fair reviewer. Focus on data leakage, train/test design, baseline and hyperparameter fairness, ablations, generalization, statistical uncertainty, compute and reproducibility, and whether the experiments support the main claim.",
+    "expected": "Uses reviewer mode; separates claims from evidence; checks leakage, split units, baseline fairness, ablations, generalization, statistics, compute, and reproducibility; ranks major concerns; and proposes feasible remedies with a calibrated recommendation."
+  },
+  {
+    "id": "doi-link-ambiguous-request",
+    "prompt": "Here is a DOI or link to a recent paper. Tell me whether it is important and reliable, and what I could build on from it.",
+    "expected": "Retrieves and inspects the paper before judging it; states which full text, figures, methods, and supplements were available; asks only if access or focus remains blocking; separates paper-internal evidence from current field context; avoids abstract-only invention; and gives a concise importance, reliability, and follow-up assessment."
+  }
+]

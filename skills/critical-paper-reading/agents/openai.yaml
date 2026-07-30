@@ -1,0 +1,4 @@
+interface:
+  display_name: "Critical Paper Reading"
+  short_description: "Evidence-mapped critique of scientific papers"
+  default_prompt: "Use $critical-paper-reading to evaluate this paper’s claims, evidence, limitations, and follow-up opportunities."
