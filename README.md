@@ -17,18 +17,56 @@ Each directory under `skills/` is independently installable. Runtime
 instructions, scripts, references, and assets required by a skill must remain
 inside that skill directory.
 
-## Install from GitHub
+## Quick start
 
-After the repository has been published, ask Codex to install the skill from:
+After installation, invoke a skill explicitly with its `$skill-name`, or make a
+natural-language request that matches its description. Explicit invocation is
+recommended when several installed skills could handle the same request.
 
 ```text
+Use $manage-agent-ready-research-project to initialize this study as a
+manuscript-ready research workspace without overwriting existing files.
+
+Use $bulk-rnaseq-analysis to review this count matrix, choose the appropriate
+RNA-seq backend, and produce a reproducible downstream-analysis plan.
+
+Use $critical-paper-reading to map this paper's major claims to evidence,
+identify causal overreach, and propose decisive follow-up experiments.
+```
+
+Open a new Codex task or restart the agent client after first installation so
+its skill index is refreshed.
+
+## Which skill should I use?
+
+| Goal | Skill | Example request |
+|---|---|---|
+| Start, retrofit, audit, checkpoint, hand off, or archive a research project | `manage-agent-ready-research-project` | “Audit this project for reproducibility and create the missing project-memory records.” |
+| Route a bulk RNA-seq request to local, GEO, or cancer-cohort analysis backends | `bulk-rnaseq-analysis` | “Analyze these raw counts and explain which backend and expression scale are appropriate.” |
+| Critically assess one scientific paper beyond summarization | `critical-paper-reading` | “Build a claim–evidence map and distinguish association from causal support.” |
+
+Skills may be combined sequentially. For example, use
+`manage-agent-ready-research-project` to establish the workspace, then
+`bulk-rnaseq-analysis` for the analysis workflow, and finally
+`critical-paper-reading` to evaluate literature supporting the interpretation.
+
+## Install from GitHub
+
+Ask Codex to install one skill from its GitHub directory:
+
+```text
+Install the skill from
 https://github.com/yelu61/agent-ready-research-skills/tree/main/skills/<skill-name>
 ```
 
-For local development, clone the repository and link the skill into the shared
-Agent Skills discovery directory:
+For local development or immediate access to repository edits, clone the
+collection and link the desired skill into the shared Agent Skills discovery
+directory:
 
 ```bash
+git clone https://github.com/yelu61/agent-ready-research-skills.git \
+  "$HOME/Projects/agent-ready-research-skills"
+
 skill_name="manage-agent-ready-research-project"
 ln -s \
   "$HOME/Projects/agent-ready-research-skills/skills/$skill_name" \
@@ -37,6 +75,18 @@ ln -s \
 
 Restart or open a new Codex task after first installation. Edits made through
 the repository checkout are then immediately available to linked agent clients.
+
+## Update a local checkout
+
+Pull the repository; linked installations update immediately because they point
+to the checkout rather than copied skill directories:
+
+```bash
+git -C "$HOME/Projects/agent-ready-research-skills" pull --ff-only
+```
+
+After an update that changes skill metadata, open a new task so the client
+rebuilds its skill index.
 
 ## Validate
 
