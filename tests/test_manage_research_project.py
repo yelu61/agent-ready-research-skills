@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL = ROOT / "skills" / "manage-agent-ready-research-project"
+SKILL = ROOT / "skills" / "manage-research-project"
 SCAFFOLD = SKILL / "scripts" / "scaffold_project.py"
 AUDIT = SKILL / "scripts" / "audit_project.py"
 
@@ -23,7 +23,7 @@ def run_script(script: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-class ManageAgentReadyResearchProjectTests(unittest.TestCase):
+class ManageResearchProjectTests(unittest.TestCase):
     def test_dry_run_does_not_create_target(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary) / "new-project"
@@ -101,4 +101,3 @@ class ManageAgentReadyResearchProjectTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

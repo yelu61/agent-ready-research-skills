@@ -28,6 +28,6 @@ Update the root `CHANGELOG.md`, commit the validated state, and create a
 skill-scoped semantic-version tag:
 
 ```bash
-git tag -a manage-agent-ready-research-project-v1.0.0 \
-  -m "manage-agent-ready-research-project v1.0.0"
+git tag -a manage-research-project-v1.0.0 \
+  -m "manage-research-project v1.0.0"
 ```

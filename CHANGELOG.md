@@ -7,6 +7,8 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Renamed `manage-agent-ready-research-project` to `manage-research-project`;
+  the original v1.0.0 release record remains below for historical accuracy.
 - Clarified that the collection contains only user-authored, redistributable
   scientific skills and excludes third-party or client-managed installations.
 

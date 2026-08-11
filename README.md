@@ -9,7 +9,7 @@ client-specific installations.
 
 | Skill | Purpose | Status |
 |---|---|---|
-| [`manage-agent-ready-research-project`](skills/manage-agent-ready-research-project/) | Initialize, retrofit, checkpoint, audit, hand off, and archive an evidence-traceable research workspace | Core |
+| [`manage-research-project`](skills/manage-research-project/) | Initialize, retrofit, checkpoint, audit, hand off, and archive an evidence-traceable research workspace | Core |
 | [`bulk-rnaseq-analysis`](skills/bulk-rnaseq-analysis/) | Route reproducible bulk RNA-seq work between the RNAseq-Templates and TCGA analysis backends | Core |
 | [`critical-paper-reading`](skills/critical-paper-reading/) | Map scientific claims to evidence, calibrate causal strength, audit validity, and design actionable follow-up work | Core |
 
@@ -24,7 +24,7 @@ natural-language request that matches its description. Explicit invocation is
 recommended when several installed skills could handle the same request.
 
 ```text
-Use $manage-agent-ready-research-project to initialize this study as a
+Use $manage-research-project to initialize this study as a
 manuscript-ready research workspace without overwriting existing files.
 
 Use $bulk-rnaseq-analysis to review this count matrix, choose the appropriate
@@ -41,12 +41,12 @@ its skill index is refreshed.
 
 | Goal | Skill | Example request |
 |---|---|---|
-| Start, retrofit, audit, checkpoint, hand off, or archive a research project | `manage-agent-ready-research-project` | “Audit this project for reproducibility and create the missing project-memory records.” |
+| Start, retrofit, audit, checkpoint, hand off, or archive a research project | `manage-research-project` | “Audit this project for reproducibility and create the missing project-memory records.” |
 | Route a bulk RNA-seq request to local, GEO, or cancer-cohort analysis backends | `bulk-rnaseq-analysis` | “Analyze these raw counts and explain which backend and expression scale are appropriate.” |
 | Critically assess one scientific paper beyond summarization | `critical-paper-reading` | “Build a claim–evidence map and distinguish association from causal support.” |
 
 Skills may be combined sequentially. For example, use
-`manage-agent-ready-research-project` to establish the workspace, then
+`manage-research-project` to establish the workspace, then
 `bulk-rnaseq-analysis` for the analysis workflow, and finally
 `critical-paper-reading` to evaluate literature supporting the interpretation.
 
@@ -67,7 +67,7 @@ directory:
 git clone https://github.com/yelu61/agent-ready-research-skills.git \
   "$HOME/Projects/agent-ready-research-skills"
 
-skill_name="manage-agent-ready-research-project"
+skill_name="manage-research-project"
 ln -s \
   "$HOME/Projects/agent-ready-research-skills/skills/$skill_name" \
   "$HOME/.agents/skills/$skill_name"
@@ -113,4 +113,4 @@ The GitHub Actions workflow runs the same checks on pushes and pull requests.
   machine-specific absolute paths.
 - Validate before committing.
 - Use skill-scoped release tags, for example
-  `manage-agent-ready-research-project-v1.0.0`.
+  `manage-research-project-v1.0.0`.

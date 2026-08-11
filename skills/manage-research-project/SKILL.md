@@ -1,5 +1,5 @@
 ---
-name: manage-agent-ready-research-project
+name: manage-research-project
 description: Build and maintain an agent-ready scientific research workspace across its full lifecycle. Use when starting a research project, safely retrofitting an existing analysis directory, establishing reproducible bioinformatics or multi-omics structure, updating project memory after substantive work, auditing stale documentation or provenance, preparing a session handoff, or freezing a manuscript/archive snapshot. Triggers include project initialization, project organization, agent-ready structure, research project audit, 项目初始化, 项目整理, 持续记录, 项目交接, 项目归档, and 分析项目管理.
 ---
 
