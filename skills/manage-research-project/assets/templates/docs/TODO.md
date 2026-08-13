@@ -2,6 +2,9 @@
 
 Last updated: {{DATE}}
 
+Task markers: `- [ ]` Backlog · `- [>]` In progress · `- [~]` Paused · `- [x]` Done · `- [-]` Canceled
+Optional suffixes: `#T01` stable task ID · `#high` / `#low` priority · `@YYYY-MM-DD` due date
+
 ## Scientific
 
 - [ ] TODO

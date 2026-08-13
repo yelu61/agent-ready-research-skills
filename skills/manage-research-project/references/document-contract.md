@@ -46,6 +46,25 @@ state and source file.
 | `AUTHOR_QUERIES.md` | Facts no analysis can determine | Unresolved experiment/reporting fact found |
 | figure/source manifests | Deliverable identity and provenance | Artifact created, selected, replaced or archived |
 
+## Task backlog format (`TODO.md`)
+
+`TODO.md` is the canonical task list and the sync contract with external
+project-management tools (e.g. Notion Tasks). One checkbox line per task:
+
+- Status markers: `- [ ]` Backlog · `- [>]` In progress · `- [~]` Paused ·
+  `- [x]` Done · `- [-]` Canceled.
+- Optional suffixes: `#T01` stable task ID (assign once, never reuse, keep
+  across renames) · `#high` / `#low` priority (omit = unset) · `@YYYY-MM-DD`
+  due date.
+- Section headers group tasks; a header carrying `P0`/`P1`/`P2` implies
+  High/Medium/Low priority for every task in that group.
+- Table-format backlogs may use the status vocabulary `NEXT`, `QUEUED`,
+  `OPTIONAL`, `BLOCKED`, `DONE`, mapping to In progress, Backlog,
+  Backlog + Low priority, Paused, Done.
+
+Update a task's marker in place when its state changes; do not move completed
+tasks into prose history. Bump `Last updated` on every edit.
+
 ## Update discipline
 
 - Keep stable facts separate from temporary state.
