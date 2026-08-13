@@ -26,9 +26,15 @@ changing established logic.
 - Inspect before editing; preserve unrelated user changes.
 - Do not overwrite, move or delete material files without clear authorization.
 - Use project-relative paths or one configurable project root.
-- Write reusable derived data to `data/processed/`, intermediate results to
-  `results/intermediate/`, and final outputs to `results/tables/`,
-  `results/figures/` or `results/reports/`.
+- Write reusable derived data to `data/processed/`, lightweight restartable
+  intermediates to `results/intermediate/`, and curated final outputs to
+  `results/tables/`, `results/figures/` or `results/reports/`.
+- When a pipeline backend (for example an RNAseq-Templates runner) produces a
+  complete native run bundle, keep that immutable bundle under
+  `analysis/runs/<run_id>/` (created on demand by the run, not scaffolded) and
+  copy only reviewed deliverables into `results/`. Do not duplicate the full
+  native bundle under `results/`; `results/intermediate/` is for lightweight
+  files, not a second copy of a run.
 - Back up before substantial notebook, script or canonical-document replacement.
 
 ## Reproducibility

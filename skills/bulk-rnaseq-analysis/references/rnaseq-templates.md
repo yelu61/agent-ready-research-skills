@@ -6,6 +6,7 @@ Validate the root by checking for:
 
 - `RNAseq_lib/`
 - `notebooks/`
+- `templates/`
 - `references/TEMPLATE_SELECTION.md`
 - `examples/run_demo_smoke_test.R`
 
@@ -15,16 +16,30 @@ currently targets downstream analysis from expression matrices, not FASTQ.
 
 ## Template selection
 
-| Question | Entry point |
-| --- | --- |
-| Standard group comparison (production) | `templates/General/run_analysis.R` |
-| Standard group comparison (interactive exploration) | `notebooks/RNAseq_General.ipynb` |
-| limma-voom or batch-heavy contrast | `notebooks/RNAseq_limma_voom_Template.ipynb` |
-| Longitudinal/time-course | `notebooks/RNAseq_TimeCourse_Template.ipynb` |
-| Immune/stromal deconvolution | `notebooks/RNAseq_TME_Deconvolution_Template.ipynb` |
-| Co-expression modules | `notebooks/RNAseq_WGCNA_Template.ipynb` |
-| Lightweight TCGA/GEO teaching workflow | `notebooks/RNAseq_TCGA_GEO_Template.ipynb` |
-| Headless standard pipeline | `templates/General/run_analysis.R` |
+Every template ships a production CLI runner trio (`config.R` + `run_analysis.R`
++ `visualize_results.R`) under `templates/`, alongside its interactive notebook.
+Prefer the runner for routine production and the notebook for interactive
+exploration.
+
+| Question | Production runner | Interactive notebook |
+| --- | --- | --- |
+| Standard group comparison | `templates/General/run_analysis.R` | `notebooks/RNAseq_General.ipynb` |
+| limma-voom or batch-heavy contrast | `templates/Limma_Voom/run_analysis.R` | `notebooks/RNAseq_limma_voom_Template.ipynb` |
+| Longitudinal/time-course | `templates/TimeCourse/run_analysis.R` | `notebooks/RNAseq_TimeCourse_Template.ipynb` |
+| Immune/stromal deconvolution | `templates/TME/run_analysis.R` | `notebooks/RNAseq_TME_Deconvolution_Template.ipynb` |
+| Co-expression modules | `templates/WGCNA/run_analysis.R` | `notebooks/RNAseq_WGCNA_Template.ipynb` |
+| Lightweight TCGA/GEO teaching workflow | `templates/TCGA_GEO/run_analysis.R` | `notebooks/RNAseq_TCGA_GEO_Template.ipynb` |
+
+Each `run_analysis.R` shares the same bootstrap, numbered `0-Config/1-DEG/...`
+output layout, and `0-Config/analysis_config_used.R` snapshot, and accepts a
+config path as its first trailing argument (defaulting to the template's own
+`config.R`).
+
+The runner preserves its invocation directory. It resolves a relative config
+argument before loading, then interprets relative input paths and `OUTDIR` from
+the explicit run root. In production, enter a fresh
+`analysis/runs/<run_id>/` first or use absolute project paths; never let the
+template repository become the output root.
 
 For advanced TCGA/TARGET/GTEx analysis, route to the TCGA toolkit instead of
 expanding the lightweight teaching notebook.
@@ -33,7 +48,7 @@ expanding the lightweight teaching notebook.
 
 1. Identify raw counts versus normalized expression and inspect metadata.
 2. Confirm sample identifiers match exactly and groups have adequate size.
-3. Prefer the General CLI template for a routine production project. Copy a
+3. Prefer the template's CLI runner for a routine production project. Copy a
    notebook only for interactive exploration; keep `RNAseq_lib/` resolvable.
 4. Edit the parameter block/configuration before changing analysis code.
 5. Run input validation before fitting a model.
@@ -46,15 +61,32 @@ expanding the lightweight teaching notebook.
 8. Record `sessionInfo.txt`, parameters, comparisons, warnings, input/config
    checksums, backend revision, and the source run for each curated artifact.
 
-For the General CLI runner:
+For any template's CLI runner:
 
 ```bash
-Rscript templates/General/run_analysis.R
+Rscript templates/<Topic>/run_analysis.R path/to/config.R
 ```
 
 Use a project-local copy of `config.R`, `run_analysis.R`, and
 `visualize_results.R` when the analysis must not write into the template
 repository.
+
+For TME, distinguish the deterministic offline base path from optional IOBR
+integration. Native ESTIMATE and ssGSEA can be used for the offline smoke path;
+IOBR methods may require reference bundles populated on first use. Verify the
+requested method cache before declaring an offline run ready.
+
+To turn a notebook's parameter cell into a `config.R` + `run_analysis.R` draft
+for a new or customized pipeline, use the bundled converter:
+
+```bash
+Rscript tools/notebook_to_runner.R notebooks/<Notebook>.ipynb <out_dir> --topic <Name>
+```
+
+It extracts the `## 1. Parameter Configuration` cell into `config.R`, flattens
+the remaining code cells into a runner, and writes a `conversion_report.txt`
+flagging patterns that need manual refinement. Treat its output as a draft to
+review, not a finished runner.
 
 ## Production output layout
 

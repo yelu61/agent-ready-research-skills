@@ -7,6 +7,19 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Bridged `manage-research-project` to the two-layer analysis output contract:
+  the scaffold stays generic, but the `AGENTS.md`/`README.md` templates and the
+  `SKILL.md` safety rules now document that pipeline-native run bundles belong
+  under `analysis/runs/<run_id>/` (created on demand) while `results/` holds
+  only curated deliverables, so the skill composes cleanly with
+  `bulk-rnaseq-analysis` and the RNAseq-Templates runners.
+- Synced `bulk-rnaseq-analysis` with the RNAseq-Templates backend: all six
+  templates (General plus the five topic templates) now ship a
+  `config.R` + `run_analysis.R` + `visualize_results.R` CLI runner, so the
+  template-selection table lists a production runner per template, the routing
+  rules reference the template CLI runners rather than only the General runner,
+  and the backend reference documents the `tools/notebook_to_runner.R`
+  notebook-to-runner converter.
 - Renamed `manage-agent-ready-research-project` to `manage-research-project`;
   the original v1.0.0 release record remains below for historical accuracy.
 - Clarified that the collection contains only user-authored, redistributable

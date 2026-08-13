@@ -78,6 +78,10 @@ Safety rules:
 - Never reorganize an established project unless the user explicitly requests
   that separate action.
 - Prefer documenting the existing layout over forcing the template layout.
+- For computational backends, keep each complete native run bundle under
+  `analysis/runs/<run_id>/` and only curated deliverables under `results/`
+  (the two-layer contract used by the analysis skills). The scaffold creates
+  `results/`; `analysis/runs/` is created by the pipeline on first run.
 - Back up before replacing instructions or retiring a canonical document.
 - Use relative project paths in generated docs and code.
 

@@ -49,13 +49,21 @@ handoff here.
 5. Inspect real column names, group sizes, identifiers, and repository state
    before writing configuration. Reuse existing templates and task runners.
    For routine local group comparisons, prefer the General CLI runner as the
-   production entry point; use a notebook when interactive exploration is a
-   stated requirement.
+   production entry point; the five topic templates (limma-voom, TimeCourse,
+   TME, WGCNA, TCGA/GEO) each ship an equivalent `templates/<Topic>/run_analysis.R`
+   runner for their pipeline. Use a notebook only when interactive exploration
+   is a stated requirement.
 
 6. Declare a new run ID and separate the complete backend-native run bundle
    from curated deliverables before execution. Never use `notebooks/` as an
    implicit output root and never overwrite an existing run directory unless
    the user explicitly requests it.
+
+   For an RNAseq-Templates CLI run, make the run root explicit: either enter
+   `analysis/runs/<run_id>/` before invoking the central runner or copy the
+   runner trio there. Resolve the config argument before execution, and make
+   every relative input/output path relative to that run root. Never rely on a
+   template source directory as an implicit working directory.
 
 7. Validate before execution. Prefer dry-runs, dependency checks, and bundled
    smoke tests.
@@ -75,8 +83,9 @@ handoff here.
   risk-model coefficients, or expression matrix.
 - Treat the TCGA toolkit as authoritative for its supported tasks. Do not
   recreate a toolkit task in a notebook or inline script.
-- Treat RNAseq-Templates notebooks, `RNAseq_lib/`, and the General CLI runner
-  as authoritative for generic downstream workflows.
+- Treat RNAseq-Templates notebooks, `RNAseq_lib/`, and the template CLI runners
+  (`templates/<Topic>/run_analysis.R`) as authoritative for generic downstream
+  workflows.
 
 ## Scientific guardrails
 
@@ -95,6 +104,11 @@ handoff here.
   do not present exploratory thresholds as confirmatory findings.
 - Keep counts, normalized matrices, metadata, and feature annotations as
   separate typed artifacts.
+- Treat IOBR availability as a package-plus-data contract. Before enabling an
+  offline TME run, verify that every requested method's reference bundle is
+  cached; otherwise run the deterministic native ESTIMATE/ssGSEA path or report
+  the network/cache requirement. Do not silently label an all-method failure as
+  a completed deconvolution.
 
 ## Scope boundaries
 
