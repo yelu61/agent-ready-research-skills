@@ -17,7 +17,8 @@ currently targets downstream analysis from expression matrices, not FASTQ.
 
 | Question | Entry point |
 | --- | --- |
-| Standard group comparison | `notebooks/RNAseq_General.ipynb` |
+| Standard group comparison (production) | `templates/General/run_analysis.R` |
+| Standard group comparison (interactive exploration) | `notebooks/RNAseq_General.ipynb` |
 | limma-voom or batch-heavy contrast | `notebooks/RNAseq_limma_voom_Template.ipynb` |
 | Longitudinal/time-course | `notebooks/RNAseq_TimeCourse_Template.ipynb` |
 | Immune/stromal deconvolution | `notebooks/RNAseq_TME_Deconvolution_Template.ipynb` |
@@ -32,12 +33,18 @@ expanding the lightweight teaching notebook.
 
 1. Identify raw counts versus normalized expression and inspect metadata.
 2. Confirm sample identifiers match exactly and groups have adequate size.
-3. Copy the selected notebook or General CLI template into the analysis
-   project; keep `RNAseq_lib/` resolvable.
+3. Prefer the General CLI template for a routine production project. Copy a
+   notebook only for interactive exploration; keep `RNAseq_lib/` resolvable.
 4. Edit the parameter block/configuration before changing analysis code.
 5. Run input validation before fitting a model.
-6. Execute and retain the native output structure.
-7. Record `sessionInfo.txt`, parameters, comparisons, and warnings.
+6. Create a new `analysis/runs/<run_id>/` and execute from that explicit root.
+   Never execute a notebook with `notebooks/` as the output root: its relative
+   `1-DEG/`, `2-GSEA/`, and `3-Visualization/` paths will otherwise mix code
+   and hundreds of generated artifacts.
+7. Retain the complete native run bundle, then curate reviewed deliverables
+   into `results/tables`, `results/figures`, and `results/reports`.
+8. Record `sessionInfo.txt`, parameters, comparisons, warnings, input/config
+   checksums, backend revision, and the source run for each curated artifact.
 
 For the General CLI runner:
 
@@ -48,6 +55,24 @@ Rscript templates/General/run_analysis.R
 Use a project-local copy of `config.R`, `run_analysis.R`, and
 `visualize_results.R` when the analysis must not write into the template
 repository.
+
+## Production output layout
+
+```text
+analysis/
+  config/
+  scripts/
+  notebooks/                  # source only
+  runs/<run_id>/              # complete backend-native bundle
+results/
+  tables/ figures/ reports/
+  report_assets/              # rebuildable HTML previews
+```
+
+There must be one canonical owner for each artifact. Treat PDF/SVG as figure
+masters and `report_assets/` PNG files as derived cache. Keep intentional gene
+set versions only with registry checksums and rationale; use manifest aliases
+instead of byte-for-byte compatibility copies.
 
 ## Input-scale rules
 

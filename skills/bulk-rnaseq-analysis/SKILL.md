@@ -48,12 +48,19 @@ handoff here.
 
 5. Inspect real column names, group sizes, identifiers, and repository state
    before writing configuration. Reuse existing templates and task runners.
+   For routine local group comparisons, prefer the General CLI runner as the
+   production entry point; use a notebook when interactive exploration is a
+   stated requirement.
 
-6. Validate before execution. Prefer dry-runs, dependency checks, and bundled
-   smoke tests. Never overwrite an existing result directory unless the user
-   explicitly requests it.
+6. Declare a new run ID and separate the complete backend-native run bundle
+   from curated deliverables before execution. Never use `notebooks/` as an
+   implicit output root and never overwrite an existing run directory unless
+   the user explicitly requests it.
 
-7. Execute only the requested scope, then summarize methods, parameters,
+7. Validate before execution. Prefer dry-runs, dependency checks, and bundled
+   smoke tests.
+
+8. Execute only the requested scope, then summarize methods, parameters,
    warnings, result locations, and reproducibility metadata.
 
 ## Routing rules
