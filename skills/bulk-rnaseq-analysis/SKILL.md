@@ -59,6 +59,13 @@ handoff here.
    implicit output root and never overwrite an existing run directory unless
    the user explicitly requests it.
 
+   Pick one execution path per dataset+design and stick to it: the CLI bundle
+   for batch/production, or a notebook (output to `analysis/notebook_output/`,
+   exploratory only) for interactive exploration. Do not run a full CLI bundle
+   and a full notebook over the same inputs — that duplicates the entire
+   pipeline output. See the "Single execution path" section of
+   [references/output-contract.md](references/output-contract.md).
+
    For an RNAseq-Templates CLI run, make the run root explicit: either enter
    `analysis/runs/<run_id>/` before invoking the central runner or copy the
    runner trio there. Resolve the config argument before execution, and make
@@ -109,6 +116,19 @@ handoff here.
   cached; otherwise run the deterministic native ESTIMATE/ssGSEA path or report
   the network/cache requirement. Do not silently label an all-method failure as
   a completed deconvolution.
+- Treat every online lookup as a network dependency, not just IOBR reference
+  bundles: biomaRt/Ensembl ortholog conversion, annotation-DB queries, xCell,
+  KEGG over the API, and public-cohort downloads can all fail mid-run (archive
+  hosts time out; endpoints return 404/500). Prefer cached or offline paths —
+  e.g. the RNAseq-Templates ortholog cache — and never report a network-failed
+  step as complete.
+- Invalidate cached intermediates when their inputs change. Recompute (do not
+  reuse) a `deseq2_core_cache`, `tme_cache`, TPM matrix, or similar whenever the
+  input table, sample set, filtering, gene universe, or a relevant parameter
+  changes — a stale cache silently yields results from the wrong gene set.
+- After a batch/headless run, confirm key figures are actually rendered
+  (non-empty, plausible size). Grid-composite plots (UpSet, multi-panel GSEA)
+  can silently produce blank PDFs from non-interactive `Rscript`.
 
 ## Scope boundaries
 

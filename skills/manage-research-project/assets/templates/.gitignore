@@ -7,3 +7,10 @@ __pycache__/
 .Rproj.user/
 *.tmp
 *.log
+
+# Exploratory notebook output is regenerable and never curated — do not track it.
+analysis/notebook_output/
+
+# Full native run bundles are large but authoritative; keep curated deliverables
+# in results/. Uncomment to also exclude bundles from version control.
+#analysis/runs/

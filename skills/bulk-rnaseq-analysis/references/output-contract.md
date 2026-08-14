@@ -52,6 +52,24 @@ tokens, private remote URLs, or unrelated absolute home-directory paths.
 - Do not overwrite a completed run or create byte-identical compatibility
   copies. Use a new run ID or a manifest alias.
 
+## Single execution path
+
+Choose **one** execution path per analysis (one dataset + design); do not run
+both a full CLI bundle and a full notebook over the same inputs.
+
+- **Batch / production** → the CLI runner (`config.R` + `run_analysis.R`).
+  Outputs land in `analysis/runs/<run_id>/` and are curated into `results/`.
+- **Interactive exploration** (iterating on thresholds, gene sets, figures) →
+  a notebook. Outputs land in `analysis/notebook_output/<analysis>/` and are
+  **exploratory and regenerable — never curated** into `results/`.
+
+Running both paths over the same inputs duplicates the entire pipeline output
+(the run bundle and `notebook_output/` mirror each other) and doubles storage.
+If exploration later hardens into a final result, re-run the CLI bundle once and
+curate from that bundle; do not curate from `notebook_output/`. Treat
+`notebook_output/` as disposable — keep the notebook source (`.ipynb` / `.R`)
+and any recompute caches, and delete the bulky figures/tables freely.
+
 ## Cross-backend handoffs
 
 Use explicit, versioned files:

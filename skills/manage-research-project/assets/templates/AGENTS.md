@@ -35,6 +35,11 @@ changing established logic.
   copy only reviewed deliverables into `results/`. Do not duplicate the full
   native bundle under `results/`; `results/intermediate/` is for lightweight
   files, not a second copy of a run.
+- Use one execution path per analysis: a CLI run bundle for batch/production,
+  or a notebook for interactive exploration writing to
+  `analysis/notebook_output/` (exploratory, regenerable, never curated into
+  `results/`). Do not run a full bundle and a full notebook over the same
+  inputs; `analysis/notebook_output/` is disposable.
 - Back up before substantial notebook, script or canonical-document replacement.
 
 ## Reproducibility

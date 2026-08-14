@@ -82,8 +82,19 @@ Safety rules:
   `analysis/runs/<run_id>/` and only curated deliverables under `results/`
   (the two-layer contract used by the analysis skills). The scaffold creates
   `results/`; `analysis/runs/` is created by the pipeline on first run.
+- Use one execution path per analysis (dataset + design): a CLI run bundle for
+  batch/production, or a notebook for interactive exploration writing to
+  `analysis/notebook_output/` (exploratory, regenerable, never curated into
+  `results/`). Do not run both a full bundle and a full notebook over the same
+  inputs — that duplicates the whole pipeline output. `results/` is the only
+  curated layer; `analysis/notebook_output/` is disposable.
 - Back up before replacing instructions or retiring a canonical document.
 - Use relative project paths in generated docs and code.
+- If the project lives in a cloud-synced folder (iCloud Drive, Dropbox,
+  OneDrive), judge run completion by the expected output files on disk, not by
+  exit code or the synced file listing — sync can lag, evict, or revert files.
+  Confirm key outputs exist before declaring success, and re-check a file that
+  looks missing before assuming a step failed.
 
 ## Phase 3 — Establish the project contract
 

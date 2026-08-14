@@ -96,6 +96,7 @@ analysis/
   scripts/
   notebooks/                  # source only
   runs/<run_id>/              # complete backend-native bundle
+  notebook_output/<analysis>/ # exploratory notebook output (regenerable, never curated)
 results/
   tables/ figures/ reports/
   report_assets/              # rebuildable HTML previews
@@ -105,6 +106,11 @@ There must be one canonical owner for each artifact. Treat PDF/SVG as figure
 masters and `report_assets/` PNG files as derived cache. Keep intentional gene
 set versions only with registry checksums and rationale; use manifest aliases
 instead of byte-for-byte compatibility copies.
+
+Use one execution path per dataset+design (see "Single execution path" in
+[references/output-contract.md](references/output-contract.md)): a CLI run bundle
+for production into `analysis/runs/`, or a notebook for exploration into
+`analysis/notebook_output/` — not both over the same inputs.
 
 ## Input-scale rules
 
