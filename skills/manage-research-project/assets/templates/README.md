@@ -13,8 +13,9 @@ Current stage: {{STAGE}}
 1. `docs/PROJECT_BRIEF.md`
 2. `docs/PROJECT_STATUS.md`
 3. `docs/ANALYSIS_PLAN.md`
-4. `PIPELINE.md` when present
-5. `docs/SESSION_HANDOFF.md`
+4. `docs/READINESS.md` when present
+5. `PIPELINE.md` when present
+6. `docs/SESSION_HANDOFF.md`
 
 ## Directory responsibilities
 
@@ -25,12 +26,15 @@ data/metadata/        sample and design metadata
 notebooks/            reviewable analysis notebooks
 scripts/              reusable pipeline logic
 analysis/runs/        native per-run bundles from pipeline backends (created on demand)
+analysis/specs/       immutable or versioned analysis specifications
+analysis/readiness/   domain readiness declarations bound to specs and inputs
 analysis/notebook_output/ exploratory notebook output (regenerable, never curated)
 results/intermediate/ lightweight restartable intermediates
 results/tables/       curated final analytical tables
 results/figures/      curated final analytical figures
 results/reports/      durable reports
 docs/                 project memory and provenance
+provenance/           source baselines plus artifact and run lineage
 ```
 
 `analysis/runs/<run_id>/` holds the complete, immutable output of one pipeline
@@ -45,4 +49,5 @@ duplicates the whole pipeline output. `analysis/notebook_output/` is disposable;
 only `results/` is curated.
 
 Unknown scientific or experimental details are marked `TODO:` and must not be
-treated as confirmed.
+treated as verified. Folder completeness and successful execution do not imply
+scientific readiness; consult the scoped readiness declaration.

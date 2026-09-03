@@ -9,9 +9,16 @@ Last updated: {{DATE}}
 
 ## Environments
 
-| Branch | Language/runtime | Environment/lock file | Key packages | Status |
-|---|---|---|---|---|
-| TODO | TODO | TODO | TODO | TODO |
+| Environment ID | Language/runtime | Lock/snapshot artifact | SHA-256/digest | Key packages | Status |
+|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | TODO |
+
+## Code state
+
+- Revision/snapshot: TODO
+- Dirty state: TODO
+- Code-manifest artifact ID/path/hash: TODO
+- Backend name/revision: TODO
 
 ## Reference resources
 
@@ -35,10 +42,22 @@ Last updated: {{DATE}}
 
 ## Execution evidence
 
-| Entry point | Last run | Exit/result | Log/report | Notes |
-|---|---|---|---|---|
-| TODO | TODO | TODO | TODO | TODO |
+Actual execution details are canonical in `provenance/RUNS.tsv`.
+
+| Run ID | Analysis ID | Input artifact IDs | Config path + SHA-256 | Environment ID | Execution status | Log | Expected outputs verified? |
+|---|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | not_run | TODO | TODO |
+
+## Reproduction assessments
+
+| Scope/run | Reproduction status | What was repeated | Comparison criterion | Result/source | Environment difference |
+|---|---|---|---|---|---|
+| TODO | not_tested | TODO | TODO | TODO | TODO |
+
+Successful execution alone is not `reproduced`. State the scope and comparison
+criterion used for any reproduction claim.
 
 ## Remaining gaps
 
-- TODO
+- TODO: unresolved input, code, environment, randomness, backend or external
+  resource binding.

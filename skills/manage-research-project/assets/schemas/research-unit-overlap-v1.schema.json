@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-unit-overlap-v1.schema.json",
+  "title": "Independent-unit overlap check",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "check_id", "created_at", "unit_type", "reference_source_ids", "evaluation_source_ids", "reference_unit_count", "evaluation_unit_count", "overlap_count", "method"],
+  "properties": {
+    "schema_version": {"const": "research-unit-overlap/v1"},
+    "check_id": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "unit_type": {"type": "string", "minLength": 1},
+    "reference_source_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^SRC-[0-9A-F]{16}$"}},
+    "evaluation_source_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^SRC-[0-9A-F]{16}$"}},
+    "reference_unit_count": {"type": "integer", "minimum": 1},
+    "evaluation_unit_count": {"type": "integer", "minimum": 1},
+    "overlap_count": {"type": "integer", "minimum": 0},
+    "method": {"type": "string", "minLength": 1}
+  }
+}

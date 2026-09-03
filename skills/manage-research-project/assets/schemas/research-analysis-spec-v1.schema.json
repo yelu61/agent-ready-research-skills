@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-analysis-spec-v1.schema.json",
+  "title": "Generic research analysis-spec envelope",
+  "description": "A stable identity and scientific-intent envelope that can bind a richer domain-specific spec.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_id",
+    "scope_id",
+    "question",
+    "intended_use",
+    "study_type",
+    "data_requirement",
+    "analysis_mode",
+    "requested_claim_class",
+    "target_validation_level",
+    "input_source_ids",
+    "independent_unit",
+    "observation_unit",
+    "estimand",
+    "prespecification",
+    "design",
+    "domain",
+    "domain_spec",
+    "backend_revision",
+    "entry_points",
+    "domain_parameters",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "research-analysis-spec/v1"},
+    "analysis_id": {"$ref": "#/$defs/concreteString"},
+    "scope_id": {"$ref": "#/$defs/concreteString"},
+    "question": {"$ref": "#/$defs/concreteString"},
+    "intended_use": {"$ref": "#/$defs/concreteString"},
+    "study_type": {"$ref": "#/$defs/concreteString"},
+    "data_requirement": {"enum": ["none", "data_bearing"]},
+    "analysis_mode": {
+      "enum": ["descriptive", "exploratory", "confirmatory", "predictive", "causal"]
+    },
+    "requested_claim_class": {
+      "enum": [
+        "observation",
+        "association",
+        "prediction",
+        "causal_effect",
+        "mechanism",
+        "translational",
+        "clinical_utility"
+      ]
+    },
+    "target_validation_level": {
+      "enum": [
+        "none",
+        "sensitivity",
+        "orthogonal_same_material",
+        "independent_external",
+        "prospective"
+      ]
+    },
+    "input_source_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "independent_unit": {"$ref": "#/$defs/concreteString"},
+    "observation_unit": {"$ref": "#/$defs/concreteString"},
+    "estimand": {"$ref": "#/$defs/concreteString"},
+    "prespecification": {
+      "enum": [
+        "preregistered",
+        "prespecified_not_preregistered",
+        "post_hoc",
+        "not_applicable"
+      ]
+    },
+    "design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "population",
+        "analysis_set",
+        "exposure_or_intervention",
+        "comparator",
+        "outcome",
+        "time_zero",
+        "follow_up_window",
+        "effect_measure",
+        "unit_hierarchy",
+        "missingness_and_censoring",
+        "multiplicity_control",
+        "decision_rule",
+        "protocol_deviation_status"
+      ],
+      "properties": {
+        "population": {"$ref": "#/$defs/concreteString"},
+        "analysis_set": {"$ref": "#/$defs/concreteString"},
+        "exposure_or_intervention": {"$ref": "#/$defs/concreteString"},
+        "comparator": {"$ref": "#/$defs/concreteString"},
+        "outcome": {"$ref": "#/$defs/concreteString"},
+        "time_zero": {"$ref": "#/$defs/concreteString"},
+        "follow_up_window": {"$ref": "#/$defs/concreteString"},
+        "effect_measure": {"$ref": "#/$defs/concreteString"},
+        "unit_hierarchy": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/concreteString"}
+        },
+        "missingness_and_censoring": {"$ref": "#/$defs/concreteString"},
+        "multiplicity_control": {"$ref": "#/$defs/concreteString"},
+        "decision_rule": {"$ref": "#/$defs/concreteString"},
+        "protocol_deviation_status": {
+          "enum": ["none", "documented", "unresolved"]
+        }
+      }
+    },
+    "domain": {"$ref": "#/$defs/concreteString"},
+    "domain_spec": {
+      "oneOf": [
+        {"$ref": "#/$defs/fileBinding"},
+        {"type": "null"}
+      ]
+    },
+    "backend_revision": {
+      "oneOf": [
+        {"$ref": "#/$defs/concreteString"},
+        {"type": "null"}
+      ]
+    },
+    "entry_points": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "domain_parameters": {"type": "object"},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"data_requirement": {"const": "data_bearing"}}},
+      "then": {
+        "properties": {
+          "input_source_ids": {"minItems": 1},
+          "domain_spec": {"$ref": "#/$defs/fileBinding"},
+          "domain_parameters": {"minProperties": 1}
+        }
+      },
+      "else": {
+        "properties": {
+          "input_source_ids": {"maxItems": 0},
+          "domain_spec": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "concreteString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*(?:(?:[Tt][Oo][Dd][Oo]|[Tt][Bb][Dd])(?:\\b|:)|(?:[Uu][Nn][Kk][Nn][Oo][Ww][Nn]|[Nn]/?[Aa]|[Nn][Oo][Nn][Ee])\\s*$))(?=[\\s\\S]*\\S)[\\s\\S]+$"
+    },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

@@ -27,7 +27,9 @@ class ManageResearchProjectTests(unittest.TestCase):
     def test_dry_run_does_not_create_target(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary) / "new-project"
-            result = run_script(SCAFFOLD, str(target), "--profile", "research", "--json")
+            result = run_script(
+                SCAFFOLD, str(target), "--profile", "research", "--json"
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
             self.assertFalse(report["apply"])
@@ -78,6 +80,30 @@ class ManageResearchProjectTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(readme.read_text(encoding="utf-8"), "preserve me\n")
 
+    def test_retrofit_rejects_symlinked_project_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target = root / "project"
+            outside = root / "outside"
+            target.mkdir()
+            outside.mkdir()
+            (target / "docs").symlink_to(outside, target_is_directory=True)
+
+            result = run_script(
+                SCAFFOLD,
+                str(target),
+                "--mode",
+                "retrofit",
+                "--profile",
+                "minimal",
+                "--apply",
+                "--json",
+            )
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertTrue(report["conflicts"])
+            self.assertEqual(list(outside.iterdir()), [])
+
     def test_audit_reports_machine_specific_absolute_path(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             target = Path(temporary) / "project"
@@ -90,7 +116,55 @@ class ManageResearchProjectTests(unittest.TestCase):
             )
             self.assertEqual(scaffold.returncode, 0, scaffold.stderr)
             script = target / "scripts" / "python" / "analysis.py"
-            script.write_text('source = "/Users/example/private/data.csv"\n', encoding="utf-8")
+            script.write_text(
+                'source = "/Users/example/private/data.csv"\n', encoding="utf-8"
+            )
+
+            result = run_script(AUDIT, str(target), "--profile", "research", "--json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            codes = {finding["code"] for finding in report["findings"]}
+            self.assertIn("absolute-path", codes)
+
+    def test_audit_reports_windows_absolute_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "project"
+            scaffold = run_script(
+                SCAFFOLD,
+                str(target),
+                "--profile",
+                "research",
+                "--apply",
+            )
+            self.assertEqual(scaffold.returncode, 0, scaffold.stderr)
+            script = target / "scripts" / "python" / "analysis.py"
+            script.write_text(
+                "source = r'C:\\Users\\example\\data.csv'\n",
+                encoding="utf-8",
+            )
+
+            result = run_script(AUDIT, str(target), "--profile", "research", "--json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            codes = {finding["code"] for finding in report["findings"]}
+            self.assertIn("absolute-path", codes)
+
+    def test_audit_reports_windows_unc_path(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "project"
+            scaffold = run_script(
+                SCAFFOLD,
+                str(target),
+                "--profile",
+                "research",
+                "--apply",
+            )
+            self.assertEqual(scaffold.returncode, 0, scaffold.stderr)
+            script = target / "scripts" / "python" / "analysis.py"
+            script.write_text(
+                r"source = r'\\server\share\data.csv'" + "\n",
+                encoding="utf-8",
+            )
 
             result = run_script(AUDIT, str(target), "--profile", "research", "--json")
             self.assertEqual(result.returncode, 0, result.stderr)

@@ -1,2 +1,2 @@
-figure	panel	status	artifact_path	generator_path	source_data_path	last_updated	notes
-TODO	TODO	candidate	TODO	TODO	TODO	{{DATE}}	TODO
+figure_id	panel_id	lifecycle_status	artifact_id	artifact_path	generator_path	run_id	source_artifact_ids	readiness_scope	last_updated	notes
+TODO	TODO	current	TODO	TODO	TODO	TODO	TODO	TODO	{{DATE}}	TODO

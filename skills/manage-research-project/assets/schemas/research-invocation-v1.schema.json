@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-invocation-v1.schema.json",
+  "title": "Typed analysis invocation record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "captured_at",
+    "argv",
+    "working_directory",
+    "environment_id",
+    "config",
+    "random_seeds",
+    "parallelism",
+    "scheduler",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {"const": "research-invocation/v1"},
+    "run_id": {"type": "string", "pattern": "^RUN-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "captured_at": {"type": "string", "format": "date-time"},
+    "argv": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "working_directory": {"$ref": "#/$defs/concreteString"},
+    "environment_id": {"$ref": "#/$defs/concreteString"},
+    "config": {
+      "oneOf": [
+        {"$ref": "#/$defs/fileBinding"},
+        {"type": "null"}
+      ]
+    },
+    "random_seeds": {"type": "object"},
+    "parallelism": {"type": "object"},
+    "scheduler": {
+      "oneOf": [
+        {"type": "object"},
+        {"type": "null"}
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    }
+  },
+  "$defs": {
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/concreteString"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "concreteString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*(?:(?:[Tt][Oo][Dd][Oo]|[Tt][Bb][Dd])(?:\\b|:)|(?:[Uu][Nn][Kk][Nn][Oo][Ww][Nn]|[Nn]/?[Aa]|[Nn][Oo][Nn][Ee])\\s*$))(?=[\\s\\S]*\\S)[\\s\\S]+$"
+    }
+  }
+}

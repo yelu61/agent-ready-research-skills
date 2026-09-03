@@ -7,6 +7,13 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Rebuilt `manage-research-project` around orthogonal source,
+  implementation, execution, validation, readiness, claim, lifecycle and
+  reproduction states. Structure audits now explicitly leave scientific
+  readiness unassessed; project templates add estimands, independent units,
+  data freezes, null findings, scoped readiness, artifact/run lineage and
+  human-data access boundaries, with a non-upgrading migration rule for legacy
+  `confirmed`/`supported` labels.
 - Bridged `manage-research-project` to the two-layer analysis output contract:
   the scaffold stays generic, but the `AGENTS.md`/`README.md` templates and the
   `SKILL.md` safety rules now document that pipeline-native run bundles belong
@@ -27,6 +34,32 @@ skill-scoped semantic-version tags.
 
 ### Added
 
+- Added policy-bound `research-readiness/v1` and generic AnalysisSpec
+  validation; versioned gate-policy and source-manifest schemas;
+  non-overwriting source/code baseline verification; typed, hash-bound evidence
+  closure; structured claim-class authorization; symlink-safe scaffold writes;
+  provenance/readiness templates; and adversarial regression tests for
+  `manage-research-project`. The contracts now also separate requested claims
+  from authorized claims, target validation from achieved validation, and
+  declared readiness from contract/currency/policy/source-integrity states;
+  bind domain and study-type applicability; reject placeholder scientific
+  identities; require structured gate failure effects and technical-validation
+  evidence fields; and restrict external-reference identities to DOI/URN while
+  requiring mutable web content to be captured as a hash-bound artifact.
+  The hardened contracts additionally bind assessor versions, explicit data
+  requirements and code entry points; derive source IDs from path plus digest;
+  validate artifact rows and byte sizes; require run input/output/validation
+  IDs and logs to close; propagate assessed source IDs through artifacts; bind
+  output artifacts back to runs; require scoped, dated decisions with reasons;
+  and hash exact artifact, run, transitive run-artifact and log records so later
+  rebinding cannot silently preserve readiness. Analysis units
+  must also close against an explicitly ordered unit hierarchy, exposing common
+  pseudoreplication-inducing declaration errors without claiming to validate
+  the biological independence assumption itself.
+- Added `bulk-rnaseq-upstream`, a self-contained paired-end FASTQ-to-count
+  workflow with immutable shared-reference validation, HISAT2/featureCounts
+  execution, transcript BED12 generation, human-mouse Xengsort routing,
+  provenance manifests, forward-test prompts, and shell workflow smoke tests.
 - Migrated and substantially refined `critical-paper-reading` with explicit
   source-completeness gating, claim–evidence provenance, causal calibration,
   domain-specific validity checks, reading modes, and forward-test prompts.

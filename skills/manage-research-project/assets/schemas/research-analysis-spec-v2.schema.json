@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-analysis-spec-v2.schema.json",
+  "title": "Purpose-specific scientific analysis specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "analysis_id",
+    "scope_id",
+    "readiness_purpose",
+    "question",
+    "intended_use",
+    "study_type",
+    "data_requirement",
+    "analysis_mode",
+    "claim",
+    "source_roles",
+    "input_source_ids",
+    "design",
+    "prespecification",
+    "planned_validations",
+    "domain",
+    "domain_spec",
+    "backend_revision",
+    "entry_points",
+    "domain_parameters",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "research-analysis-spec/v2"},
+    "analysis_id": {"$ref": "#/$defs/concreteString"},
+    "scope_id": {"$ref": "#/$defs/concreteString"},
+    "readiness_purpose": {"$ref": "#/$defs/readinessPurpose"},
+    "question": {"$ref": "#/$defs/concreteString"},
+    "intended_use": {"$ref": "#/$defs/concreteString"},
+    "study_type": {"$ref": "#/$defs/concreteString"},
+    "data_requirement": {"enum": ["none", "data_bearing"]},
+    "analysis_mode": {
+      "enum": ["descriptive", "exploratory", "confirmatory", "predictive", "causal"]
+    },
+    "claim": {"$ref": "#/$defs/claim"},
+    "source_roles": {"$ref": "#/$defs/sourceRoles"},
+    "input_source_ids": {"$ref": "#/$defs/sourceIds"},
+    "design": {"$ref": "#/$defs/design"},
+    "prespecification": {"$ref": "#/$defs/prespecification"},
+    "planned_validations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/plannedValidation"}
+    },
+    "domain": {"$ref": "#/$defs/concreteString"},
+    "domain_spec": {
+      "oneOf": [{"$ref": "#/$defs/fileBinding"}, {"type": "null"}]
+    },
+    "backend_revision": {
+      "oneOf": [{"$ref": "#/$defs/concreteString"}, {"type": "null"}]
+    },
+    "entry_points": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "domain_parameters": {"type": "object"},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "concreteString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*(?:(?:[Tt][Oo][Dd][Oo]|[Tt][Bb][Dd])(?:\\b|:)|(?:[Uu][Nn][Kk][Nn][Oo][Ww][Nn]|[Nn]/?[Aa]|[Nn][Oo][Nn][Ee])\\s*$))(?=[\\s\\S]*\\S)[\\s\\S]+$"
+    },
+    "readinessPurpose": {
+      "enum": [
+        "analysis_execution",
+        "result_interpretation",
+        "claim_communication",
+        "decision_support"
+      ]
+    },
+    "claimClass": {
+      "enum": [
+        "observation",
+        "association",
+        "prediction",
+        "causal_effect",
+        "mechanism",
+        "translational",
+        "clinical_utility"
+      ]
+    },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/concreteString"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "sourceIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^SRC-[0-9A-F]{16}$"}
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "statement",
+        "claim_class",
+        "source_ids",
+        "estimand",
+        "population",
+        "contrast",
+        "outcome",
+        "time_frame"
+      ],
+      "properties": {
+        "claim_id": {"type": "string", "pattern": "^CLM-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "statement": {"$ref": "#/$defs/concreteString"},
+        "claim_class": {"$ref": "#/$defs/claimClass"},
+        "source_ids": {"$ref": "#/$defs/sourceIds"},
+        "estimand": {"$ref": "#/$defs/concreteString"},
+        "population": {"$ref": "#/$defs/concreteString"},
+        "contrast": {"$ref": "#/$defs/concreteString"},
+        "outcome": {"$ref": "#/$defs/concreteString"},
+        "time_frame": {"$ref": "#/$defs/concreteString"}
+      }
+    },
+    "sourceRoles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_source_ids", "independent_validation_source_ids"],
+      "properties": {
+        "primary_source_ids": {"$ref": "#/$defs/sourceIds"},
+        "independent_validation_source_ids": {"$ref": "#/$defs/sourceIds"}
+      }
+    },
+    "design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "population",
+        "sampling_unit",
+        "allocation_unit",
+        "independent_unit",
+        "analysis_unit",
+        "observation_unit",
+        "unit_hierarchy",
+        "n_independent_units",
+        "unit_map",
+        "analysis_set_manifest",
+        "cluster_variables",
+        "repeated_measures",
+        "pairing_variables",
+        "correlation_handling",
+        "exposure_or_intervention",
+        "comparator",
+        "outcome",
+        "time_zero",
+        "follow_up_window",
+        "effect_measure",
+        "missing_data",
+        "multiplicity",
+        "decision_rule",
+        "protocol_deviation_status",
+        "deviation_log"
+      ],
+      "properties": {
+        "population": {"$ref": "#/$defs/concreteString"},
+        "sampling_unit": {"$ref": "#/$defs/concreteString"},
+        "allocation_unit": {"$ref": "#/$defs/concreteString"},
+        "independent_unit": {"$ref": "#/$defs/concreteString"},
+        "analysis_unit": {"$ref": "#/$defs/concreteString"},
+        "observation_unit": {"$ref": "#/$defs/concreteString"},
+        "unit_hierarchy": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/concreteString"}
+        },
+        "n_independent_units": {"type": ["integer", "null"], "minimum": 1},
+        "unit_map": {"oneOf": [{"$ref": "#/$defs/fileBinding"}, {"type": "null"}]},
+        "analysis_set_manifest": {"oneOf": [{"$ref": "#/$defs/fileBinding"}, {"type": "null"}]},
+        "cluster_variables": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/concreteString"}
+        },
+        "repeated_measures": {"type": "boolean"},
+        "pairing_variables": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/concreteString"}
+        },
+        "correlation_handling": {"$ref": "#/$defs/concreteString"},
+        "exposure_or_intervention": {"$ref": "#/$defs/concreteString"},
+        "comparator": {"$ref": "#/$defs/concreteString"},
+        "outcome": {"$ref": "#/$defs/concreteString"},
+        "time_zero": {"$ref": "#/$defs/concreteString"},
+        "follow_up_window": {"$ref": "#/$defs/concreteString"},
+        "effect_measure": {"$ref": "#/$defs/concreteString"},
+        "missing_data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["variables", "mechanism_assumptions", "primary_strategy", "sensitivity_analyses"],
+          "properties": {
+            "variables": {"type": "array", "items": {"$ref": "#/$defs/concreteString"}},
+            "mechanism_assumptions": {"$ref": "#/$defs/concreteString"},
+            "primary_strategy": {"$ref": "#/$defs/concreteString"},
+            "sensitivity_analyses": {"type": "array", "items": {"$ref": "#/$defs/concreteString"}}
+          }
+        },
+        "multiplicity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["families", "planned_hypothesis_count", "error_rate_target", "method", "selection_handling"],
+          "properties": {
+            "families": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/concreteString"}},
+            "planned_hypothesis_count": {"type": ["integer", "null"], "minimum": 1},
+            "error_rate_target": {"$ref": "#/$defs/concreteString"},
+            "method": {"$ref": "#/$defs/concreteString"},
+            "selection_handling": {"$ref": "#/$defs/concreteString"}
+          }
+        },
+        "decision_rule": {"$ref": "#/$defs/concreteString"},
+        "protocol_deviation_status": {"enum": ["none", "documented", "unresolved"]},
+        "deviation_log": {"oneOf": [{"$ref": "#/$defs/fileBinding"}, {"type": "null"}]}
+      }
+    },
+    "prespecification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "protocol", "locked_at", "first_data_access_at", "unblinded_at"],
+      "properties": {
+        "status": {"enum": ["preregistered", "prespecified_not_preregistered", "post_hoc", "not_applicable"]},
+        "protocol": {"oneOf": [{"$ref": "#/$defs/fileBinding"}, {"type": "null"}]},
+        "locked_at": {"type": ["string", "null"], "format": "date-time"},
+        "first_data_access_at": {"type": ["string", "null"], "format": "date-time"},
+        "unblinded_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "validationDimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data_relation", "collection_timing", "measurement_relation", "analysis_relation", "evaluation_blinding"],
+      "properties": {
+        "data_relation": {"enum": ["same_observations", "held_out_observations", "same_subjects_new_measurement", "independent_sampling_frame", "not_assessed", "not_applicable"]},
+        "collection_timing": {"enum": ["existing_before_claim_lock", "collected_after_claim_lock", "not_assessed", "not_applicable"]},
+        "measurement_relation": {"enum": ["same_measurement_process", "orthogonal_measurement_process", "not_assessed", "not_applicable"]},
+        "analysis_relation": {"enum": ["same_implementation", "alternative_method_same_team", "independent_implementation", "not_assessed", "not_applicable"]},
+        "evaluation_blinding": {"enum": ["unblinded", "blinded_to_outcome_or_label", "not_assessed", "not_applicable"]}
+      }
+    },
+    "plannedValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_id", "dimensions", "input_source_ids", "evaluation_source_ids", "partition_binding", "partition_unit", "success_criterion", "planned_evidence_kinds"],
+      "properties": {
+        "validation_id": {"type": "string", "pattern": "^PV-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "dimensions": {"$ref": "#/$defs/validationDimensions"},
+        "input_source_ids": {"$ref": "#/$defs/sourceIds"},
+        "evaluation_source_ids": {"$ref": "#/$defs/sourceIds"},
+        "partition_binding": {"oneOf": [{"$ref": "#/$defs/fileBinding"}, {"type": "null"}]},
+        "partition_unit": {"type": ["string", "null"]},
+        "success_criterion": {"$ref": "#/$defs/concreteString"},
+        "planned_evidence_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["file", "artifact", "run", "decision", "external"]}
+        }
+      }
+    }
+  }
+}

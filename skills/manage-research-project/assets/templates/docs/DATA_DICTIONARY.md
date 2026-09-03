@@ -4,21 +4,23 @@ Last updated: {{DATE}}
 
 ## Data inventory
 
-| Path | Data type | Source | Raw/derived | Processing state | Canonical? | Notes |
-|---|---|---|---|---|---|---|
-| `data/raw/TODO` | TODO | TODO | raw | unmodified | TODO | TODO |
+| Artifact ID | Path/reference | Data type and scale | Source system/release | Raw/derived | Source provenance status | SHA-256/reference | Access class | Parent IDs | Generating run | Lifecycle | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| SRC-TODO | `data/raw/TODO` | TODO | TODO | raw | unverified | TODO | unknown | none | none | current | TODO |
 
-## Sample and subject mapping
+## Identity hierarchy and mapping
 
-| Public ID | Source ID | Subject/unit | Group | Time point | Batch | Replicates | Notes |
-|---|---|---|---|---|---|---|---|
-| TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO |
+| Public ID | Source ID | Subject/donor | Specimen/aliquot | Library/capture/image | Observation/cell | Group | Time point | Batch | Technical replicate rule | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO |
+
+Do not place direct identifiers or re-identification keys in this table.
 
 ## Key fields
 
-| Field | File(s) | Meaning | Type/allowed values | Join/group role | Caveats |
-|---|---|---|---|---|---|
-| TODO | TODO | TODO | TODO | TODO | TODO |
+| Field | Artifact ID/file | Meaning | Type/allowed values | Join/group role | Reference/version | Caveats |
+|---|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | TODO | TODO |
 
 ## Missing-value encoding
 
@@ -28,12 +30,18 @@ Last updated: {{DATE}}
 
 ## Transformation state
 
-| File/matrix | Filtering | Normalization/transformation | Imputation | Generating code | Notes |
-|---|---|---|---|---|---|
-| TODO | TODO | TODO | TODO | TODO | TODO |
+| Artifact ID/file/matrix | Input scale | Filtering | Normalization/transformation | Imputation | Generating run | Output scale | Notes |
+|---|---|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | TODO | TODO | TODO |
 
 ## Batch and covariates
 
 | Variable | Meaning | Confounded with group? | Planned model role | Notes |
 |---|---|---|---|---|
 | TODO | TODO | TODO | TODO | TODO |
+
+## Data freeze and exclusions
+
+| Freeze/exclusion ID | Scope | Rule and timing | Prespecified? | Decision/source | Effect on independent n |
+|---|---|---|---|---|---|
+| TODO | TODO | TODO | TODO | TODO | TODO |

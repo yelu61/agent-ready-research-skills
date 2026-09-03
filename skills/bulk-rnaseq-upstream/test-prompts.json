@@ -1,0 +1,17 @@
+[
+  {
+    "id": "single-species-shared-reference",
+    "prompt": "I have paired-end bulk RNA-seq FASTQ and a versioned shared GRCh38/GENCODE reference bundle. Validate the inputs and prepare a reproducible HISAT2-to-featureCounts upstream run without downloading or rebuilding the reference.",
+    "expected": "Confirm single-species routing, validate the complete shared reference bundle and FASTQ pairing, require consistent strandedness settings, run preflight before execution, and preserve provenance."
+  },
+  {
+    "id": "xenograft-human-mouse",
+    "prompt": "These tumor bulk RNA-seq libraries come from a human xenograft in mouse. Can I align the unsplit reads directly to GRCh38 and count genes?",
+    "expected": "Reject direct single-reference processing, route through Xengsort, preserve all five classification bins for QC, and align host and graft components separately to their matching immutable references."
+  },
+  {
+    "id": "reference-reuse-bed12",
+    "prompt": "We already built the HISAT2 index, FASTA .fai, and transcript BED12 for this exact FASTA and GTF release. Should the next project regenerate them?",
+    "expected": "Reuse the validated read-only bundle; rebuild only when the FASTA, GTF, release, filtering, build parameters, or conversion method changes, and create a new versioned directory rather than overwriting the old one."
+  }
+]

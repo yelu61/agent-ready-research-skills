@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-readiness-v1.schema.json",
+  "title": "Domain scientific-readiness declaration",
+  "description": "A policy-bound declaration whose contract and freshness can be checked without re-performing the domain assessment.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "readiness_id",
+    "analysis_id",
+    "scope_id",
+    "intended_use",
+    "assessor",
+    "assessed_at",
+    "source_provenance_status",
+    "readiness_status",
+    "analysis_mode",
+    "requested_claim_class",
+    "achieved_validation_level",
+    "claim_authorization",
+    "lifecycle_status",
+    "gate_policy",
+    "analysis_spec",
+    "input_manifest",
+    "input_source_ids",
+    "code_manifest",
+    "environment_snapshot",
+    "code_revision",
+    "code_dirty",
+    "backend_revision",
+    "authorized_claim_classes",
+    "prohibited_claim_classes",
+    "claim_boundary_notes",
+    "gates"
+  ],
+  "properties": {
+    "schema_version": {"const": "research-readiness/v1"},
+    "readiness_id": {"$ref": "#/$defs/concreteString"},
+    "analysis_id": {"$ref": "#/$defs/concreteString"},
+    "scope_id": {"$ref": "#/$defs/concreteString"},
+    "intended_use": {"$ref": "#/$defs/concreteString"},
+    "assessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"$ref": "#/$defs/concreteString"},
+        "version": {"$ref": "#/$defs/concreteString"}
+      }
+    },
+    "assessed_at": {"type": "string", "format": "date-time"},
+    "source_provenance_status": {
+      "enum": ["verified", "unverified", "conflicting", "not_applicable"]
+    },
+    "readiness_status": {"enum": ["ready", "review", "blocked"]},
+    "analysis_mode": {
+      "enum": ["descriptive", "exploratory", "confirmatory", "predictive", "causal"]
+    },
+    "requested_claim_class": {
+      "enum": [
+        "observation",
+        "association",
+        "prediction",
+        "causal_effect",
+        "mechanism",
+        "translational",
+        "clinical_utility"
+      ]
+    },
+    "achieved_validation_level": {
+      "enum": [
+        "none",
+        "sensitivity",
+        "orthogonal_same_material",
+        "independent_external",
+        "prospective"
+      ]
+    },
+    "claim_authorization": {
+      "enum": ["authorized", "conditional", "not_authorized"]
+    },
+    "lifecycle_status": {
+      "enum": ["current", "superseded", "invalidated", "archived"]
+    },
+    "gate_policy": {"$ref": "#/$defs/fileBinding"},
+    "analysis_spec": {"$ref": "#/$defs/fileBinding"},
+    "input_manifest": {
+      "oneOf": [
+        {"$ref": "#/$defs/fileBinding"},
+        {"type": "null"}
+      ]
+    },
+    "input_source_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "code_manifest": {"$ref": "#/$defs/fileBinding"},
+    "environment_snapshot": {"$ref": "#/$defs/fileBinding"},
+    "code_revision": {"$ref": "#/$defs/concreteString"},
+    "code_dirty": {"type": "boolean"},
+    "backend_revision": {
+      "oneOf": [
+        {"$ref": "#/$defs/concreteString"},
+        {"type": "null"}
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/fileBinding"}
+    },
+    "authorized_claim_classes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/claimClass"}
+    },
+    "prohibited_claim_classes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/claimClass"}
+    },
+    "claim_boundary_notes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/gate"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"source_provenance_status": {"const": "not_applicable"}}},
+      "then": {
+        "properties": {
+          "input_manifest": {"type": "null"},
+          "input_source_ids": {"maxItems": 0}
+        }
+      },
+      "else": {
+        "properties": {
+          "input_manifest": {"$ref": "#/$defs/fileBinding"},
+          "input_source_ids": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"readiness_status": {"const": "ready"}}},
+      "then": {
+        "properties": {
+          "claim_authorization": {"const": "authorized"},
+          "authorized_claim_classes": {"minItems": 1}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"readiness_status": {"const": "review"}}},
+      "then": {
+        "properties": {
+          "claim_authorization": {"const": "conditional"},
+          "authorized_claim_classes": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"readiness_status": {"const": "blocked"}}},
+      "then": {
+        "properties": {
+          "claim_authorization": {"const": "not_authorized"},
+          "authorized_claim_classes": {"maxItems": 0}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "concreteString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*(?:(?:[Tt][Oo][Dd][Oo]|[Tt][Bb][Dd])(?:\\b|:)|(?:[Uu][Nn][Kk][Nn][Oo][Ww][Nn]|[Nn]/?[Aa]|[Nn][Oo][Nn][Ee])\\s*$))(?=[\\s\\S]*\\S)[\\s\\S]+$"
+    },
+    "claimClass": {
+      "enum": [
+        "observation",
+        "association",
+        "prediction",
+        "causal_effect",
+        "mechanism",
+        "translational",
+        "clinical_utility"
+      ]
+    },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate_id",
+        "required_for_ready",
+        "status",
+        "requirement",
+        "evidence",
+        "impact",
+        "remediation"
+      ],
+      "properties": {
+        "gate_id": {"$ref": "#/$defs/concreteString"},
+        "required_for_ready": {"type": "boolean"},
+        "status": {"enum": ["PASS", "FAIL", "UNKNOWN", "NA"]},
+        "requirement": {"$ref": "#/$defs/concreteString"},
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidenceRef"}
+        },
+        "impact": {"type": "string"},
+        "remediation": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"enum": ["PASS", "NA"]}}},
+          "then": {"properties": {"evidence": {"minItems": 1}}}
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["FAIL", "UNKNOWN"]}}},
+          "then": {"properties": {"remediation": {"$ref": "#/$defs/concreteString"}}}
+        }
+      ]
+    },
+    "evidenceRef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref", "sha256"],
+          "properties": {
+            "kind": {"const": "file"},
+            "ref": {"$ref": "#/$defs/concreteString"},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref", "path", "sha256", "record_sha256"],
+          "properties": {
+            "kind": {"const": "artifact"},
+            "ref": {"type": "string", "pattern": "^ART-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "ref",
+            "record_sha256",
+            "log_sha256",
+            "artifact_record_sha256s"
+          ],
+          "properties": {
+            "kind": {"const": "run"},
+            "ref": {"type": "string", "pattern": "^RUN-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+            "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "log_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "artifact_record_sha256s": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": {
+                "pattern": "^ART-[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref", "record_sha256"],
+          "properties": {
+            "kind": {"const": "decision"},
+            "ref": {"type": "string", "pattern": "^D-[0-9]{8}-[0-9]{2,}$"},
+            "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": {"const": "external"},
+            "ref": {
+              "type": "string",
+              "pattern": "^(?:(?:[Uu][Rr][Nn]:[A-Za-z0-9](?:[A-Za-z0-9-]{0,30}[A-Za-z0-9]):|https://doi\\.org/10\\.\\d{4,9}/)(?![^\\s]*%(?:0[0-9A-Fa-f]|1[0-9A-Fa-f]|7[Ff]))(?:[A-Za-z0-9._~!$&'()*+,;=:@/-]|%[0-9A-Fa-f]{2})+)$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

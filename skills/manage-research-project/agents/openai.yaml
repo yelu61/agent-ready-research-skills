@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent-Ready Research Project"
-  short_description: "Initialize, maintain, audit, and archive research projects"
-  default_prompt: "Use $manage-research-project to organize this scientific project and establish durable, evidence-traceable project memory."
+  short_description: "Manage research state, provenance, readiness, and archives"
+  default_prompt: "Use $manage-research-project to organize this scientific project, preserve source/artifact/run lineage, separate structure from scientific readiness, and establish durable project memory without inventing facts."

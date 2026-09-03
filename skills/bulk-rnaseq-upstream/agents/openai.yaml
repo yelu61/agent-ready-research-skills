@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bulk RNA-seq Upstream"
+  short_description: "Run reproducible FASTQ-to-count bulk RNA-seq workflows"
+  default_prompt: "Use $bulk-rnaseq-upstream to validate my paired-end FASTQ and shared reference bundle, then prepare a reproducible upstream run."

@@ -1,6 +1,6 @@
 ---
 name: manage-research-project
-description: Build and maintain an agent-ready scientific research workspace across its full lifecycle. Use when starting a research project, safely retrofitting an existing analysis directory, establishing reproducible bioinformatics or multi-omics structure, updating project memory after substantive work, auditing stale documentation or provenance, preparing a session handoff, or freezing a manuscript/archive snapshot. Triggers include project initialization, project organization, agent-ready structure, research project audit, 项目初始化, 项目整理, 持续记录, 项目交接, 项目归档, and 分析项目管理.
+description: Build and maintain an agent-ready scientific research workspace across its full lifecycle. Use when starting a research project, safely retrofitting an existing analysis directory, establishing reproducible bioinformatics or multi-omics structure, recording source/artifact/run provenance, indexing domain scientific-readiness reports, updating project memory after substantive work, auditing stale documentation or integrity, preparing a session handoff, or freezing a manuscript/archive snapshot. Triggers include project initialization, project organization, agent-ready structure, research project audit, 项目初始化, 项目整理, 持续记录, 项目交接, 项目归档, and 分析项目管理.
 ---
 
 # Manage an Agent-Ready Research Project
@@ -12,6 +12,12 @@ and update documentation in the same session as the analysis it describes.
 Unknown scientific facts must remain `TODO:` or enter `AUTHOR_QUERIES.md`. Never
 invent sample counts, group identities, methods, file provenance, results, or
 database versions.
+
+This skill manages contracts and lineage; it is not a universal scientific
+assessor. A passing structure audit does not establish scientific readiness. A
+successful run does not establish validity, reproduction, causality or truth.
+Scientific readiness must come from a named domain assessor using a versioned
+gate policy and is always scoped to an intended use.
 
 ## Select one operating mode
 
@@ -28,11 +34,21 @@ destructive mode. A populated directory defaults to `retrofit`, never `init`.
 
 ## Load only relevant references
 
-- Read [document-contract.md](references/document-contract.md) for every mode
-  except a structure-only audit. It defines sources of truth, document ownership,
-  evidence states and update triggers.
+- Read [document-contract.md](references/document-contract.md) whenever creating
+  or changing project state, results or handoff records. It defines
+  responsibility-specific sources of truth, orthogonal states, ownership and
+  legacy-state migration.
 - Read [project-profiles.md](references/project-profiles.md) when tailoring the
   scaffold or analysis checklist to a modality.
+- Read [readiness-contract.md](references/readiness-contract.md) when creating,
+  validating, interpreting or staling a readiness declaration.
+- Read [analysis-spec-contract.md](references/analysis-spec-contract.md) when
+  creating or validating the generic spec envelope that binds project and
+  domain analysis contracts.
+- Read [provenance-contract.md](references/provenance-contract.md) for source
+  baselines, checkpointing, result curation or archives.
+- Read [human-data-and-access.md](references/human-data-and-access.md) only for
+  human, clinical, controlled-access or otherwise sensitive data.
 - Read [retrofit-and-archive.md](references/retrofit-and-archive.md) for
   `retrofit` or `archive`.
 
@@ -63,6 +79,9 @@ python scripts/scaffold_project.py /path/to/project \
 ```
 
 The command is a dry run by default. Review its plan, then rerun with `--apply`.
+Apply uses directory-relative, no-follow creation to prevent symlink path
+escape. On platforms without the required `dir_fd` and `O_NOFOLLOW` support,
+the helper safely refuses `--apply`; dry-run inspection remains available.
 
 Profiles:
 
@@ -95,6 +114,9 @@ Safety rules:
   exit code or the synced file listing — sync can lag, evict, or revert files.
   Confirm key outputs exist before declaring success, and re-check a file that
   looks missing before assuming a step failed.
+- The research scaffold creates `analysis/specs/`, `analysis/readiness/` and
+  `provenance/`. It does not create a scientific readiness declaration or claim
+  that the project is ready.
 
 ## Phase 3 — Establish the project contract
 
@@ -108,6 +130,33 @@ After scaffolding, populate only facts supported by the project:
 5. `PIPELINE.md`: actual entry points, dependencies, outputs and execution
    status—not the intended workflow alone.
 6. `REPRODUCIBILITY.md`: environment, versions, commands and unresolved gaps.
+7. `READINESS.md`: index only domain-assessor declarations by intended use;
+   never self-promote a structure audit to readiness.
+8. `provenance/ARTIFACTS.tsv` and `provenance/RUNS.tsv`: register actual
+   artifact lineage and executions using stable IDs. For each analysis, make
+   the spec's data requirement and entry points explicit; bind every entry
+   point in the code manifest, every run input/output/validation ID to an
+   artifact row, propagate assessed source IDs through those artifacts, and
+   bind every output artifact back to its generating run.
+
+For data-bearing projects, establish a non-overwriting source-integrity baseline
+after confirming its scope and access rules:
+
+```bash
+python scripts/build_source_manifest.py /path/to/project --json
+python scripts/build_source_manifest.py /path/to/project --apply \
+  --source-system GEO --source-reference GSE12345 \
+  --acquired-at 2026-09-03T00:00:00Z --data-freeze-id GSE12345-2026-09-03
+python scripts/verify_source_manifest.py /path/to/project --json
+```
+
+The metadata above are illustrative. Replace them with verified source values;
+omit an unknown optional value instead of copying an example or writing a
+placeholder into a machine contract.
+
+The builder defaults to `data/raw/`, hashes regular files, rejects unsafe paths
+and symlinks, and refuses to overwrite an existing baseline. A checksum proves
+byte identity, not provenance authenticity or scientific validity.
 
 Keep behavior in `AGENTS.md`/`CLAUDE.md`; keep science and task state out of
 those instruction files.
@@ -125,14 +174,25 @@ documents whose trigger fired:
    transformation state changed.
 5. Update `ANALYSIS_PLAN.md` and `PIPELINE.md` when planned or actual logic
    changed.
-6. Add verified findings to `RESULTS_SUMMARY.md` with source files and evidence
-   state.
-7. Update figure/source manifests when a deliverable is created, selected,
-   superseded or archived.
+6. Add current findings to `RESULTS_SUMMARY.md` with quantitative support,
+   artifact/run IDs, scope and intended use, requested and authorized claim
+   classes, target and achieved validation levels, a hash-bound readiness
+   report, claim authorization and boundary—including important null or
+   conflicting results.
+7. Update artifact/run/figure/source records when an input, execution or
+   deliverable is created, selected, superseded or archived. Readiness evidence
+   that cites an artifact, run or decision must include the canonical record
+   SHA-256; do not treat a recomputed digest as a substitute for required row
+   content or lineage closure. Run evidence additionally binds its log SHA-256
+   and the exact record digest of every input, output and validation artifact.
 8. Add unresolvable experimental or reporting facts to `AUTHOR_QUERIES.md`.
+9. Mark affected declarations `currency_status=stale` when any bound input,
+   analysis spec, gate policy, code manifest, environment snapshot, backend or
+   dependency changes. Do not rewrite their historical `readiness_status`.
 
 Do not rewrite append-only history. Mark replaced conclusions `superseded` and
-link the decision that replaced them.
+link the decision/artifact that replaced them. Do not automatically translate a
+legacy `confirmed` or `supported` label into a stronger current claim.
 
 ## Phase 5 — Audit
 
@@ -145,7 +205,24 @@ python scripts/audit_project.py /path/to/project --profile research
 Use `--json` for machine-readable output and `--strict` when warnings should
 fail CI. The audit checks required files, stale status/handoff dates, unresolved
 TODOs, raw-data protection, old absolute paths in active source cells, and
-manifest targets.
+manifest targets. When a source manifest exists, it also verifies its contract
+and current bytes.
+
+The audit output separates `structure_status`, `source_integrity` and
+`scientific_readiness`. `scientific_readiness` is always `not_assessed` here.
+To validate a domain declaration without redoing its science, run:
+
+```bash
+python scripts/validate_readiness.py /path/to/project \
+  analysis/readiness/A-001.json --require-ready \
+  --current-code-revision COMMIT_OR_SNAPSHOT \
+  --current-code-dirty false \
+  --current-backend-revision BACKEND_VERSION --json
+```
+
+Interpret `declared_ready_and_current` literally: it is a current,
+policy-conformant declaration, not an independent scientific certificate. Read
+the assessor's gate policy and evidence before relying on it.
 
 An audit request authorizes read-only inspection, not broad reorganization.
 Repair only bounded, supported issues; report everything else as an open item.
@@ -157,10 +234,15 @@ For a phase freeze:
 1. Reconcile `PROJECT_STATUS.md`, `RESULTS_SUMMARY.md`, `DECISION_LOG.md`,
    `PIPELINE.md`, `REPRODUCIBILITY.md` and manifests.
 2. Record executed versus merely planned analyses.
-3. Freeze exact source files, code entry points, environment/version information
-   and open author queries.
-4. Copy or package recoverably; do not move the live project or raw data.
-5. Generate a restart prompt that names the next task and required reading.
+3. Freeze exact source/artifact IDs, run records, analysis specs, code revision
+   and dirty state, environment/backend versions, readiness records and open
+   author queries.
+4. Record snapshot ID, parent snapshot, included/excluded scope and hashes, then
+   verify the copied snapshot.
+5. Copy or package recoverably; do not move the live project or raw data.
+   Reference restricted raw data rather than copying it unless authorized.
+6. Generate a restart prompt that names the next task and required reading but
+   contains no credentials or direct identifiers.
 
 Follow [retrofit-and-archive.md](references/retrofit-and-archive.md) for the
 snapshot checklist.
@@ -169,15 +251,34 @@ snapshot checklist.
 
 - State the experimental unit before statistical testing.
 - Separate technical replicates, biological replicates, samples, cells and
-  features.
+  features. List the declared unit hierarchy from the independent level toward
+  nested observations and require the named independent and observation units
+  to occur in it; domain review must still test whether independence is true.
 - Record comparisons, models, covariates, thresholds and multiple-testing rules.
-- Separate `confirmed`, `supported`, `exploratory`, `superseded` and `blocked`
-  evidence.
+- Separate source provenance, source integrity, implementation, execution,
+  technical validation, readiness, contract, currency, policy, analysis mode,
+  claim authorization, target/achieved validation, lifecycle and reproduction
+  states.
 - Do not infer causality from association, enrichment, co-purification,
   correlation or cross-omics concordance alone.
 - Keep exploratory and confirmatory outputs visibly distinct.
+- Bind each readiness assessment to one intended use, exact source IDs,
+  analysis spec, gate policy, code manifest, environment snapshot and relevant
+  backend. Require policy assessor name/version and domain to match, and policy
+  applicability to include the spec study type and explicit data requirement.
+- Require data-bearing specs to bind source IDs, a domain spec and domain
+  parameters; a data-free declaration is valid only with no source IDs and a
+  null domain spec. The generic validator cannot infer a false declaration
+  from prose, so the domain assessor must check semantic truth.
+- Require evidence runs to match the assessed spec, declared entry point, code
+  state, backend and environment; close their artifact IDs and logs before
+  using them for `PASS` or `NA`.
+- Require a domain-specific gate policy; do not invent generic statistical
+  approval rules inside this project-management skill.
 - Report limitations that could change the conclusion near that conclusion.
 - Preserve raw identifiers and explicit mappings to public/display labels.
+- For human data, preserve subject → specimen → library/capture → observation
+  hierarchy without recording direct identifiers or re-identification keys.
 
 ## Output contract
 
@@ -185,11 +286,15 @@ At the end of any mode, report:
 
 1. selected mode and target;
 2. files inspected, created, updated, skipped and backed up;
-3. confirmed facts versus TODOs/author queries;
-4. decisions logged and evidence states changed;
+3. verified project facts versus TODOs/author queries;
+4. decisions, provenance records and orthogonal state changes;
 5. checks run and their outcomes;
-6. next minimal executable task;
-7. copy-paste restart prompt.
+6. structure/source-integrity status and readiness by intended use, explicitly
+   separating readiness (`not_assessed`, `ready`, `review`, `blocked`) from
+   currency (`not_assessed`, `current`, `unknown`, `stale`), contract and policy
+   status;
+7. next minimal executable task;
+8. copy-paste restart prompt.
 
 Do not claim the project is reproducible merely because folders exist. A
 reproducible project must expose current inputs, code, parameters, environment,
@@ -202,7 +307,15 @@ execution state, outputs and provenance.
 - Confirm existing files were not overwritten.
 - Confirm `data/raw/` was not modified.
 - Confirm `PROJECT_STATUS.md` and `SESSION_HANDOFF.md` agree on the next task.
-- Confirm each new result claim has a source and evidence state.
+- Confirm each new finding has source artifact/run IDs, uncertainty, scope and
+  intended use, requested and authorized claim classes, claim authorization,
+  target and achieved validation levels, lifecycle and a hash-bound readiness
+  reference.
 - Confirm planned and executed analyses are not conflated.
+- Verify the source manifest when present and validate any readiness report used
+  to gate execution or curation.
+- Confirm spec/input/code/environment/backend changes did not leave a stale
+  readiness declaration marked current.
+- Confirm archive completion is not described as reproduction or validation.
 - For script or notebook changes, run syntax/parse checks and proportional
   execution tests.

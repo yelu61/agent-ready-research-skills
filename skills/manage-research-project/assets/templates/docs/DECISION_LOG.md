@@ -8,6 +8,7 @@ Append-only scientific and computational decisions.
 
 - Date: YYYY-MM-DD
 - Topic: TODO
+- Analysis/claim/scope IDs: TODO
 - Decision: TODO
 - Evidence/source: TODO
 - Reason: TODO
@@ -15,6 +16,7 @@ Append-only scientific and computational decisions.
 - Impact: TODO
 - Files affected: TODO
 - Supersedes: none / decision ID
+- Readiness or provenance impact: none / TODO
 
 ---
 

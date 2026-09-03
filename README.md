@@ -9,7 +9,8 @@ client-specific installations.
 
 | Skill | Purpose | Status |
 |---|---|---|
-| [`manage-research-project`](skills/manage-research-project/) | Initialize, retrofit, checkpoint, audit, hand off, and archive an evidence-traceable research workspace | Core |
+| [`manage-research-project`](skills/manage-research-project/) | Manage research structure, source/artifact/run provenance, scoped readiness, handoff, and archives without conflating execution with scientific validity | Core |
+| [`bulk-rnaseq-upstream`](skills/bulk-rnaseq-upstream/) | Validate shared references and run paired-end FASTQ through HISAT2, featureCounts, and optional human-mouse read classification | Core |
 | [`bulk-rnaseq-analysis`](skills/bulk-rnaseq-analysis/) | Route reproducible bulk RNA-seq work between the RNAseq-Templates and TCGA analysis backends | Core |
 | [`critical-paper-reading`](skills/critical-paper-reading/) | Map scientific claims to evidence, calibrate causal strength, audit validity, and design actionable follow-up work | Core |
 
@@ -27,6 +28,9 @@ recommended when several installed skills could handle the same request.
 Use $manage-research-project to initialize this study as a
 manuscript-ready research workspace without overwriting existing files.
 
+Use $bulk-rnaseq-upstream to validate my paired-end FASTQ and shared reference
+bundle, then prepare a reproducible HISAT2-to-featureCounts upstream run.
+
 Use $bulk-rnaseq-analysis to review this count matrix, choose the appropriate
 RNA-seq backend, and produce a reproducible downstream-analysis plan.
 
@@ -42,12 +46,14 @@ its skill index is refreshed.
 | Goal | Skill | Example request |
 |---|---|---|
 | Start, retrofit, audit, checkpoint, hand off, or archive a research project | `manage-research-project` | “Audit this project for reproducibility and create the missing project-memory records.” |
+| Process paired-end bulk RNA-seq FASTQ into gene-level counts with a shared immutable reference | `bulk-rnaseq-upstream` | “Validate this FASTQ set and reference bundle, then prepare the upstream run.” |
 | Route a bulk RNA-seq request to local, GEO, or cancer-cohort analysis backends | `bulk-rnaseq-analysis` | “Analyze these raw counts and explain which backend and expression scale are appropriate.” |
 | Critically assess one scientific paper beyond summarization | `critical-paper-reading` | “Build a claim–evidence map and distinguish association from causal support.” |
 
 Skills may be combined sequentially. For example, use
-`manage-research-project` to establish the workspace, then
-`bulk-rnaseq-analysis` for the analysis workflow, and finally
+`manage-research-project` to establish the workspace,
+`bulk-rnaseq-upstream` to create an auditable count matrix from FASTQ,
+`bulk-rnaseq-analysis` for downstream analysis, and finally
 `critical-paper-reading` to evaluate literature supporting the interpretation.
 
 ## Install from GitHub

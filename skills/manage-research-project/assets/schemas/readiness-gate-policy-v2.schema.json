@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "readiness-gate-policy-v2.schema.json",
+  "title": "Purpose-specific scientific gate policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "version",
+    "assessor",
+    "domain",
+    "applicable_study_types",
+    "applicable_data_requirements",
+    "applicable_readiness_purposes",
+    "methodological_basis",
+    "authorizations",
+    "gates"
+  ],
+  "properties": {
+    "schema_version": {"const": "readiness-gate-policy/v2"},
+    "policy_id": {"$ref": "#/$defs/concreteString"},
+    "version": {"$ref": "#/$defs/concreteString"},
+    "assessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"$ref": "#/$defs/concreteString"},
+        "version": {"$ref": "#/$defs/concreteString"}
+      }
+    },
+    "domain": {"$ref": "#/$defs/concreteString"},
+    "applicable_study_types": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "applicable_data_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["none", "data_bearing"]}
+    },
+    "applicable_readiness_purposes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/readinessPurpose"}
+    },
+    "methodological_basis": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/concreteString"}
+    },
+    "authorizations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/authorization"}
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/gate"}
+    }
+  },
+  "$defs": {
+    "concreteString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!\\s*(?:(?:[Tt][Oo][Dd][Oo]|[Tt][Bb][Dd])(?:\\b|:)|(?:[Uu][Nn][Kk][Nn][Oo][Ww][Nn]|[Nn]/?[Aa]|[Nn][Oo][Nn][Ee])\\s*$))(?=[\\s\\S]*\\S)[\\s\\S]+$"
+    },
+    "readinessPurpose": {
+      "enum": ["analysis_execution", "result_interpretation", "claim_communication", "decision_support"]
+    },
+    "claimClass": {
+      "enum": ["observation", "association", "prediction", "causal_effect", "mechanism", "translational", "clinical_utility"]
+    },
+    "evidenceKind": {
+      "enum": ["file", "artifact", "run", "decision", "external"]
+    },
+    "gateCategory": {
+      "enum": [
+        "data_provenance",
+        "design_and_sampling",
+        "unit_and_replication",
+        "measurement_quality",
+        "missingness_and_censoring",
+        "multiplicity_and_selection",
+        "robustness_and_sensitivity",
+        "computational_reproducibility",
+        "result_integrity",
+        "claim_evidence",
+        "validation",
+        "data_leakage",
+        "model_lock_and_evaluation",
+        "calibration",
+        "external_validity",
+        "causal_identification",
+        "temporality",
+        "confounding_and_exchangeability",
+        "positivity_and_overlap",
+        "causal_sensitivity",
+        "perturbation_and_intervention",
+        "alternative_explanations",
+        "necessity_sufficiency_rescue",
+        "transportability",
+        "clinical_relevance",
+        "decision_comparator",
+        "clinical_utility",
+        "prospective_evaluation",
+        "safety_and_harms"
+      ]
+    },
+    "dimensionConstraints": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "data_relation": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["same_observations", "held_out_observations", "same_subjects_new_measurement", "independent_sampling_frame", "not_applicable"]}
+        },
+        "collection_timing": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["existing_before_claim_lock", "collected_after_claim_lock", "not_applicable"]}
+        },
+        "measurement_relation": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["same_measurement_process", "orthogonal_measurement_process", "not_applicable"]}
+        },
+        "analysis_relation": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["same_implementation", "alternative_method_same_team", "independent_implementation", "not_applicable"]}
+        },
+        "evaluation_blinding": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["unblinded", "blinded_to_outcome_or_label", "not_applicable"]}
+        }
+      }
+    },
+    "minimumValidationRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "dimension_constraints", "required_evidence_kinds", "must_be_planned"],
+      "properties": {
+        "requirement_id": {"type": "string", "pattern": "^MIN-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "dimension_constraints": {"$ref": "#/$defs/dimensionConstraints"},
+        "required_evidence_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidenceKind"}
+        },
+        "must_be_planned": {"type": "boolean"}
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorization_id", "readiness_purpose", "analysis_mode", "claim_class", "required_claim_evidence_kinds", "minimum_validation_requirements"],
+      "properties": {
+        "authorization_id": {"type": "string", "pattern": "^AUTH-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "readiness_purpose": {"$ref": "#/$defs/readinessPurpose"},
+        "analysis_mode": {"enum": ["descriptive", "exploratory", "confirmatory", "predictive", "causal"]},
+        "claim_class": {"$ref": "#/$defs/claimClass"},
+        "required_claim_evidence_kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidenceKind"}
+        },
+        "minimum_validation_requirements": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/minimumValidationRequirement"}
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "gate_category", "required_for_ready", "allow_na", "requirement", "applicability", "evaluation_method", "pass_condition", "required_evidence_kinds", "failure_effect"],
+      "properties": {
+        "gate_id": {"$ref": "#/$defs/concreteString"},
+        "gate_category": {"$ref": "#/$defs/gateCategory"},
+        "required_for_ready": {"type": "boolean"},
+        "allow_na": {"type": "boolean"},
+        "requirement": {"$ref": "#/$defs/concreteString"},
+        "applicability": {"$ref": "#/$defs/concreteString"},
+        "evaluation_method": {"$ref": "#/$defs/concreteString"},
+        "pass_condition": {"$ref": "#/$defs/concreteString"},
+        "required_evidence_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidenceKind"}
+        },
+        "failure_effect": {"enum": ["block", "review"]}
+      }
+    }
+  }
+}
