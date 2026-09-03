@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bulk-analysis-spec-v1.schema.json",
+  "title": "BulkAnalysisSpec v1",
+  "type": "object",
+  "required": ["question", "claim_class", "backend", "task", "input_scale", "experimental_unit", "design", "inputs"],
+  "properties": {
+    "question": {"type": "string", "minLength": 1},
+    "claim_class": {
+      "type": "string",
+      "enum": ["descriptive", "exploratory", "confirmatory", "predictive", "causal", "clinical"]
+    },
+    "backend": {"type": "string", "enum": ["rnaseq-templates", "tcga-toolkit"]},
+    "task": {"type": "string", "minLength": 1},
+    "input_scale": {
+      "type": "string",
+      "enum": ["raw-counts", "tpm", "log-tpm", "vst", "rlog", "normalized", "other"]
+    },
+    "experimental_unit": {"type": "string", "enum": ["sample", "patient", "cell"]},
+    "design": {
+      "type": "object",
+      "properties": {
+        "formula": {"type": "string"},
+        "contrast": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2},
+        "batch": {"type": "boolean"},
+        "pairing": {"type": "boolean"},
+        "time": {"type": "boolean"},
+        "interaction": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "split_policy": {
+      "type": "object",
+      "properties": {
+        "level": {"type": "string", "enum": ["sample", "patient"]},
+        "locked_features": {"type": "boolean"},
+        "locked_transform": {"type": "boolean"},
+        "locked_cutoff": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "object",
+      "description": "Named input files; sha256 is computed by preflight, not written by hand.",
+      "additionalProperties": {"type": "string"}
+    }
+  },
+  "additionalProperties": false
+}

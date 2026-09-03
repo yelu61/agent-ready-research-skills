@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "claim_class_order": ["descriptive", "exploratory", "confirmatory", "predictive", "causal", "clinical"],
+  "gates": [
+    {
+      "gate_id": "rnaseq.deg",
+      "backend": "rnaseq-templates",
+      "task": "deg",
+      "max_claim_class": "confirmatory",
+      "status": "ready",
+      "evidence": "ID-aware sample alignment (align_to_sample_order + order-mismatch stop), integer-count enforcement in build_count_matrix, explicit contrasts",
+      "min_fix": ""
+    },
+    {
+      "gate_id": "rnaseq.limma-voom",
+      "backend": "rnaseq-templates",
+      "task": "limma-voom",
+      "max_claim_class": "confirmatory",
+      "status": "ready",
+      "evidence": "missing contrast terms stop; programmatic contrast vectors",
+      "min_fix": ""
+    },
+    {
+      "gate_id": "rnaseq.time-course",
+      "backend": "rnaseq-templates",
+      "task": "time-course",
+      "max_claim_class": "confirmatory",
+      "status": "ready",
+      "block_if": {"design.interaction": true},
+      "block_reason": "Only additive timepoint-vs-baseline designs are supported; condition x time needs an LRT workflow that is not implemented.",
+      "evidence": "interaction designs are refused explicitly in run_timepoint_vs_baseline_deseq2",
+      "min_fix": ""
+    },
+    {
+      "gate_id": "rnaseq.gsva",
+      "backend": "rnaseq-templates",
+      "task": "gsva",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "evidence": "secondary pairwise tests; pair-aware when PAIR_ID set; batch not modelled (warning issued)",
+      "min_fix": "For confirmatory pathway claims, model scores with the primary design (pairing/batch) instead of pairwise tests."
+    },
+    {
+      "gate_id": "rnaseq.wgcna",
+      "backend": "rnaseq-templates",
+      "task": "wgcna",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "evidence": "co-expression modules are discovery artefacts",
+      "min_fix": "Confirm modules in an independent cohort before confirmatory claims."
+    },
+    {
+      "gate_id": "rnaseq.tme",
+      "backend": "rnaseq-templates",
+      "task": "tme",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "evidence": "deconvolution estimates are reference-dependent; abundance-scale input enforced by router block",
+      "min_fix": ""
+    },
+    {
+      "gate_id": "rnaseq.survival",
+      "backend": "rnaseq-templates",
+      "task": "survival",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "evidence": "single-cohort association without external validation",
+      "min_fix": "External validation required for predictive claims."
+    },
+    {
+      "gate_id": "tcga.deg",
+      "backend": "tcga-toolkit",
+      "task": "deg",
+      "max_claim_class": "confirmatory",
+      "status": "ready",
+      "evidence": "assert_integer_counts (no more round()), patient dedup, covariates/design_formula support (2026-09-03)",
+      "min_fix": ""
+    },
+    {
+      "gate_id": "tcga.gtex-compare",
+      "backend": "tcga-toolkit",
+      "task": "gtex-compare",
+      "max_claim_class": "descriptive",
+      "status": "ready",
+      "evidence": "no cross-dataset normalization or test; report declares descriptive-only",
+      "min_fix": "Cross-dataset inference needs quantile/batch modelling that is not implemented."
+    },
+    {
+      "gate_id": "tcga.prognostic-model",
+      "backend": "tcga-toolkit",
+      "task": "prognostic-model",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "evidence": "patient-level split, covariates in model, C-index CI, locked cutoff (2026-09-03); nested CV and calibration/Brier still missing",
+      "min_fix": "Add nested CV and calibration/Brier evaluation before predictive claims."
+    },
+    {
+      "gate_id": "tcga.external-validation",
+      "backend": "tcga-toolkit",
+      "task": "external-validation",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "elevated": {
+        "max_claim_class": "predictive",
+        "requires": {
+          "split_policy.locked_features": true,
+          "split_policy.locked_transform": true,
+          "split_policy.locked_cutoff": true
+        }
+      },
+      "evidence": "model_meta_file applies locked coefficients/transform/cutoff; unlocked runs are labelled EXPLORATORY",
+      "min_fix": "Pass model_meta_file (locked coefficients + transform + cutoff) and declare split_policy locks in the spec."
+    },
+    {
+      "gate_id": "tcga.survival",
+      "backend": "tcga-toolkit",
+      "task": "survival",
+      "max_claim_class": "exploratory",
+      "status": "ready",
+      "evidence": "patient dedup, PH check reported, time origin/event definition declared (2026-09-03)",
+      "min_fix": "External validation required for predictive claims."
+    }
+  ]
+}

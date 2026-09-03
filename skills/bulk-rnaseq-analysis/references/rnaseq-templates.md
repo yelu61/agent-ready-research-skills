@@ -48,6 +48,12 @@ expanding the lightweight teaching notebook.
 
 1. Identify raw counts versus normalized expression and inspect metadata.
 2. Confirm sample identifiers match exactly and groups have adequate size.
+   Per-sample config vectors (SAMPLE_NAMES, GROUPS, BATCH_VECTOR, PAIR_ID) are
+   matched to count columns positionally; **prefer named vectors**
+   (`SAMPLE_NAMES <- c(raw_col = "clean_name", ...)`, `GROUPS <- c(Ctrl_1 =
+   "Ctrl", ...)`). Named vectors are aligned by name, so ordering mistakes
+   become explicit errors instead of silent sample/annotation swaps. When
+   SAMPLE_NAMES reuse the count column names, an order mismatch stops the run.
 3. Prefer the template's CLI runner for a routine production project. Copy a
    notebook only for interactive exploration; keep `RNAseq_lib/` resolvable.
 4. Edit the parameter block/configuration before changing analysis code.

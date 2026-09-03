@@ -44,9 +44,25 @@ handoff here.
    - Generic local/GEO matrix workflows: [references/rnaseq-templates.md](references/rnaseq-templates.md)
    - TCGA/TARGET/GTEx or cancer multi-omics: [references/tcga-toolkit.md](references/tcga-toolkit.md)
    - Mixed or ambiguous requests: [references/routing.md](references/routing.md)
+   - Analysis spec and claim gating: [references/analysis-spec.md](references/analysis-spec.md)
    - Final delivery and provenance: [references/output-contract.md](references/output-contract.md)
 
-5. Inspect real column names, group sizes, identifiers, and repository state
+5. Gate the claim, not just the route. The router only selects a backend and
+   blocks scale-incompatible requests (e.g. TPM→DESeq2, exit code 3). Before
+   any confirmatory/predictive claim, write a BulkAnalysisSpec v1 (see
+   [references/analysis-spec.md](references/analysis-spec.md)) and run:
+
+   ```bash
+   python3 scripts/preflight.py check --spec spec.json --backend-revision <rev>
+   ```
+
+   Preflight compares the requested `claim_class` against
+   `assets/backend-capabilities.json`; exit 3 means the claim is blocked and
+   the gate's `min_fix` says what is missing. Readiness records are
+   hash-stamped: re-run `preflight.py verify` after any spec/input/backend
+   change — a stale record invalidates the previous verdict.
+
+6. Inspect real column names, group sizes, identifiers, and repository state
    before writing configuration. Reuse existing templates and task runners.
    For routine local group comparisons, prefer the General CLI runner as the
    production entry point; the five topic templates (limma-voom, TimeCourse,
@@ -54,7 +70,7 @@ handoff here.
    runner for their pipeline. Use a notebook only when interactive exploration
    is a stated requirement.
 
-6. Declare a new run ID and separate the complete backend-native run bundle
+7. Declare a new run ID and separate the complete backend-native run bundle
    from curated deliverables before execution. Never use `notebooks/` as an
    implicit output root and never overwrite an existing run directory unless
    the user explicitly requests it.
@@ -72,10 +88,10 @@ handoff here.
    every relative input/output path relative to that run root. Never rely on a
    template source directory as an implicit working directory.
 
-7. Validate before execution. Prefer dry-runs, dependency checks, and bundled
+8. Validate before execution. Prefer dry-runs, dependency checks, and bundled
    smoke tests.
 
-8. Execute only the requested scope, then summarize methods, parameters,
+9. Execute only the requested scope, then summarize methods, parameters,
    warnings, result locations, and reproducibility metadata.
 
 ## Routing rules
@@ -104,7 +120,9 @@ handoff here.
   collection before enrichment or deconvolution.
 - Model batch, pairing, repeated measures, and time as design variables when
   supported; do not substitute post-hoc batch correction for an appropriate
-  statistical design.
+  statistical design. Secondary tests (GSVA scores, single-gene plots) must
+  inherit the pairing structure too — under a paired design an unpaired
+  t-test is the wrong model, not a simpler one.
 - Inspect event coding, time units, missingness, and sample overlap before
   survival modelling.
 - Report sample sizes and filtering losses. Flag underpowered comparisons and

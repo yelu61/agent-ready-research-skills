@@ -54,8 +54,26 @@ class BulkRnaSeqRouterTests(unittest.TestCase):
     def test_reports_incompatible_expression_scales(self) -> None:
         tpm = ROUTER.route("local", "tpm", {"deseq2"})
         vst = ROUTER.route("local", "vst", {"tme"})
-        self.assertTrue(any("DESeq2 requires" in item for item in tpm["warnings"]))
-        self.assertTrue(any("TME input cannot use" in item for item in vst["warnings"]))
+        self.assertTrue(any("DESeq2 requires" in item for item in tpm["blocks"]))
+        self.assertTrue(tpm["blocked"])
+        self.assertTrue(any("VST/rlog" in item for item in vst["blocks"]))
+        self.assertTrue(vst["blocked"])
+
+    def test_unknown_analysis_terms_warn_instead_of_silent_drop(self) -> None:
+        result = ROUTER.route("local", "raw-counts", {"deg", "gsa"})
+        self.assertEqual(result["backends"], ["rnaseq-templates"])
+        self.assertTrue(any("gsa" in item for item in result["warnings"]))
+        self.assertFalse(result["blocked"])
+
+    def test_blocked_route_exits_3(self) -> None:
+        with patch("sys.argv", ["backend_router.py", "route", "--source", "local",
+                                "--input-type", "tpm", "--analyses", "deg"]):
+            self.assertEqual(ROUTER.main(), 3)
+
+    def test_clean_route_exits_0(self) -> None:
+        with patch("sys.argv", ["backend_router.py", "route", "--source", "local",
+                                "--input-type", "raw-counts", "--analyses", "deg"]):
+            self.assertEqual(ROUTER.main(), 0)
 
     def test_discovers_configured_backend_roots(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

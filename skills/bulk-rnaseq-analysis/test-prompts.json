@@ -13,5 +13,40 @@
     "id": "mixed-scale-conflict",
     "prompt": "I discovered a signature in a local TPM matrix, want DESeq2 differential expression, and then want to validate the signature in TCGA with survival analysis.",
     "expected": "Flag that DESeq2 cannot use TPM, separate local discovery from TCGA validation, route the two stages to the appropriate backends, and define the signature handoff artifact."
+  },
+  {
+    "id": "tpm-deseq2-hard-block",
+    "prompt": "I only have a TPM matrix from GEO. Just run DESeq2 on it, round the values if needed.",
+    "expected": "Refuse: DESeq2 on TPM is a hard block (router exit 3 / preflight scale gate). Offer raw counts or a scale-compatible method (limma on log-scale). Never round() normalized values into fake counts."
+  },
+  {
+    "id": "paired-gsva-design",
+    "prompt": "Paired pre/post samples per patient. Run the General pipeline with GSVA and single-gene plots and report the p-values.",
+    "expected": "Set PAIR_ID and use it in the DESeq2 design AND in the secondary GSVA/single-gene tests (pair-aware). Flag that an unpaired t-test under a paired design is wrong."
+  },
+  {
+    "id": "sample-column-order-swap",
+    "prompt": "My count matrix columns are B,A order but my metadata lists samples A,B. Proceed with the analysis.",
+    "expected": "Do not rely on positional renaming. Use named SAMPLE_NAMES (name = raw column) so alignment is by name; expect the run to stop on order mismatch when names overlap."
+  },
+  {
+    "id": "condition-x-time-request",
+    "prompt": "Time-course with two conditions; test whether the temporal response differs between conditions.",
+    "expected": "Recognize this requires condition x time interaction / LRT. The TimeCourse template supports additive timepoint-vs-baseline only and refuses interaction formulas; report the limitation instead of silently extracting main effects."
+  },
+  {
+    "id": "external-validation-lock",
+    "prompt": "Validate my TCGA-trained risk model on this GEO cohort; recompute the cutoff on the new cohort if it looks off.",
+    "expected": "Apply locked features/coefficients/transform/cutoff from model_meta_file. Recomputing the cutoff on the external cohort invalidates the validation claim; without locks the result is labelled EXPLORATORY."
+  },
+  {
+    "id": "prognostic-patient-split",
+    "prompt": "Build a prognostic model from TCGA-XX and report test performance. Some patients have two tumour aliquots.",
+    "expected": "Patient-level train/test split (no patient in both), covariates actually included in the model, C-index with CI, and exploratory claim class until nested CV/calibration exist."
+  },
+  {
+    "id": "stale-readiness-reuse",
+    "prompt": "The counts file changed since last week; reuse the previous preflight result to save time.",
+    "expected": "Refuse: readiness is hash-stamped. Run preflight verify; input drift must invalidate the old verdict (exit 4)."
   }
 ]

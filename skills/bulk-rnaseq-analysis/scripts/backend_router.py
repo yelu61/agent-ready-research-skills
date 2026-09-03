@@ -162,7 +162,16 @@ def route(source: str, input_type: str, analyses: set[str]) -> dict[str, object]
     input_type = input_type.lower()
     tcga_hits = sorted(analyses & TCGA_ANALYSES)
     generic_hits = sorted(analyses & GENERIC_ANALYSES)
+    unknown_hits = sorted(analyses - TCGA_ANALYSES - GENERIC_ANALYSES)
     warnings: list[str] = []
+    blocks: list[str] = []
+
+    if unknown_hits:
+        warnings.append(
+            "Unrecognized analysis terms ignored in routing: "
+            + ", ".join(unknown_hits)
+            + ". Check for typos; known terms are listed in SKILL.md routing rules."
+        )
 
     if {"deseq2", "deg"} & analyses and input_type in {
         "tpm",
@@ -170,14 +179,15 @@ def route(source: str, input_type: str, analyses: set[str]) -> dict[str, object]
         "rlog",
         "normalized",
     }:
-        warnings.append(
-            "DESeq2 requires integer-like raw counts; select a compatible method "
-            "or provide raw counts."
+        blocks.append(
+            "DESeq2 requires integer-like raw counts; running it on "
+            f"{input_type} is never valid. Provide raw counts or choose a "
+            "scale-compatible method (e.g. limma on log-scale values)."
         )
     if "tme" in analyses and input_type in {"vst", "rlog"}:
-        warnings.append(
-            "TME input cannot use VST/rlog as TPM; provide TPM or raw counts plus "
-            "gene lengths."
+        blocks.append(
+            "TME deconvolution requires abundance-scale input; VST/rlog cannot "
+            "be used as TPM. Provide TPM or raw counts plus gene lengths."
         )
 
     if source in TCGA_SOURCES:
@@ -207,7 +217,9 @@ def route(source: str, input_type: str, analyses: set[str]) -> dict[str, object]
         "analyses": sorted(analyses),
         "reason": reason,
         "warnings": warnings,
+        "blocks": blocks,
         "needs_clarification": not backends,
+        "blocked": len(blocks) > 0,
     }
 
 
@@ -261,6 +273,8 @@ def main() -> int:
         return 0
     result = route(args.source, args.input_type, normalize_analyses(args.analyses))
     emit(result, args.json)
+    if result["blocked"]:
+        return 3
     return 2 if result["needs_clarification"] else 0
 
 
