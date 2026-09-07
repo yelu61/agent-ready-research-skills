@@ -8,9 +8,9 @@ __pycache__/
 *.tmp
 *.log
 
-# Exploratory notebook output is regenerable and never curated — do not track it.
+# Local scientific data and generated execution bundles are registered by
+# checksums/manifests, not committed as ordinary project source.
+data/raw/
+data/processed/
+analysis/runs/
 analysis/notebook_output/
-
-# Full native run bundles are large but authoritative; keep curated deliverables
-# in results/. Uncomment to also exclude bundles from version control.
-#analysis/runs/

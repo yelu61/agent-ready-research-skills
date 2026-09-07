@@ -14,40 +14,70 @@ Current stage: {{STAGE}}
 2. `docs/PROJECT_STATUS.md`
 3. `docs/ANALYSIS_PLAN.md`
 4. `docs/READINESS.md` when present
-5. `PIPELINE.md` when present
+5. `docs/PIPELINE.md` when present
 6. `docs/SESSION_HANDOFF.md`
 
-## Directory responsibilities
+## Layout contract
 
-```text
-data/raw/             immutable source data
-data/processed/       derived reusable data
-data/metadata/        sample and design metadata
-notebooks/            reviewable analysis notebooks
-scripts/              reusable pipeline logic
-analysis/runs/        native per-run bundles from pipeline backends (created on demand)
-analysis/specs/       immutable or versioned analysis specifications
-analysis/readiness/   domain readiness declarations bound to specs and inputs
-analysis/notebook_output/ exploratory notebook output (regenerable, never curated)
-results/intermediate/ lightweight restartable intermediates
-results/tables/       curated final analytical tables
-results/figures/      curated final analytical figures
-results/reports/      durable reports
-docs/                 project memory and provenance
-provenance/           source baselines plus artifact and run lineage
-```
+This project uses `research-project-layout/v2`. Its four owned layers are:
 
-`analysis/runs/<run_id>/` holds the complete, immutable output of one pipeline
-run (native tables, figures, config snapshot, logs). `results/` holds only
-reviewed deliverables curated from those runs. `analysis/runs/` is created by
-the pipeline when it first executes; it is not part of the empty scaffold.
+    workflows/                 authored analysis source, grouped by workflow
+    analysis/specs/            immutable or versioned analysis specifications
+    analysis/readiness/        readiness declarations bound to specs and inputs
+    analysis/runs/<run_id>/    complete immutable backend-native run bundles
+    analysis/notebook_output/  optional scratch output; inspect before retiring
+    results/                   reviewed deliverables by question or domain module
+    provenance/                source, artifact, run and layout identities
 
-Use one execution path per analysis: a CLI run bundle (batch/production, into
-`analysis/runs/`) or a notebook (interactive exploration, into
-`analysis/notebook_output/`). Do not run both over the same inputs — that
-duplicates the whole pipeline output. `analysis/notebook_output/` is disposable;
-only `results/` is curated.
+Data have separate roles:
 
-Unknown scientific or experimental details are marked `TODO:` and must not be
-treated as verified. Folder completeness and successful execution do not imply
-scientific readiness; consult the scoped readiness declaration.
+    data/raw/                  immutable source bytes
+    data/metadata/             sample and design metadata
+    data/processed/            deterministic reusable derived data
+    data/references/           versioned reference resources
+
+Create analysis source only under `workflows/<workflow_id>/`:
+
+    workflows/<workflow_id>/
+    ├── README.md
+    ├── config/
+    ├── scripts/
+    ├── notebooks/
+    └── backend.lock.json
+
+Do not create parallel top-level `scripts/`, `notebooks/`, `analysis/scripts/`,
+`analysis/config/`, or `analysis/notebooks/` source roots. A run ID is
+namespaced as `<workflow_id>__<run_label>`.
+
+## Output ownership
+
+The backend may use its native internal layout inside
+`analysis/runs/<run_id>/`. Treat that directory as one closed run bundle; its
+internal module names do not define project navigation.
+
+Curate reviewed artifacts using a documented question or domain-module layout.
+For a question-oriented project:
+
+    results/<question_id>/tables/
+    results/<question_id>/figures/
+    results/<question_id>/report/
+
+For RNA-seq, `01_qc/`, `02_degs/`, `03_ORA/` and `04_GSEA/` can instead hold
+`tables/` and `figures/`. Keep a current results index and source manifest;
+include physical files and report assets so results can be shared independently.
+Run-local intermediates stay in the native run.
+
+The dependency backend is not project source. Record its cloneable source and
+fixed revision in `workflows/<workflow_id>/backend.lock.json`, verify it before
+execution, and materialize it outside the project. The authoritative layout
+paths and backend policy are recorded in `provenance/PROJECT_LAYOUT.json`.
+
+Use notebook or CLI to drive the same domain implementation into a native run.
+Either can support formal delivery after input, execution and domain checks.
+Do not rerun an entire pipeline merely to switch entry points; reuse verified
+saved results for downstream changes and record the source run. Scratch output
+may remain under `analysis/notebook_output/<workflow_id>/`; do not assume its
+contents are disposable.
+
+Unknown scientific or experimental details remain `TODO` items. Folder
+completeness and successful execution do not imply scientific readiness.

@@ -46,17 +46,23 @@ destructive mode. A populated directory defaults to `retrofit`, never `init`.
   creating or validating the generic spec envelope that binds project and
   domain analysis contracts.
 - Read [provenance-contract.md](references/provenance-contract.md) for source
-  baselines, checkpointing, result curation or archives.
+  baselines, checkpointing, result curation or archives; its generic
+  `register_run.py` imports domain metadata into existing RUNS/ARTIFACTS records
+  without creating a scientific readiness declaration.
 - Read [human-data-and-access.md](references/human-data-and-access.md) only for
   human, clinical, controlled-access or otherwise sensitive data.
 - Read [retrofit-and-archive.md](references/retrofit-and-archive.md) for
   `retrofit` or `archive`.
+- Read [layout-contract.md](references/layout-contract.md) when initializing a
+  project, selecting executable paths, composing with an analysis skill, or
+  auditing multiple source/result roots.
 
 ## Phase 1 — Inspect before asking
 
 1. Resolve the exact target directory.
-2. Inspect existing `AGENTS.md`, `CLAUDE.md`, README, docs, notebooks, scripts,
-   data directories, results, manifests and environment files.
+2. Inspect existing `AGENTS.md`, `CLAUDE.md`, README, docs, workflows, legacy
+   notebooks/scripts, data directories, results, manifests and environment
+   files.
 3. Determine whether the directory is new, established or manuscript-stage.
 4. Infer stable facts only from files or explicit user statements.
 5. Ask only for a missing choice that changes the scaffold or scientific
@@ -86,8 +92,8 @@ the helper safely refuses `--apply`; dry-run inspection remains available.
 Profiles:
 
 - `minimal`: agent rules, core project memory and safe data/result directories.
-- `research` (default): minimal plus pipeline, results summary, reproducibility
-  record and reusable review prompts.
+- `research` (default): minimal plus pipeline, results summary,
+  reproducibility, readiness and run/artifact registries.
 - `manuscript`: research plus author queries and figure/source manifests.
 
 Safety rules:
@@ -97,16 +103,32 @@ Safety rules:
 - Never reorganize an established project unless the user explicitly requests
   that separate action.
 - Prefer documenting the existing layout over forcing the template layout.
+- New projects use `research-project-layout/v2`: authored source is owned only
+  by `workflows/<workflow_id>/`, native runs by `analysis/runs/<run_id>/`,
+  reviewed deliverables by `results/` and lineage by
+  `provenance/`. The scaffold records these roots in
+  `provenance/PROJECT_LAYOUT.json`.
+- Retrofit does not create a v2 layout manifest or a speculative `workflows/`
+  root. Treat a project without `PROJECT_LAYOUT.json` as legacy until a
+  separate migration is explicitly approved.
 - For computational backends, keep each complete native run bundle under
   `analysis/runs/<run_id>/` and only curated deliverables under `results/`
   (the two-layer contract used by the analysis skills). The scaffold creates
   `results/`; `analysis/runs/` is created by the pipeline on first run.
-- Use one execution path per analysis (dataset + design): a CLI run bundle for
-  batch/production, or a notebook for interactive exploration writing to
-  `analysis/notebook_output/` (exploratory, regenerable, never curated into
-  `results/`). Do not run both a full bundle and a full notebook over the same
-  inputs — that duplicates the whole pipeline output. `results/` is the only
-  curated layer; `analysis/notebook_output/` is disposable.
+- Notebook and CLI are both valid formal entry points when the domain workflow
+  records inputs, parameters, execution order, environment and validation in a
+  native run. Honor the user's entry preference; do not require notebook logic
+  to be copied into a script or rerun solely for curation. The optional legacy
+  `analysis/notebook_output/<workflow_id>/` path is for scratch work; inspect
+  provenance before promoting outputs and never assume it is safe to delete.
+- Let the domain and user choose question or module folders within `results/`.
+  A delivery may include complete reviewed modules plus a focused report.
+  Register intentional delivery copies and their source files; make shared
+  results readable without access to the native run. Keep one current delivery
+  index instead of accumulating `v*` navigation directories.
+- Keep backend repositories outside the project. A workflow binds a cloneable
+  source and fixed revision in `workflows/<workflow_id>/backend.lock.json`;
+  do not create project-local backend worktrees.
 - Back up before replacing instructions or retiring a canonical document.
 - Use relative project paths in generated docs and code.
 - If the project lives in a cloud-synced folder (iCloud Drive, Dropbox,
@@ -127,7 +149,7 @@ After scaffolding, populate only facts supported by the project:
 3. `ANALYSIS_PLAN.md`: planned comparisons, statistical units, validation and
    risks.
 4. `PROJECT_STATUS.md`: current state and one next minimal executable task.
-5. `PIPELINE.md`: actual entry points, dependencies, outputs and execution
+5. `docs/PIPELINE.md`: actual entry points, dependencies, outputs and execution
    status—not the intended workflow alone.
 6. `REPRODUCIBILITY.md`: environment, versions, commands and unresolved gaps.
 7. `READINESS.md`: index only domain-assessor declarations by intended use;
@@ -172,7 +194,7 @@ documents whose trigger fired:
    reference, interpretation or deliverable choice was made.
 4. Update `DATA_DICTIONARY.md` when data, fields, IDs, missing encodings or
    transformation state changed.
-5. Update `ANALYSIS_PLAN.md` and `PIPELINE.md` when planned or actual logic
+5. Update `ANALYSIS_PLAN.md` and `docs/PIPELINE.md` when planned or actual logic
    changed.
 6. Add current findings to `RESULTS_SUMMARY.md` with quantitative support,
    artifact/run IDs, scope and intended use, requested and authorized claim
@@ -186,6 +208,12 @@ documents whose trigger fired:
    content or lineage closure. Run evidence additionally binds its log SHA-256
    and the exact record digest of every input, output and validation artifact.
 8. Add unresolvable experimental or reporting facts to `AUTHOR_QUERIES.md`.
+
+When a known backend defect may affect existing results, follow the correction
+procedure in [retrofit-and-archive.md](references/retrofit-and-archive.md).
+Ask the domain workflow to establish the affected scope; preserve old bytes,
+record the correction and parent lineage, and update only dependent claims and
+delivery selections. Directory compliance cannot clear a numerical concern.
 9. Mark affected declarations `currency_status=stale` when any bound input,
    analysis spec, gate policy, code manifest, environment snapshot, backend or
    dependency changes. Do not rewrite their historical `readiness_status`.
@@ -232,7 +260,7 @@ Repair only bounded, supported issues; report everything else as an open item.
 For a phase freeze:
 
 1. Reconcile `PROJECT_STATUS.md`, `RESULTS_SUMMARY.md`, `DECISION_LOG.md`,
-   `PIPELINE.md`, `REPRODUCIBILITY.md` and manifests.
+   `docs/PIPELINE.md`, `REPRODUCIBILITY.md` and manifests.
 2. Record executed versus merely planned analyses.
 3. Freeze exact source/artifact IDs, run records, analysis specs, code revision
    and dirty state, environment/backend versions, readiness records and open

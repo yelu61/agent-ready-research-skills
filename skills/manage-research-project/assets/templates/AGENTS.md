@@ -2,12 +2,17 @@
 
 ## Read before work
 
-Read `README.md`, `docs/PROJECT_BRIEF.md`, `docs/PROJECT_STATUS.md`,
-`docs/ANALYSIS_PLAN.md`, and `docs/SESSION_HANDOFF.md`. Read
-`docs/DATA_DICTIONARY.md` before using data and `docs/DECISION_LOG.md` before
-changing established logic. Read `docs/READINESS.md` and the named readiness
-report before treating an analysis as ready. Read `docs/DATA_GOVERNANCE.md` when
-present and honor its access boundaries.
+For project work, start with `docs/PROJECT_STATUS.md` and
+`docs/SESSION_HANDOFF.md`. Load `README.md` and `docs/PROJECT_BRIEF.md` when
+project context is needed, `docs/ANALYSIS_PLAN.md` before analysis changes,
+`docs/DATA_DICTIONARY.md` before using data, and the relevant
+`docs/DECISION_LOG.md` entries before changing established logic.
+For a narrow documentation or configuration edit, read only the sections
+needed to preserve its meaning; do not reload unrelated analysis material.
+
+Read `docs/READINESS.md` and the named readiness report before treating an
+analysis as ready. Read `docs/DATA_GOVERNANCE.md` when present and honor its
+access boundaries.
 
 ## Scientific integrity
 
@@ -36,30 +41,39 @@ present and honor its access boundaries.
 - Inspect before editing; preserve unrelated user changes.
 - Do not overwrite, move or delete material files without clear authorization.
 - Use project-relative paths or one configurable project root.
-- Write reusable derived data to `data/processed/`, lightweight restartable
-  intermediates to `results/intermediate/`, and curated final outputs to
-  `results/tables/`, `results/figures/` or `results/reports/`.
+- Write reusable deterministic derived data to `data/processed/`. Keep
+  run-local intermediates inside the native run, and curate reviewed outputs
+  under `results/` using question or domain-module navigation.
+- Keep authored analysis source under `workflows/<workflow_id>/`. Do not create
+  parallel top-level `scripts/` or `notebooks/`, or source roots under
+  `analysis/`.
 - When a pipeline backend (for example an RNAseq-Templates runner) produces a
   complete native run bundle, keep that immutable bundle under
   `analysis/runs/<run_id>/` (created on demand by the run, not scaffolded) and
-  copy only reviewed deliverables into `results/`. Do not duplicate the full
-  native bundle under `results/`; `results/intermediate/` is for lightweight
-  files, not a second copy of a run.
-- Use one execution path per analysis: a CLI run bundle for batch/production,
-  or a notebook for interactive exploration writing to
-  `analysis/notebook_output/` (exploratory, regenerable, never curated into
-  `results/`). Do not run a full bundle and a full notebook over the same
-  inputs; `analysis/notebook_output/` is disposable.
+  copy reviewed deliverables into the agreed layout under `results/`.
+  Do not duplicate the full native bundle under `results/`.
+- Do not put a backend checkout or worktree inside the project. Record a
+  cloneable source and fixed revision in
+  `workflows/<workflow_id>/backend.lock.json`, verify it before execution, and
+  materialize it outside the project.
+- Notebook and CLI may both generate formal native runs. Honor the user's
+  preference and use shared domain steps; do not duplicate a complete run to
+  switch entry points. Validate execution order, configuration and provenance
+  before delivery. Scratch notebook output is not automatically disposable.
+- Deliver complete reviewed modules plus a focused report when requested.
+  Register intentional copies; shared results must open independently of
+  `analysis/runs/`, using relative links and included report resources.
 - Back up before substantial notebook, script or canonical-document replacement.
 
 ## Reproducibility
 
-- Prefer reusable scripts for final logic; notebooks may own exploration and
-  review when inputs, parameters and execution order are explicit.
+- Keep reusable domain logic in shared functions. Scripts and notebooks call
+  those functions; project-specific code is reserved for project-specific work.
 - Record deterministic seeds.
-- Maintain environment/version information in `docs/REPRODUCIBILITY.md`.
+- Maintain environment/version information and backend locks in
+  `docs/REPRODUCIBILITY.md`.
 - Distinguish planned analyses from successfully executed analyses in
-  `PIPELINE.md`.
+  `docs/PIPELINE.md`.
 - Keep deliverables traceable to source data and generating code.
 - Register actual runs in `provenance/RUNS.tsv` and artifacts in
   `provenance/ARTIFACTS.tsv`; hashes establish byte identity, not scientific
@@ -72,7 +86,7 @@ After meaningful work:
 - update `docs/PROJECT_STATUS.md` if state, blockers or next task changed;
 - replace `docs/SESSION_HANDOFF.md` with a resumable handoff;
 - append `docs/DECISION_LOG.md` for scientific/computational decisions;
-- update `docs/DATA_DICTIONARY.md`, `docs/ANALYSIS_PLAN.md`, `PIPELINE.md`,
+- update `docs/DATA_DICTIONARY.md`, `docs/ANALYSIS_PLAN.md`, `docs/PIPELINE.md`,
   `docs/READINESS.md`, `docs/RESULTS_SUMMARY.md` and provenance records only when
   their update trigger fires;
 - add facts that require collaborator confirmation to

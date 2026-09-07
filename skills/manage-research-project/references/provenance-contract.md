@@ -6,6 +6,17 @@ source authenticity, analytical validity or biological truth.
 
 ## Three linked records
 
+### Layout identity
+
+New projects record `research-project-layout/v2` in
+`provenance/PROJECT_LAYOUT.json`. The manifest identifies the only authored
+workflow root, native-run root, notebook-output root, curated-results root,
+run-ID pattern and external locked-backend policy. It is structural metadata,
+not evidence that an analysis ran or is scientifically ready.
+
+Projects without this manifest are legacy projects. Do not synthesize the
+manifest during retrofit or infer that legacy paths have migrated.
+
 ### Source baseline
 
 `provenance/SOURCE_MANIFEST.json` records immutable source IDs, project-relative
@@ -109,7 +120,49 @@ order.
 
 ## Lineage closure
 
-Before curating an output into `results/`, require all of the following:
+### Importing native run metadata
+
+Use the generic importer instead of writing a project-specific registration
+script when a domain adapter supplies mapped metadata:
+
+```bash
+python scripts/register_run.py /path/to/project \
+  --metadata workflows/<workflow_id>/registration.json
+python scripts/register_run.py /path/to/project \
+  --metadata workflows/<workflow_id>/registration.json --apply
+```
+
+The JSON has `run` using existing RUNS.tsv field names and an `artifacts` list
+using ARTIFACTS.tsv fields. An artifact may additionally declare `direction`
+(`input`, `output`, `delivery`) and `parent_paths` naming other registered paths.
+Use `direction=reference` for an already registered source from a parent run;
+it must resolve uniquely by path and checksum. Existing input identities are
+also reused, preserving their original generating run.
+All paths are project-relative regular files. The importer computes SHA-256,
+sizes and stable IDs, resolves parent links, fills the run's input/output IDs,
+and appends idempotently; it refuses to rebind an existing ID or follow symlinks.
+Delivery copies receive distinct artifact IDs and link to native source rows.
+Do not run independent manual registry writes concurrently with an import.
+An older registry with a different header is left unchanged; inspect its
+contract before a separately scoped migration rather than silently replacing it.
+
+Missing provenance/access/validation remain unverified/unknown/not_assessed.
+The importer neither creates readiness nor supplies missing execution evidence.
+A native completion timestamp does not establish exit status or passed
+validation. Add source IDs and reviewed evidence through the established domain
+contract before using an imported row as scientific readiness evidence.
+
+### Typed manifest paths
+
+Ordinary `*_path` fields always name paths. In mixed `path_or_value` columns,
+use `value_type` (`path`, `commit`, `revision`, `identifier`, `value`) to disambiguate;
+legacy bare hexadecimal commit values are also recognized. Portable delivery
+manifests with `path`, `source_path`, `source_run_id` resolve `path` relative to
+the manifest directory; source paths document ancestry without requiring the
+source run to travel with the delivery. Missing real file targets still warn.
+
+Before using an output in `results/` as a reviewed conclusion, require all of the
+following:
 
 1. the run identifies exact input and output artifact IDs;
 2. those input source IDs occur in the bound source manifest;

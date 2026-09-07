@@ -71,11 +71,11 @@ directory:
 
 ```bash
 git clone https://github.com/yelu61/agent-ready-research-skills.git \
-  "$HOME/Projects/agent-ready-research-skills"
+  "$HOME/Skills/agent-ready-research-skills"
 
 skill_name="manage-research-project"
 ln -s \
-  "$HOME/Projects/agent-ready-research-skills/skills/$skill_name" \
+  "$HOME/Skills/agent-ready-research-skills/skills/$skill_name" \
   "$HOME/.agents/skills/$skill_name"
 ```
 
@@ -88,7 +88,7 @@ Pull the repository; linked installations update immediately because they point
 to the checkout rather than copied skill directories:
 
 ```bash
-git -C "$HOME/Projects/agent-ready-research-skills" pull --ff-only
+git -C "$HOME/Skills/agent-ready-research-skills" pull --ff-only
 ```
 
 After an update that changes skill metadata, open a new task so the client

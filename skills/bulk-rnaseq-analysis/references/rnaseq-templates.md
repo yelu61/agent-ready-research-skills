@@ -16,12 +16,13 @@ currently targets downstream analysis from expression matrices, not FASTQ.
 
 ## Template selection
 
-Every template ships a production CLI runner trio (`config.R` + `run_analysis.R`
-+ `visualize_results.R`) under `templates/`, alongside its interactive notebook.
-Prefer the runner for routine production and the notebook for interactive
-exploration.
+Every template ships a CLI runner under `templates/` alongside a notebook.
+General's notebook and CLI call one shared implementation. Prefer the notebook
+for interactive work, honor a requested entry, and use CLI for batch execution.
+Do not assume the other topic notebooks are numerically interchangeable with
+their runners without checking their supported design and execution behavior.
 
-| Question | Production runner | Interactive notebook |
+| Question | CLI runner | Notebook |
 | --- | --- | --- |
 | Standard group comparison | `templates/General/run_analysis.R` | `notebooks/RNAseq_General.ipynb` |
 | limma-voom or batch-heavy contrast | `templates/Limma_Voom/run_analysis.R` | `notebooks/RNAseq_limma_voom_Template.ipynb` |
@@ -54,16 +55,19 @@ expanding the lightweight teaching notebook.
    "Ctrl", ...)`). Named vectors are aligned by name, so ordering mistakes
    become explicit errors instead of silent sample/annotation swaps. When
    SAMPLE_NAMES reuse the count column names, an order mismatch stops the run.
-3. Prefer the template's CLI runner for a routine production project. Copy a
-   notebook only for interactive exploration; keep `RNAseq_lib/` resolvable.
+3. Choose the requested notebook or CLI entry. In a v2 project, place
+   configuration and source notebooks under
+   `workflows/bulk-rnaseq/`; keep `RNAseq_lib/` resolvable through the verified
+   external backend lock.
 4. Edit the parameter block/configuration before changing analysis code.
 5. Run input validation before fitting a model.
-6. Create a new `analysis/runs/<run_id>/` and execute from that explicit root.
+6. Create a new
+   `analysis/runs/bulk-rnaseq__<run_label>/` and execute from that explicit root.
    Never execute a notebook with `notebooks/` as the output root: its relative
    `1-DEG/`, `2-GSEA/`, and `3-Visualization/` paths will otherwise mix code
    and hundreds of generated artifacts.
-7. Retain the complete native run bundle, then curate reviewed deliverables
-   into `results/tables`, `results/figures`, and `results/reports`.
+7. Retain the complete native run bundle, then export reviewed modules and a
+   report to a portable `results/` tree. Follow the output contract below.
 8. Record `sessionInfo.txt`, parameters, comparisons, warnings, input/config
    checksums, backend revision, and the source run for each curated artifact.
 
@@ -73,50 +77,119 @@ For any template's CLI runner:
 Rscript templates/<Topic>/run_analysis.R path/to/config.R
 ```
 
-Use a project-local copy of `config.R`, `run_analysis.R`, and
-`visualize_results.R` when the analysis must not write into the template
-repository.
+Keep project configuration and any project-specific wrapper under
+`workflows/bulk-rnaseq/`. Invoke the runner from the verified external backend;
+do not copy the backend repository or create a worktree inside the project.
 
 For TME, distinguish the deterministic offline base path from optional IOBR
 integration. Native ESTIMATE and ssGSEA can be used for the offline smoke path;
 IOBR methods may require reference bundles populated on first use. Verify the
 requested method cache before declaring an offline run ready.
 
-To turn a notebook's parameter cell into a `config.R` + `run_analysis.R` draft
-for a new or customized pipeline, use the bundled converter:
+## General shared stages
+
+Use the locked backend's General notebook or runner to load the public API:
+
+```r
+workflow <- create_general_workflow(config_file, run_dir, lib_dir)
+run_general_stage(workflow, "input")
+# Run subsequent stages in notebook cells, or all stages sequentially:
+run_general_workflow(workflow)
+```
+
+The ordered stages are `input`, `qc`, `model`, `thresholds`, `deg_plots`, `ora`,
+`gsea`, `gsva`, `single_genes`, `overlap`, `tf`, `tme`, `report`, `finalize`.
+Notebook cells display stage results; they do not contain a second model or
+statistical implementation. `workflow_status.csv` records outcomes, and
+`finalize` must complete. RunReview remains an optional compatibility tool,
+not a second notebook required in each project. Use the converter only when
+developing a genuinely new pipeline, not to authorize routine notebook output.
+
+`THRESHOLD_GRID` expands every DEG-dependent module over each declared threshold.
+`DEFAULT_THRESHOLD` selects the headline view, not execution scope. Cover DEG
+tables, volcano/topDEG plots, GO/KEGG all/up/down ORA, ORA themes/comparison plots,
+overlap/UpSet/Jaccard and report navigation where applicable. Empty or
+not-applicable outcomes need recorded reasons; failures require repair or an
+explicitly scoped incomplete handoff. Nominal-P layers remain exploratory.
+QC, model fitting, full-ranking GSEA and fixed-set GSVA are shared once.
+
+Read the saved all-gene results for new threshold selection; do not mistake
+them for filtered DEG lists. Secondary tests inherit configured comparisons,
+pairing, test and adjustment. Frozen `GO_REFERENCE`/`KEGG_REFERENCE` resources
+use the backend's documented Entrez TERM2GENE format and are recorded inputs.
+
+For validated General runs:
 
 ```bash
-Rscript tools/notebook_to_runner.R notebooks/<Notebook>.ipynb <out_dir> --topic <Name>
+Rscript tools/export_results.R <run_dir> <delivery_dir>
 ```
 
-It extracts the `## 1. Parameter Configuration` cell into `config.R`, flattens
-the remaining code cells into a runner, and writes a `conversion_report.txt`
-flagging patterns that need manual refinement. Treat its output as a draft to
-review, not a finished runner.
+For a delivery that combines an immutable parent with its derivative, pass the
+derivative directory as the third argument; the manifest retains each file's
+actual source run.
 
-## Production output layout
+The exporter requires completed stage accounting and a new, empty, or README-only
+output directory. It preserves an existing regular `README.md` and includes
+physical files, relative report resources and a source
+manifest. It does not confer scientific approval. Review claims separately.
+
+## Historical result review after a backend fix
+
+Read the selected backend's changelog and, when available,
+`references/HISTORICAL_RESULT_REVIEW.md` and its linked defect evidence. Keep
+the defect catalog in the backend rather than copying version-specific claims
+into the skill.
+
+1. Identify the exact old source revision or saved source hashes, actual entry
+   point, configuration, input/sample mapping, model formula, environment and
+   reference snapshots. A current README version or today's checkout is not
+   evidence of which code produced an old result. Record unknown provenance.
+2. Match each documented defect's trigger to that run. Distinguish numerical
+   errors, test/model changes, incomplete or misleading exports, and layout-only
+   issues. Do not declare every old result wrong, or assure correctness because
+   an established statistical package was called.
+3. Determine the earliest affected stage and its downstream consumers. A wrong
+   sample map or model requires a new fit; a plotting-only statistic may need
+   secondary tests and report updates; a layout-only change needs verified
+   repackaging. Do not feed an unfiltered legacy marked table to ORA as a DEG set.
+4. Preserve the old run. Compare affected outputs in a new scoped run under
+   matched parameters/references when isolating a code fix. Record deliberate
+   parameter changes separately: independent-filtering alpha changes are not
+   equivalent to a display cutoff change. Never tune parameters to recover an
+   old positive finding.
+5. Update affected claims, figures and delivery pointers after verification,
+   with the parent run and reason. Keep unknown or untested effects explicit;
+   test-suite success does not retrospectively certify a real project.
+
+Use saved-state derivatives only if the actual locked backend and original run
+support them and the preserved model is unaffected. An old run without verified
+state cannot gain that support by fabricating a checkpoint or status manifest.
+
+## Project layout v2
 
 ```text
+workflows/bulk-rnaseq/
+  config/ scripts/ notebooks/ backend.lock.json
 analysis/
-  config/
-  scripts/
-  notebooks/                  # source only
-  runs/<run_id>/              # complete backend-native bundle
-  notebook_output/<analysis>/ # exploratory notebook output (regenerable, never curated)
+  specs/ readiness/
+  runs/bulk-rnaseq__<run_label>/      # complete backend-native bundle
+  notebook_output/bulk-rnaseq/        # optional scratch, legacy-compatible
 results/
-  tables/ figures/ reports/
-  report_assets/              # rebuildable HTML previews
+  README.html MANIFEST.tsv
+  00_report/
+  01_qc/ 02_degs/ 03_ORA/ 04_GSEA/ 05_custom_genes/
 ```
 
-There must be one canonical owner for each artifact. Treat PDF/SVG as figure
-masters and `report_assets/` PNG files as derived cache. Keep intentional gene
-set versions only with registry checksums and rationale; use manifest aliases
-instead of byte-for-byte compatibility copies.
+Each native artifact has one canonical owner; intentional delivery copies
+record that source. Use matching threshold subdirectories in DEG and ORA
+modules. Question-oriented delivery remains valid when preferred. Treat
+PDF/SVG as figure masters and report preview PNG files as derived cache. Keep
+intentional gene-set versions only with registry checksums and rationale.
 
-Use one execution path per dataset+design (see "Single execution path" in
-[references/output-contract.md](references/output-contract.md)): a CLI run bundle
-for production into `analysis/runs/`, or a notebook for exploration into
-`analysis/notebook_output/` — not both over the same inputs.
+Reuse saved stages according to the change dependencies in
+[output-contract.md](output-contract.md). Avoid new project scripts for standard
+plots, reference handling, packaging or registration; use public backend/skill
+helpers. Project scripts should implement only the study's distinct logic.
 
 ## Input-scale rules
 

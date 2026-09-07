@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "project-layout-v2.schema.json",
+  "title": "Research project layout v2",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "layout_version",
+    "workflow_source_root",
+    "analysis_spec_root",
+    "readiness_root",
+    "native_run_root",
+    "notebook_output_root",
+    "curated_results_root",
+    "run_id_pattern",
+    "backend_policy"
+  ],
+  "properties": {
+    "schema_version": {"const": "research-project-layout/v2"},
+    "layout_version": {"const": 2},
+    "workflow_source_root": {"const": "workflows"},
+    "analysis_spec_root": {"const": "analysis/specs"},
+    "readiness_root": {"const": "analysis/readiness"},
+    "native_run_root": {"const": "analysis/runs"},
+    "notebook_output_root": {"const": "analysis/notebook_output"},
+    "curated_results_root": {"const": "results"},
+    "run_id_pattern": {"type": "string", "minLength": 1},
+    "backend_policy": {"const": "external_locked"}
+  },
+  "additionalProperties": false
+}

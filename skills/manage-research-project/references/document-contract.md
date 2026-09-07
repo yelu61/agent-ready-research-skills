@@ -80,7 +80,7 @@ Log any migration decision and, when paths or many records change, use
 | `DATA_DICTIONARY.md` | Data/artifact identity, IDs, fields and transformations | New/changed data or semantics |
 | `DATA_GOVERNANCE.md` | Sensitive-data authority and use boundaries | Access, agreement or disclosure rule changes |
 | `ANALYSIS_PLAN.md` | Intended questions, estimands and validation | Planned methods change |
-| `PIPELINE.md` | Actual runnable flow and separated implementation/execution/validation state | Entry point/dependency/output changes |
+| `docs/PIPELINE.md` | Actual runnable flow and separated implementation/execution/validation state | Entry point/dependency/output changes |
 | `READINESS.md` | Index of domain readiness declarations | Assessment, binding or freshness changes |
 | `RESULTS_SUMMARY.md` | Current evidence-linked findings and claim boundaries | Verified observation or interpretation changes |
 | `REPRODUCIBILITY.md` | Environment, reproduction scope and commands | Runtime or reproduction information changes |
@@ -114,6 +114,10 @@ history. Bump `Last updated` on every edit.
   IDs such as `D-20260730-01`.
 - Never delete an old decision; append a superseding entry.
 - Store detailed provenance in manifests/registries, not agent instructions.
+- For v2 projects, preserve the single ownership chain
+  `workflows → analysis/runs → results`. Let the domain/user select question
+  or module navigation within results. Treat backend-native
+  subdirectories as run internals rather than project-level categories.
 - Keep one canonical document per responsibility.
 - Mark input, spec, gate policy, code, environment or backend changes as
   readiness-currency-staling events until reassessed.

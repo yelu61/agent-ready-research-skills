@@ -41,32 +41,41 @@ machine-readable source of the current task list.
    Rscript tcga_toolkit/scripts/list_runs.R --task <task>
    ```
 
-2. Reuse or copy a JSON configuration from `tcga_toolkit/templates/`.
+2. Reuse a JSON configuration from `tcga_toolkit/templates/`. In a v2 project,
+   keep the reviewed project copy under `workflows/bulk-rnaseq/config/` and
+   bind the external toolkit with `workflows/bulk-rnaseq/backend.lock.json`.
 3. Validate without running:
 
    ```bash
    Rscript tcga_toolkit/scripts/validate_config.R --config <config.json>
    ```
 
-4. Execute:
+4. For a v2 project, create one new
+   `analysis/runs/bulk-rnaseq__<run_label>/` root and execute with that path as
+   the toolkit output root:
 
    ```bash
    Rscript tcga_toolkit/scripts/run_task.R \
-     --config <config.json> \
-     --output-root <analysis-project>
+     --config <project>/workflows/bulk-rnaseq/config/<config.json> \
+     --output-root <project>/analysis/runs/bulk-rnaseq__<run_label>
    ```
 
-5. Read the native run bundle under `tcga_runs/<task_id>/`, including
-   `report.md`, `run_metadata.json`, and results/plots/objects.
+5. Read the native bundle under
+   `analysis/runs/bulk-rnaseq__<run_label>/tcga_runs/<task_id>/`, including
+   `report.md`, `run_metadata.json`, and results/plots/objects. Here
+   `tcga_runs/` is backend-native structure inside the closed project run, not
+   a project-level navigation root.
 
-Use `--overwrite` only when the user explicitly wants to reuse an existing run
-directory.
+Do not use `--overwrite` for a v2 project run. Select a new namespaced run label
+and preserve the earlier native bundle.
 
 ## Extension rule
 
-If a requested cancer analysis is absent from the task list, follow
-`tcga_toolkit/references/extension_guide.md` and add a reusable toolkit task.
-Do not implement a one-off copy inside RNAseq-Templates or the Skill.
+If a requested cancer analysis is absent from the task list, follow the
+external backend's `tcga_toolkit/references/extension_guide.md`, review and
+commit the reusable toolkit task there, then create a new project backend lock.
+Do not modify the revision already bound by a project lock, or implement a
+one-off copy inside RNAseq-Templates or the Skill.
 
 ## Performance and data rules
 

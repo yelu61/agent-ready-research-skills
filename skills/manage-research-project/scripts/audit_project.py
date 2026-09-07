@@ -17,7 +17,7 @@ from project_contracts import (
     resolve_project_relative,
     verify_source_manifest_document,
 )
-from scaffold_project import profile_spec
+from scaffold_project import ACCEPTED_EQUIVALENTS, profile_spec
 
 
 AUDIT_SCHEMA = "project-structure-audit/v2"
@@ -28,6 +28,25 @@ ABSOLUTE_PATH_RE = re.compile(
     r"|(?<!\\)\\\\(?:\?\\)?[^\\\s]+\\[^\\\s]+)"
 )
 URI_SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
+LAYOUT_MANIFEST = "provenance/PROJECT_LAYOUT.json"
+V2_LAYOUT_SCHEMA = "research-project-layout/v2"
+V2_LAYOUT_VALUES = {
+    "layout_version": 2,
+    "workflow_source_root": "workflows",
+    "analysis_spec_root": "analysis/specs",
+    "readiness_root": "analysis/readiness",
+    "native_run_root": "analysis/runs",
+    "notebook_output_root": "analysis/notebook_output",
+    "curated_results_root": "results",
+    "backend_policy": "external_locked",
+}
+V2_LEGACY_SOURCE_ROOTS = (
+    "scripts",
+    "notebooks",
+    "analysis/config",
+    "analysis/scripts",
+    "analysis/notebooks",
+)
 
 
 def issue(level: str, code: str, path: str, message: str) -> dict[str, str]:
@@ -64,6 +83,149 @@ def safe_regular_project_file(
     return resolved
 
 
+def has_material_files(path: Path) -> bool:
+    if not path.is_dir() or path.is_symlink():
+        return False
+    return any(
+        candidate.is_file()
+        and not candidate.is_symlink()
+        and candidate.name not in {".DS_Store", ".gitkeep"}
+        for candidate in path.rglob("*")
+    )
+
+
+def load_project_layout(
+    root: Path, findings: list[dict[str, str]]
+) -> dict[str, object] | None:
+    candidate = root / LAYOUT_MANIFEST
+    if not candidate.exists() and not candidate.is_symlink():
+        return None
+    path = safe_regular_project_file(root, LAYOUT_MANIFEST, findings)
+    if path is None:
+        return {}
+    try:
+        document = load_json_object(path)
+    except ContractError as exc:
+        findings.append(
+            issue("error", "layout-manifest-read", LAYOUT_MANIFEST, str(exc))
+        )
+        return {}
+    if document.get("schema_version") != V2_LAYOUT_SCHEMA:
+        findings.append(
+            issue(
+                "error",
+                "layout-schema",
+                LAYOUT_MANIFEST,
+                f"Expected schema_version={V2_LAYOUT_SCHEMA!r}.",
+            )
+        )
+    for key, expected in V2_LAYOUT_VALUES.items():
+        if document.get(key) != expected:
+            findings.append(
+                issue(
+                    "error",
+                    "layout-path",
+                    LAYOUT_MANIFEST,
+                    f"{key} must equal {expected!r} for layout v2.",
+                )
+            )
+    pattern = document.get("run_id_pattern")
+    if not isinstance(pattern, str) or not pattern:
+        findings.append(
+            issue(
+                "error",
+                "layout-run-pattern",
+                LAYOUT_MANIFEST,
+                "run_id_pattern must be a non-empty regular expression.",
+            )
+        )
+    else:
+        try:
+            re.compile(pattern)
+        except re.error as exc:
+            findings.append(
+                issue(
+                    "error",
+                    "layout-run-pattern",
+                    LAYOUT_MANIFEST,
+                    f"Invalid run_id_pattern: {exc}",
+                )
+            )
+    return document
+
+
+def check_v2_layout(
+    root: Path, layout: dict[str, object]
+) -> list[dict[str, str]]:
+    findings: list[dict[str, str]] = []
+    for relative in V2_LEGACY_SOURCE_ROOTS:
+        candidate = root / relative
+        if candidate.is_symlink():
+            findings.append(
+                issue(
+                    "error",
+                    "path-symlink",
+                    relative,
+                    "A v2 source root must not be a symlink.",
+                )
+            )
+        elif has_material_files(candidate):
+            findings.append(
+                issue(
+                    "error",
+                    "parallel-analysis-source-root",
+                    relative,
+                    "Authored analysis source in a v2 project belongs only under workflows/<workflow_id>/.",
+                )
+            )
+
+    embedded_candidates = [root / "analysis" / "backend"]
+    workflows = root / "workflows"
+    if workflows.is_dir() and not workflows.is_symlink():
+        embedded_candidates.extend(workflows.glob("*/backend"))
+    for candidate in embedded_candidates:
+        if candidate.exists() or candidate.is_symlink():
+            findings.append(
+                issue(
+                    "error",
+                    "embedded-backend",
+                    candidate.relative_to(root).as_posix(),
+                    "Layout v2 requires an external locked backend, not a project-local checkout or worktree.",
+                )
+            )
+
+    legacy_pipeline = root / "PIPELINE.md"
+    if legacy_pipeline.exists() or legacy_pipeline.is_symlink():
+        findings.append(
+            issue(
+                "error",
+                "legacy-pipeline-location",
+                "PIPELINE.md",
+                "Layout v2 uses docs/PIPELINE.md as the canonical pipeline record.",
+            )
+        )
+
+    pattern = layout.get("run_id_pattern")
+    run_root = root / "analysis" / "runs"
+    if isinstance(pattern, str) and run_root.is_dir() and not run_root.is_symlink():
+        try:
+            compiled = re.compile(pattern)
+        except re.error:
+            compiled = None
+        if compiled is not None:
+            for candidate in sorted(run_root.iterdir()):
+                if candidate.is_dir() and not compiled.fullmatch(candidate.name):
+                    findings.append(
+                        issue(
+                            "warning",
+                            "run-id-namespace",
+                            candidate.relative_to(root).as_posix(),
+                            "Run directory does not match <workflow_id>__<run_label>.",
+                        )
+                    )
+    return findings
+
+
 def relative_parts(path: Path, root: Path) -> set[str]:
     parts = path.relative_to(root).parts
     cumulative = {parts[0]} if parts else set()
@@ -76,11 +238,13 @@ def scan_absolute_paths(root: Path) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     candidates = [
         root / "docs",
+        root / "workflows",
         root / "scripts",
         root / "notebooks",
         root / "AGENTS.md",
         root / "CLAUDE.md",
         root / "README.md",
+        root / "docs" / "PIPELINE.md",
         root / "PIPELINE.md",
     ]
     files: list[Path] = []
@@ -278,6 +442,24 @@ def check_manifest_targets(root: Path) -> list[dict[str, str]]:
                         continue
                     if target.casefold() in {"na", "n/a", "none", "not_applicable"}:
                         continue
+                    # Mixed fields may hold revisions/identifiers. A normal
+                    # *_path field still names a file, even if it looks hex.
+                    if key.casefold() == "path_or_value":
+                        value_type = str(row.get("value_type", "")).casefold()
+                        if value_type in {"commit", "revision", "identifier", "value"}:
+                            continue
+                        if not value_type and re.fullmatch(r"[0-9a-fA-F]{7,64}", target):
+                            continue
+                    # A portable delivery manifest scopes paths to itself;
+                    # its source path is provenance, not a required live link.
+                    portable = "source_run_id" in row and "source_path" in row
+                    if portable and key == "source_path":
+                        try:
+                            resolve_project_relative(root, target)
+                        except ContractError as exc:
+                            findings.append(issue("error", "manifest-target-unsafe",
+                                                  relative_manifest.as_posix(), str(exc)))
+                        continue
                     if URI_SCHEME_RE.match(target):
                         try:
                             parsed = urlsplit(target)
@@ -303,7 +485,10 @@ def check_manifest_targets(root: Path) -> list[dict[str, str]]:
                     if any(token in target for token in ("[", "*", "{{")):
                         continue
                     try:
-                        destination = resolve_project_relative(root, target)
+                        scoped_target = target
+                        if portable and key in {"path", "destination_path"}:
+                            scoped_target = (relative_manifest.parent / target).as_posix()
+                        destination = resolve_project_relative(root, scoped_target)
                     except ContractError as exc:
                         findings.append(
                             issue(
@@ -369,9 +554,20 @@ def main() -> int:
             )
         )
     else:
-        _, required_files = profile_spec(args.profile)
+        layout = load_project_layout(root, structure_findings)
+        layout_generation = "v2" if layout is not None else "legacy"
+        _, required_files = profile_spec(
+            args.profile, mode="init" if layout is not None else "retrofit"
+        )
         for relative in required_files:
             path = safe_regular_project_file(root, relative, structure_findings)
+            if path is None and layout is None:
+                for equivalent in ACCEPTED_EQUIVALENTS.get(relative, ()):
+                    path = safe_regular_project_file(
+                        root, equivalent, structure_findings
+                    )
+                    if path is not None:
+                        break
             if (
                 path is None
                 and not (root / relative).exists()
@@ -385,6 +581,9 @@ def main() -> int:
                         "Recommended project file is missing; document an accepted equivalent or scaffold it.",
                     )
                 )
+
+        if layout is not None:
+            structure_findings.extend(check_v2_layout(root, layout))
 
         agents = safe_regular_project_file(root, "AGENTS.md", structure_findings)
         if agents is not None:
@@ -525,7 +724,11 @@ def main() -> int:
             )
 
         legacy_locations: list[str] = []
-        for relative in ("docs/RESULTS_SUMMARY.md", "PIPELINE.md"):
+        for relative in (
+            "docs/RESULTS_SUMMARY.md",
+            "docs/PIPELINE.md",
+            "PIPELINE.md",
+        ):
             path = safe_regular_project_file(root, relative, structure_findings)
             if path is None:
                 continue
@@ -585,6 +788,9 @@ def main() -> int:
         "audit_kind": "structure",
         "target": str(root),
         "profile": args.profile,
+        "layout_generation": (
+            layout_generation if root.is_dir() else "not_assessed"
+        ),
         "structure_status": structure_status(structure_findings),
         "source_manifest_contract": source_manifest_contract,
         "source_integrity": source_integrity,

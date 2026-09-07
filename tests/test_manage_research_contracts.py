@@ -175,18 +175,19 @@ def build_ready_fixture(target: Path) -> tuple[Path, dict, dict]:
                 "sha256": sha256(domain_spec_path),
             },
             "backend_revision": "fixture-backend-1",
-            "entry_points": ["scripts/python/analysis.py"],
+            "entry_points": ["workflows/test/scripts/analysis.py"],
             "domain_parameters": {"comparison": "group_b_vs_group_a"},
             "created_at": datetime.now(timezone.utc).isoformat(),
         },
     )
-    code_file = target / "scripts" / "python" / "analysis.py"
+    code_file = target / "workflows" / "test" / "scripts" / "analysis.py"
+    code_file.parent.mkdir(parents=True, exist_ok=True)
     code_file.write_text("print('fixture')\n", encoding="utf-8")
     code_result = run_script(
         BUILD_SOURCE,
         str(target),
         "--include",
-        "scripts/python",
+        "workflows/test/scripts",
         "--output",
         "provenance/CODE_MANIFEST.json",
         "--source-system",
@@ -478,6 +479,29 @@ class ManageResearchContractTests(unittest.TestCase):
             self.assertIn("manifest-target-unsafe", codes)
             self.assertIn("manifest-target", codes)
 
+    def test_audit_mixed_manifest_values_and_portable_delivery_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "project"
+            scaffold(target)
+            (target / "TEST_MANIFEST.tsv").write_text(
+                "path_or_value\tvalue_type\n" + "a" * 40 + "\tcommit\n"
+                + "b" * 40 + "\t\nmissing.tsv\tpath\n",
+                encoding="utf-8",
+            )
+            delivery = target / "results" / "02_degs"
+            delivery.mkdir(parents=True)
+            (delivery / "table.tsv").write_text("gene\nA\n", encoding="utf-8")
+            (delivery / "MANIFEST.tsv").write_text(
+                "path\tsource_path\tsource_run_id\n"
+                "table.tsv\t1-DEG/table.tsv\tbulk-rnaseq__old\n",
+                encoding="utf-8",
+            )
+            result = run_script(AUDIT, str(target), "--json")
+            findings = json.loads(result.stdout)["findings"]
+            missing = [item for item in findings if item["code"] == "manifest-target"]
+            self.assertEqual(len(missing), 1, missing)
+            self.assertIn("missing.tsv", missing[0]["message"])
+
     def test_audit_rejects_canonical_symlinks_and_malformed_notebooks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary)
@@ -490,7 +514,9 @@ class ManageResearchContractTests(unittest.TestCase):
             )
             (target / "AGENTS.md").unlink()
             (target / "AGENTS.md").symlink_to(outside_agents)
-            (target / "notebooks" / "bad.ipynb").write_text("[]\n", encoding="utf-8")
+            notebook = target / "workflows" / "test" / "notebooks" / "bad.ipynb"
+            notebook.parent.mkdir(parents=True, exist_ok=True)
+            notebook.write_text("[]\n", encoding="utf-8")
 
             raw = target / "data" / "raw" / "input.tsv"
             raw.write_text("x\n", encoding="utf-8")
@@ -828,7 +854,9 @@ class ManageResearchContractTests(unittest.TestCase):
 
             report_path, _, _ = build_ready_fixture(Path(temporary) / "project-3")
             third_target = report_path.parents[2]
-            (third_target / "scripts" / "python" / "analysis.py").write_text(
+            (
+                third_target / "workflows" / "test" / "scripts" / "analysis.py"
+            ).write_text(
                 "print('changed code')\n", encoding="utf-8"
             )
             code_changed = run_script(
@@ -1000,7 +1028,7 @@ class ManageResearchContractTests(unittest.TestCase):
                 "validation_scope": "A-001 complete fixture run",
                 "validation_criterion": "expected output exists and checks pass",
                 "validation_evidence_ids": "ART-001",
-                "entry_point": "scripts/python/analysis.py",
+                "entry_point": "workflows/test/scripts/analysis.py",
                 "config_path": "analysis/specs/A-001-domain.json",
                 "config_sha256": sha256(
                     target / "analysis" / "specs" / "A-001-domain.json"
@@ -1738,7 +1766,7 @@ class ManageResearchContractTests(unittest.TestCase):
                 "validation_scope": "A-001 complete fixture run",
                 "validation_criterion": "expected output exists and checks pass",
                 "validation_evidence_ids": "ART-001",
-                "entry_point": "scripts/python/analysis.py",
+                "entry_point": "workflows/test/scripts/analysis.py",
                 "config_path": "analysis/specs/A-001-domain.json",
                 "config_sha256": sha256(
                     target / "analysis" / "specs" / "A-001-domain.json"
@@ -2396,6 +2424,7 @@ class ManageResearchContractTests(unittest.TestCase):
                 "research-readiness-v2.schema.json",
                 "research-timing-check-v1.schema.json",
                 "research-unit-overlap-v1.schema.json",
+                "project-layout-v2.schema.json",
                 "source-manifest-v1.schema.json",
             },
         )

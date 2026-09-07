@@ -1,8 +1,23 @@
 [
   {
+    "id": "historical-backend-defect-scope",
+    "prompt": "Our older General notebook used paired samples and batch, and its GSVA plot P values differ from the table. The new template tests pass, so can we keep all historical conclusions?",
+    "expected": "Inspect the saved old revision/source, actual formula, sample map, entry point and correction evidence. Distinguish a dropped model covariate from secondary-test or adjustment differences; do not clear the project using the new test suite. Refit if the model is affected, otherwise recompute only affected secondary tests and consumers in a new parent-linked run, preserve old files, and review changed claims. Unknown historical provenance stays unknown."
+  },
+  {
+    "id": "legacy-backend-no-fabricated-state",
+    "prompt": "This old locked backend predates general_workflow.R and its run has no workflow_state.rds. Add a nominal-P tier using the new derivative API without rerunning anything.",
+    "expected": "Verify the locked backend and run capabilities. Do not fabricate a workflow state or apply new API instructions to unsupported old code. Inspect reusable complete tables and the documented legacy path; explain what needs a new verified run and keep any backend upgrade explicit, without copying the standard pipeline into project glue."
+  },
+  {
     "id": "local-counts-deg",
     "prompt": "I have a local bulk RNA-seq raw-count matrix and sample metadata for three treatment groups. Select the correct workflow for QC, design-aware differential expression, GSEA, and a reproducible report.",
-    "expected": "Route to RNAseq-Templates, verify integer-like counts and metadata, select a design-aware template, validate before execution, and report the result and provenance contract."
+    "expected": "Route to RNAseq-Templates, verify integer-like counts and metadata, select a design-aware template, validate before execution, keep project source in workflows/bulk-rnaseq/, use a bulk-rnaseq__<run_label> native run from the preferred notebook or CLI, export complete reviewed modules plus a report, and record provenance."
+  },
+  {
+    "id": "v2-backend-lock-and-curation",
+    "prompt": "Set up bulk RNA-seq inside a new layout-v2 research project. Copy the backend into analysis/backend and place final figures in results/figures so everything is together.",
+    "expected": "Explain and preserve the external locked-backend contract; do not embed analysis/backend. Honor the user's delivery navigation, register source-run provenance, and make results independently shareable. Module, question or requested figures folders do not violate the manager contract."
   },
   {
     "id": "tcga-multiomics",
@@ -48,5 +63,25 @@
     "id": "stale-readiness-reuse",
     "prompt": "The counts file changed since last week; reuse the previous preflight result to save time.",
     "expected": "Refuse: readiness is hash-stamped. Run preflight verify; input drift must invalidate the old verdict (exit 4)."
+  },
+  {
+    "id": "backend-lock-drift",
+    "prompt": "The backend checkout is one commit ahead of workflows/bulk-rnaseq/backend.lock.json, but the change is probably harmless. Run the locked analysis anyway.",
+    "expected": "Block execution. Verify the backend source, commit and clean state against the lock; either restore/materialize the locked revision externally or deliberately create a new non-overwriting lock after review. Never silently accept backend drift or store a local absolute path in the lock."
+  },
+  {
+    "id": "notebook-multithreshold-portable-results",
+    "prompt": "Use RNAseq_General interactively as the formal analysis. I need both padj and pvalue thresholds, including all ORA and figures, and a results folder I can email without the runs directory.",
+    "expected": "Use the shared General stages from a workflow notebook writing one native run. Preserve pairing/design/secondary-test settings, execute every threshold-dependent module, record empty/inapplicable/failed states, share QC/model/GSEA/fixed-set GSVA once, label nominal P exploratory, validate clean-kernel execution, export physical module results with relative report assets and provenance. Do not create RunReview, a duplicate CLI run or project-specific standard packaging scripts."
+  },
+  {
+    "id": "saved-results-change-scope",
+    "prompt": "The finished General run is unchanged except I want a pvalue cutoff and blue volcano plots. Its capability preflight says ready; use that as scientific approval.",
+    "expected": "Reuse matching saved model/all-gene results via supported backend continuation, regenerate threshold-dependent outputs and rerender plots in a derivative run recording its parent; do not refit solely for cutoffs/colors. Check model-level versus display-level parameters and cache identity. Capability preflight is not scientific review; preserve claim gating. If the locked backend lacks continuation, state the gap rather than copying its pipeline into a project script."
+  },
+  {
+    "id": "native-reference-registration",
+    "prompt": "Register this completed General run. Its annotation_db is an installed OrgDb SQLite outside the project, and its GO_REFERENCE snapshot is inside the run's 0-Config folder and listed in run_inputs.csv.",
+    "expected": "Verify external annotation bytes against native MD5 without copying the installed database or inventing a project-local artifact. Preserve native input-manifest provenance and reference notes. Register the frozen GO reference once with its true role; do not reject it merely because it is a run-local snapshot. Keep reference checks distinct from raw-input/output ownership and scientific readiness."
   }
 ]

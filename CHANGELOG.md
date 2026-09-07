@@ -7,6 +7,34 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Added scoped historical-result review after backend defects: the bulk skill
+  checks the actual revision, execution path and affected calculations; the
+  manager preserves original runs and records correction lineage and dependent
+  claim updates. Current skill capabilities must be checked against a project's
+  locked backend, without inventing saved-state support for legacy runs.
+
+- Aligned `bulk-rnaseq-analysis` and `manage-research-project` with formal
+  notebook or CLI execution, complete declared-threshold coverage, dependency-
+  scoped recalculation and portable module-oriented delivery. Updated generated
+  project instructions and removed question-only result-layout audit errors.
+  Capability preflight, execution verification and scientific assessment remain
+  distinct; legacy projects and independent skill installation remain supported.
+- Added native RNA-seq metadata mapping and a generic, idempotent run/artifact
+  registry importer with checksum verification and delivery-parent links.
+  Native reference handling verifies external annotation dependencies without
+  copying them and deduplicates frozen reference snapshots within a run.
+  Native path resolution honors explicit run-relative bases, supports legacy
+  project-relative paths only with unique checksum matches, and rejects lost
+  or ambiguous reference locations.
+  Fixed mixed manifest commit values and portable delivery-relative paths in
+  the project audit without suppressing missing-file or unsafe-path checks.
+
+- Made the project AGENTS template load context by task: status and handoff
+  first, analysis/design/data records when needed, and only relevant sections
+  for narrow documentation or configuration edits. Readiness and data-governance
+  checks remain required when applicable. Local checkout/link/update examples
+  now use the `~/Skills/` source-root convention.
+
 - Rebuilt `manage-research-project` around orthogonal source,
   implementation, execution, validation, readiness, claim, lifecycle and
   reproduction states. Structure audits now explicitly leave scientific
@@ -14,12 +42,12 @@ skill-scoped semantic-version tags.
   data freezes, null findings, scoped readiness, artifact/run lineage and
   human-data access boundaries, with a non-upgrading migration rule for legacy
   `confirmed`/`supported` labels.
-- Bridged `manage-research-project` to the two-layer analysis output contract:
-  the scaffold stays generic, but the `AGENTS.md`/`README.md` templates and the
-  `SKILL.md` safety rules now document that pipeline-native run bundles belong
-  under `analysis/runs/<run_id>/` (created on demand) while `results/` holds
-  only curated deliverables, so the skill composes cleanly with
-  `bulk-rnaseq-analysis` and the RNAseq-Templates runners.
+- Unified `manage-research-project` and `bulk-rnaseq-analysis` on the project
+  layout v2 contract: authored sources live only under `workflows/`, specs and
+  immutable native bundles under `analysis/`, curated deliverables under
+  domain-selected `results/`, and lineage under `provenance/`. New projects
+  receive a validated `PROJECT_LAYOUT.json`; legacy retrofit remains
+  non-migrating and accepts the historical root `PIPELINE.md`.
 - Synced `bulk-rnaseq-analysis` with the RNAseq-Templates backend: all six
   templates (General plus the five topic templates) now ship a
   `config.R` + `run_analysis.R` + `visualize_results.R` CLI runner, so the
@@ -34,6 +62,10 @@ skill-scoped semantic-version tags.
 
 ### Added
 
+- Added v2 structure-audit checks for parallel source roots, embedded Git
+  backends and malformed layout manifests, plus an
+  external backend-lock helper that records and verifies cloneable Git origins
+  and full commits and materializes them in a project-external cache.
 - Added policy-bound `research-readiness/v1` and generic AnalysisSpec
   validation; versioned gate-policy and source-manifest schemas;
   non-overwriting source/code baseline verification; typed, hash-bound evidence

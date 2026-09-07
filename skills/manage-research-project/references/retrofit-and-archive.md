@@ -20,7 +20,33 @@ and legacy readiness run evidence may lack `log_sha256` or
 columns/fields only from verifiable lineage. Until migrated, treat affected
 readiness as `review`/stale rather than fabricating IDs or rewriting history.
 
-Do not rewrite a working project merely to match the template tree.
+Do not rewrite a working project merely to match the template tree. Do not
+create `provenance/PROJECT_LAYOUT.json`, `workflows/` or v2 result categories
+during retrofit. A v2 migration is a distinct, explicitly approved operation
+with its own inventory and migration map.
+
+## Correct results affected by a backend defect
+
+Use the existing project status, decision log, run/artifact records and scoped
+readiness reports; a separate defect registry is not required.
+
+- Record the reported defect and source of evidence, old backend identity,
+  potentially affected runs/artifacts and unresolved applicability. A new
+  software release alone is neither proof of invalidity nor proof of repair.
+- Have the domain workflow determine whether the defect affects numbers,
+  interpretation, output completeness or only organization. Keep this scientific
+  judgment out of the generic structure audit.
+- Preserve original run and delivered bytes. When recomputation is authorized,
+  give it a new run identity and parent/change reason; retain verification
+  evidence comparing affected outputs. Do not overwrite old manifests or invent
+  metadata for undocumented historical executions.
+- Mark only impacted current claims/readiness as needing review using existing
+  contract states. Preserve the historical assessment record. Supersede current
+  result selections only after a replacement is verified, keeping explicit
+  old-to-new artifact links and updating reports that consume changed results.
+- Correcting numerical results does not imply authorization to reorganize or
+  delete the project. Leave unrelated analyses and previously shared archives
+  intact, and state any necessary downstream correction in the handoff.
 
 ## Freeze an archive or manuscript snapshot
 

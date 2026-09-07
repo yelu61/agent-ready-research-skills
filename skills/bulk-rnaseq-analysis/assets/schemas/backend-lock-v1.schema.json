@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "backend-lock-v1.schema.json",
+  "title": "Research backend lock v1",
+  "type": "object",
+  "required": ["schema_version", "backend", "source_url", "revision"],
+  "properties": {
+    "schema_version": {"const": "research-backend-lock/v1"},
+    "backend": {"enum": ["rnaseq-templates", "tcga-toolkit"]},
+    "source_url": {
+      "type": "string",
+      "pattern": "^(https|ssh|git)://|^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:"
+    },
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+  },
+  "additionalProperties": false
+}

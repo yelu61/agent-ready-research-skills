@@ -19,6 +19,7 @@ Last updated: {{DATE}}
 - Dirty state: TODO
 - Code-manifest artifact ID/path/hash: TODO
 - Backend name/revision: TODO
+- Workflow/backend lock: TODO: `workflows/<workflow_id>/backend.lock.json`
 
 ## Reference resources
 

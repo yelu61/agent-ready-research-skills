@@ -6,7 +6,8 @@ description: Orchestrate reproducible bulk RNA-seq downstream analysis across lo
 # Bulk RNA-seq Analysis
 
 Use this skill as the single user-facing entry point for bulk RNA-seq
-downstream analysis. Keep durable analysis logic in the selected repository;
+downstream analysis. Keep project-authored analysis logic in one
+`workflows/bulk-rnaseq/` source root and keep the selected backend external;
 perform discovery, routing, configuration, validation, execution, and result
 handoff here.
 
@@ -60,39 +61,80 @@ handoff here.
    `assets/backend-capabilities.json`; exit 3 means the claim is blocked and
    the gate's `min_fix` says what is missing. Readiness records are
    hash-stamped: re-run `preflight.py verify` after any spec/input/backend
-   change — a stale record invalidates the previous verdict.
+   change — a stale record invalidates the previous verdict. This is a backend
+   capability preflight, not the project's scientific assessment or approval
+   of the observed results. Keep execution checks and domain review separate.
 
 6. Inspect real column names, group sizes, identifiers, and repository state
    before writing configuration. Reuse existing templates and task runners.
-   For routine local group comparisons, prefer the General CLI runner as the
-   production entry point; the five topic templates (limma-voom, TimeCourse,
-   TME, WGCNA, TCGA/GEO) each ship an equivalent `templates/<Topic>/run_analysis.R`
-   runner for their pipeline. Use a notebook only when interactive exploration
-   is a stated requirement.
+   For General, use `RNAseq_General` for interactive work and the CLI for batch
+   execution; honor the user's preferred entry. Both call the same public
+   stages and may produce a formal run after validation. Do not create a
+   RunReview notebook or copy backend logic into project scripts by default.
+   The five topic templates retain their existing runners; verify their
+   individual notebook parity before treating them as interchangeable.
 
-7. Declare a new run ID and separate the complete backend-native run bundle
-   from curated deliverables before execution. Never use `notebooks/` as an
-   implicit output root and never overwrite an existing run directory unless
-   the user explicitly requests it.
+   Read `provenance/PROJECT_LAYOUT.json` when present. In a v2 project, place
+   config, scripts and source notebooks only under
+   `workflows/bulk-rnaseq/`. Do not create top-level `scripts/` or
+   `notebooks/`, `analysis/config/`, `analysis/scripts/` or an
+   `analysis/backend/` checkout. A project without the layout manifest is
+   legacy: preserve its established canonical source paths unless migration is
+   separately requested.
 
-   Pick one execution path per dataset+design and stick to it: the CLI bundle
-   for batch/production, or a notebook (output to `analysis/notebook_output/`,
-   exploratory only) for interactive exploration. Do not run a full CLI bundle
-   and a full notebook over the same inputs — that duplicates the entire
-   pipeline output. See the "Single execution path" section of
+7. Lock the selected backend before execution. A v2 workflow records only its
+   cloneable source and full commit, never a local absolute path:
+
+   ```bash
+   python3 scripts/backend_lock.py create \
+     --backend rnaseq-templates --root <discovered-backend-root> \
+     --output workflows/bulk-rnaseq/backend.lock.json
+   python3 scripts/backend_lock.py verify \
+     --lock workflows/bulk-rnaseq/backend.lock.json \
+     --root <discovered-backend-root>
+   ```
+
+   Use backend ID `tcga-toolkit` instead when routing to that backend.
+   Use `materialize` when the locked revision is not installed. It clones into
+   an external user cache and refuses a cache inside the project. Lock creation
+   refuses a dirty checkout, a non-cloneable/local-only origin, or overwrite.
+
+8. Declare a namespaced run ID
+   (`bulk-rnaseq__<run_label>`) and separate the complete backend-native bundle
+   from reviewed deliverables before execution. Never use `notebooks/` as an
+   implicit output root and never overwrite an existing run directory; use a
+   new run label.
+
+   Use one native bundle per actual execution, whether driven by notebook or
+   CLI, under `analysis/runs/`. Reuse saved model/results for downstream changes
+   with matching input and model parameters; do not rerun the whole pipeline
+   just to change entry point, threshold, plot or delivery layout. See the
+   "Execution and change scope" section of
    [references/output-contract.md](references/output-contract.md).
 
-   For an RNAseq-Templates CLI run, make the run root explicit: either enter
-   `analysis/runs/<run_id>/` before invoking the central runner or copy the
-   runner trio there. Resolve the config argument before execution, and make
+   For an RNAseq-Templates CLI run, make the run root explicit: enter
+   `analysis/runs/bulk-rnaseq__<run_label>/` before invoking the locked central
+   runner. Resolve the config argument before execution, and make
    every relative input/output path relative to that run root. Never rely on a
    template source directory as an implicit working directory.
 
-8. Validate before execution. Prefer dry-runs, dependency checks, and bundled
+9. Validate before execution. Prefer dry-runs, dependency checks, and bundled
    smoke tests.
 
-9. Execute only the requested scope, then summarize methods, parameters,
-   warnings, result locations, and reproducibility metadata.
+   When reviewing historical results after a backend fix, use the historical
+   result review procedure in [references/rnaseq-templates.md](references/rnaseq-templates.md).
+   Match the actual old revision, entry point and configuration to a documented
+   defect before deciding which outputs need recomputation. Verify capabilities
+   at the locked revision; current skill instructions do not add new APIs to an
+   older backend.
+
+10. Execute the declared modules, comparisons and every threshold's dependent
+    tasks. Check explicit completed, empty, not-applicable, disabled or failed
+    states; a missing plot or an ORA failure is not a zero-result finding.
+    Export the complete reviewed modules and a concise scientific report to a
+    portable `results/` tree using the backend exporter. Summarize methods,
+    parameters, warnings, result locations and provenance. Keep scientific
+    questions in the report/index; module folders are valid delivery navigation.
 
 ## Routing rules
 

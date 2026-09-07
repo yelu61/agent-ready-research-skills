@@ -14,20 +14,20 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE_ROOT = SKILL_ROOT / "assets" / "templates"
 
-COMMON_DIRS = [
+V2_COMMON_DIRS = [
     "docs",
     "data/raw",
     "data/processed",
     "data/metadata",
-    "notebooks",
-    "scripts/R",
-    "scripts/python",
-    "results/tables",
-    "results/figures",
-    "results/intermediate",
-    "results/reports",
+    "data/references",
+    "workflows",
+    "analysis/specs",
+    "analysis/readiness",
+    "results",
+    "provenance",
 ]
-RESEARCH_DIRS = ["prompts", "analysis/specs", "analysis/readiness", "provenance"]
+RETROFIT_COMMON_DIRS = ["docs"]
+RESEARCH_DIRS = ["analysis/specs", "analysis/readiness", "provenance"]
 MANUSCRIPT_DIRS = ["manuscript", "manuscript/source_data"]
 
 MINIMAL_FILES = {
@@ -43,21 +43,27 @@ MINIMAL_FILES = {
     "docs/ANALYSIS_PLAN.md": "docs/ANALYSIS_PLAN.md",
     "docs/SESSION_HANDOFF.md": "docs/SESSION_HANDOFF.md",
 }
+V2_INIT_FILES = {
+    "results/README.md": "results/README.md",
+    "provenance/PROJECT_LAYOUT.json": "provenance/PROJECT_LAYOUT.json",
+}
 RESEARCH_FILES = {
-    "PIPELINE.md": "PIPELINE.md",
+    "docs/PIPELINE.md": "docs/PIPELINE.md",
     "docs/READINESS.md": "docs/READINESS.md",
     "docs/RESULTS_SUMMARY.md": "docs/RESULTS_SUMMARY.md",
     "docs/REPRODUCIBILITY.md": "docs/REPRODUCIBILITY.md",
     "provenance/ARTIFACTS.tsv": "provenance/ARTIFACTS.tsv",
     "provenance/RUNS.tsv": "provenance/RUNS.tsv",
-    "prompts/notebook_audit.md": "prompts/notebook_audit.md",
-    "prompts/figure_story.md": "prompts/figure_story.md",
-    "prompts/result_interpretation.md": "prompts/result_interpretation.md",
 }
 MANUSCRIPT_FILES = {
     "manuscript/AUTHOR_QUERIES.md": "manuscript/AUTHOR_QUERIES.md",
     "manuscript/FIGURE_MANIFEST.tsv": "manuscript/FIGURE_MANIFEST.tsv",
     "manuscript/DELIVERABLE_SOURCE_MANIFEST.tsv": "manuscript/DELIVERABLE_SOURCE_MANIFEST.tsv",
+}
+
+ACCEPTED_EQUIVALENTS = {
+    "docs/PIPELINE.md": ("PIPELINE.md",),
+    "PIPELINE.md": ("docs/PIPELINE.md",),
 }
 
 DIRECTORY_OPEN_FLAGS = (
@@ -74,16 +80,23 @@ SAFE_DIRFD_SUPPORTED = (
 )
 
 
-def profile_spec(profile: str) -> tuple[list[str], dict[str, str]]:
-    directories = list(COMMON_DIRS)
+def profile_spec(
+    profile: str, *, mode: str = "init"
+) -> tuple[list[str], dict[str, str]]:
+    directories = list(V2_COMMON_DIRS if mode == "init" else RETROFIT_COMMON_DIRS)
     files = dict(MINIMAL_FILES)
+    if mode == "init":
+        files.update(V2_INIT_FILES)
     if profile in {"research", "manuscript"}:
         directories.extend(RESEARCH_DIRS)
         files.update(RESEARCH_FILES)
+        if mode == "retrofit":
+            files.pop("docs/PIPELINE.md")
+            files["PIPELINE.md"] = "docs/PIPELINE.md"
     if profile == "manuscript":
         directories.extend(MANUSCRIPT_DIRS)
         files.update(MANUSCRIPT_FILES)
-    return directories, files
+    return list(dict.fromkeys(directories)), files
 
 
 def render(template: str, context: dict[str, str]) -> str:
@@ -140,9 +153,16 @@ def write_file_exclusive(parent_fd: int, name: str, content: str) -> bool:
     return True
 
 
-def plan_scaffold(target: Path, profile: str) -> dict:
-    directories, files = profile_spec(profile)
+def plan_scaffold(target: Path, profile: str, mode: str) -> dict:
+    directories, files = profile_spec(profile, mode=mode)
     conflicts: list[dict[str, str]] = []
+
+    def accepted_equivalent(relative: str) -> str | None:
+        for candidate in ACCEPTED_EQUIVALENTS.get(relative, ()):
+            destination = target / candidate
+            if destination.is_file() and not destination.is_symlink():
+                return candidate
+        return None
 
     def blocking_ancestor(relative: str) -> Path | None:
         current = target
@@ -198,12 +218,19 @@ def plan_scaffold(target: Path, profile: str) -> dict:
         "create_files": [
             item
             for item in files
-            if not (target / item).exists() and not (target / item).is_symlink()
+            if not (target / item).exists()
+            and not (target / item).is_symlink()
+            and accepted_equivalent(item) is None
         ],
         "skip_existing_files": [
             item
             for item in files
             if (target / item).is_file() and not (target / item).is_symlink()
+        ],
+        "accepted_equivalent_files": [
+            {"canonical": item, "existing": equivalent}
+            for item in files
+            if (equivalent := accepted_equivalent(item)) is not None
         ],
         "conflicts": conflicts,
     }
@@ -277,7 +304,7 @@ def main() -> int:
         ),
         "DATE": date.today().isoformat(),
     }
-    plan = plan_scaffold(target, args.profile)
+    plan = plan_scaffold(target, args.profile, selected_mode)
     if args.apply and not SAFE_DIRFD_SUPPORTED:
         plan["conflicts"].append(
             {
@@ -296,7 +323,7 @@ def main() -> int:
         **plan,
     }
 
-    _, selected_files = profile_spec(args.profile)
+    _, selected_files = profile_spec(args.profile, mode=selected_mode)
     rendered_files: dict[str, str] = {}
     for relative in plan["create_files"]:
         source = TEMPLATE_ROOT / selected_files[relative]
@@ -378,6 +405,7 @@ def main() -> int:
             "create_directories",
             "create_files",
             "skip_existing_files",
+            "accepted_equivalent_files",
             "conflicts",
         ):
             print(f"{key}: {len(plan[key])}")

@@ -1,0 +1,12 @@
+{
+  "schema_version": "research-project-layout/v2",
+  "layout_version": 2,
+  "workflow_source_root": "workflows",
+  "analysis_spec_root": "analysis/specs",
+  "readiness_root": "analysis/readiness",
+  "native_run_root": "analysis/runs",
+  "notebook_output_root": "analysis/notebook_output",
+  "curated_results_root": "results",
+  "run_id_pattern": "^[a-z0-9][a-z0-9-]*__[A-Za-z0-9][A-Za-z0-9._-]*$",
+  "backend_policy": "external_locked"
+}
