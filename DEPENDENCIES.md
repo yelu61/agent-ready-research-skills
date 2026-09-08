@@ -19,6 +19,11 @@ contracts and limitations. Dependency absence must never be reported as a
 successful execution. This repository does not ship scLucid or persona skill
 sources and has no runtime import from them.
 
+The project manager's exploratory profile, layout mapping and sample-relation
+checks add no external packages. The exploratory memory audit needs POSIX
+no-follow reads; the sample CSV/TSV validator is read-only. A project map does
+not add custom-path support to a separate analysis backend.
+
 ## Repository checks
 
 The standard-library test run checks contracts, routing, filesystem safety and

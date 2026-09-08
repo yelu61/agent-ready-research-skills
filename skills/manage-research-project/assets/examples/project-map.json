@@ -1,0 +1,12 @@
+{
+  "schema_version": "research-project-map/v1",
+  "docs_root": "notes",
+  "source_roots": ["src", "notebooks"],
+  "raw_roots": ["inputs/raw"],
+  "run_root": "outputs/runs",
+  "results_root": "reports",
+  "documents": {
+    "docs/PROJECT_STATUS.md": "notes/current.md",
+    "docs/SESSION_HANDOFF.md": "notes/next-session.md"
+  }
+}

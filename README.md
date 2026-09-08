@@ -9,7 +9,7 @@ client-specific installations.
 
 | Skill | Purpose | Status |
 |---|---|---|
-| [`manage-research-project`](skills/manage-research-project/) | Manage research structure, source/artifact/run provenance, scoped readiness, handoff, and archives without conflating execution with scientific validity | Core |
+| [`manage-research-project`](skills/manage-research-project/) | Maintain lightweight or formal project memory, preserve custom layouts, check declared sample relations, and manage provenance, handoff and archives | Core |
 | [`bulk-rnaseq-upstream`](skills/bulk-rnaseq-upstream/) | Validate shared references and run paired-end FASTQ through HISAT2, featureCounts, and optional human-mouse read classification | Core |
 | [`bulk-rnaseq-analysis`](skills/bulk-rnaseq-analysis/) | Route reproducible bulk RNA-seq work between the RNAseq-Templates and TCGA analysis backends | Core |
 | [`critical-paper-reading`](skills/critical-paper-reading/) | Map scientific claims to evidence, calibrate causal strength, audit validity, and design actionable follow-up work | Core |
@@ -28,6 +28,14 @@ without them. The bulk downstream skill can plan and audit without its execution
 backends; executing an analysis still requires an explicitly resolved backend.
 
 ## Quick start
+
+Project management is proportional to the work: use the four-file
+[exploratory profile](skills/manage-research-project/references/exploratory-profile.md)
+for a small pilot, a formal profile for sustained research, and an explicit
+[project map](skills/manage-research-project/references/project-map.md) to retain
+an established directory layout. No folder convention establishes scientific
+validity. The optional [sample-relation check](skills/manage-research-project/references/multimodal-identity.md)
+helps document partial multi-omics matching without inferring biological identity.
 
 After installation, invoke a skill explicitly with its `$skill-name`, or make a
 natural-language request that matches its description. Explicit invocation is

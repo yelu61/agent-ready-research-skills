@@ -1,5 +1,18 @@
 # Project document contract
 
+## Scale the records to the work
+
+The document and machine-state tables below describe formal responsibilities.
+For a small pilot, [exploratory-profile.md](exploratory-profile.md) keeps the
+working history in `PROJECT_NOTES.md` without requiring separate documents or
+every state field. Still distinguish what ran, what was observed, what remains
+unverified and what should happen next. Formal reporting or readiness-dependent
+delivery requires the applicable evidence contracts.
+
+Document names denote roles. Resolve actual formal document paths through
+`PROJECT_MAP.json` when present; see [project-map.md](project-map.md). A path
+mapping does not validate contents or authorize duplicating a source of truth.
+
 ## Responsibility-specific sources of truth
 
 There is no universal source-of-truth ranking for every scientific question.

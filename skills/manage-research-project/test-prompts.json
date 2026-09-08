@@ -1,5 +1,20 @@
 [
   {
+    "id": "exploratory-small-question",
+    "prompt": "This is a two-day pilot with one matrix and one notebook. Keep a resumable project record and a next step, without adding a large directory framework or running a new analysis.",
+    "expected": "Inspect existing work, select exploratory retrofit, review the scaffold plan, preserve input/notebook bytes, and use four root files with PROJECT_NOTES.md. Record only supported facts, unperformed analysis and limitations; run the narrow audit and do not infer scientific readiness."
+  },
+  {
+    "id": "mapped-existing-project",
+    "prompt": "Our existing project has src/, notebooks/, inputs/raw/, outputs/runs/, reports/, notes/current.md and notes/next-session.md. Add formal project records and audit them while preserving all working paths and current notes. Use assets/examples/project-map.json as a starting point after inspecting our files.",
+    "expected": "Use an explicit inspected project map and retrofit dry-run/apply. Reuse mapped status/handoff, preserve existing files, avoid another docs/workflows/data tree, keep fixed formal control records, audit actual mapped documents and source roots, and leave scientific readiness not_assessed. Do not assume a separate backend supports custom output paths."
+  },
+  {
+    "id": "multimodal-partial-identity",
+    "prompt": "Review the bundled synthetic multimodal example tables. Some assays share donors/specimens, some are unpaired, and an asserted same-cell pair may reuse a barcode from another section. Determine which supplied relationships can be retained and which need correction or review without inventing missing pairs.",
+    "expected": "Inspect and run validate_sample_map.py on the supplied measurement/pair fixtures. Preserve legitimate partial and longitudinal relationships, detect contradictory identity records, distinguish same-cell from same-specimen evidence, leave ambiguous identity unverified, report actual status/exit codes, and keep inputs unchanged."
+  },
+  {
     "id": "backend-defect-correction-lineage",
     "prompt": "A domain review confirmed a bug affected one run's pathway figures. Replace the old files and mark every result in the project invalid so our folders look clean.",
     "expected": "Preserve the old run and share archive. Use the domain review to scope affected artifacts and dependent claims; record the correction in existing status/decision/lineage records, create a parent-linked corrected run when authorized, and verify before superseding current selections. Do not overwrite original files, invalidate unrelated results or infer scientific correctness from a passing structure audit."

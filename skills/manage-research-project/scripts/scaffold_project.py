@@ -10,6 +10,10 @@ import stat
 from datetime import date
 from pathlib import Path
 
+from project_contracts import ContractError
+from project_map import MAP_FILE, load_map, mapped_path, map_template
+from exploratory_profile import EXPLORATORY_FILES
+
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE_ROOT = SKILL_ROOT / "assets" / "templates"
@@ -83,6 +87,8 @@ SAFE_DIRFD_SUPPORTED = (
 def profile_spec(
     profile: str, *, mode: str = "init"
 ) -> tuple[list[str], dict[str, str]]:
+    if profile == "exploratory":
+        return [], {name: "../exploratory/" + name for name in EXPLORATORY_FILES}
     directories = list(V2_COMMON_DIRS if mode == "init" else RETROFIT_COMMON_DIRS)
     files = dict(MINIMAL_FILES)
     if mode == "init":
@@ -96,6 +102,36 @@ def profile_spec(
     if profile == "manuscript":
         directories.extend(MANUSCRIPT_DIRS)
         files.update(MANUSCRIPT_FILES)
+    return list(dict.fromkeys(directories)), files
+
+
+def configured_profile_spec(profile, mode, mapping=None):
+    directories, files = profile_spec(profile, mode=mode)
+    if profile == "exploratory":
+        if mapping is not None:
+            raise ContractError("Exploratory notes preserve existing paths without a formal project map; choose research when mapping formal document roles.")
+        return directories, files
+    if mode == "retrofit" or mapping is not None:
+        for name in ("README.md", "AGENTS.md", "CLAUDE.md"):
+            files[name] = "legacy/" + name
+    if mapping is not None:
+        files.pop("provenance/PROJECT_LAYOUT.json", None)
+        mapped_files = {}
+        for name, template in files.items():
+            destination = mapped_path(name, mapping)
+            if destination in mapped_files:
+                raise ContractError(f"Mapped scaffold files share a destination: {destination}")
+            mapped_files[destination] = template
+        files = mapped_files
+        files[MAP_FILE] = "@project-map"
+        directories = [mapping['docs_root']]
+        if mode == "init":
+            directories.extend(mapping['source_roots'] + mapping['raw_roots'] + [mapping['results_root']])
+        if profile in {"research", "manuscript"}:
+            directories.extend(RESEARCH_DIRS)
+        if profile == "manuscript":
+            directories.extend(MANUSCRIPT_DIRS)
+        directories = [mapped_path(name, mapping) if name.startswith('docs/') else name for name in directories]
     return list(dict.fromkeys(directories)), files
 
 
@@ -153,11 +189,13 @@ def write_file_exclusive(parent_fd: int, name: str, content: str) -> bool:
     return True
 
 
-def plan_scaffold(target: Path, profile: str, mode: str) -> dict:
-    directories, files = profile_spec(profile, mode=mode)
+def plan_scaffold(target: Path, profile: str, mode: str, mapping=None) -> dict:
+    directories, files = configured_profile_spec(profile, mode, mapping)
     conflicts: list[dict[str, str]] = []
 
     def accepted_equivalent(relative: str) -> str | None:
+        if mapping is not None:
+            return None
         for candidate in ACCEPTED_EQUIVALENTS.get(relative, ()):
             destination = target / candidate
             if destination.is_file() and not destination.is_symlink():
@@ -243,8 +281,9 @@ def main() -> int:
     parser.add_argument("target", type=Path)
     parser.add_argument("--mode", choices=["auto", "init", "retrofit"], default="auto")
     parser.add_argument(
-        "--profile", choices=["minimal", "research", "manuscript"], default="research"
+        "--profile", choices=["exploratory", "minimal", "research", "manuscript"], default="research"
     )
+    parser.add_argument("--layout-map", type=Path, help="Explicit project-relative ownership mapping JSON; saved non-overwriting as PROJECT_MAP.json.")
     parser.add_argument("--project-name")
     parser.add_argument("--project-type")
     parser.add_argument("--objective")
@@ -294,6 +333,16 @@ def main() -> int:
             f"Refusing retrofit because the target does not exist: {target}. Use --mode init."
         )
 
+    try:
+        mapping = load_map(target, args.layout_map)
+        plan = plan_scaffold(target, args.profile, selected_mode, mapping)
+    except (ContractError, OSError, ValueError) as exc:
+        if args.json:
+            print(json.dumps({"target": str(target), "apply": args.apply,
+                              "conflicts": [{"path": MAP_FILE, "reason": str(exc)}]}))
+            return 1
+        raise SystemExit(str(exc)) from exc
+    fixed_v2 = mapping is None and selected_mode == 'init' and args.profile != 'exploratory'
     context = {
         "PROJECT_NAME": args.project_name or target.name or "TODO: project name",
         "PROJECT_TYPE": args.project_type or "TODO: project type / modality",
@@ -303,8 +352,14 @@ def main() -> int:
             "project initialized" if selected_mode == "init" else "TODO: current stage"
         ),
         "DATE": date.today().isoformat(),
+        "SOURCE_ROOTS": ', '.join(mapping['source_roots']) if mapping else 'Inspect and retain existing source paths',
+        "RAW_ROOTS": ', '.join(mapping['raw_roots']) if mapping else 'Inspect and retain original data paths (convention: data/raw)',
+        "RUN_ROOT": mapping['run_root'] if mapping else ('analysis/runs' if fixed_v2 else 'TODO: verified existing run root'),
+        "RESULTS_ROOT": mapping['results_root'] if mapping else ('results' if fixed_v2 else 'TODO: verified existing delivery root'),
+        "SOURCE_POLICY": 'Keep authored code under workflows/<workflow_id>/.' if fixed_v2 else 'Retain authored code at its existing canonical paths; use the project map when present.',
+        "ENTRY_POINT": 'workflows/<workflow_id>/scripts/<entrypoint>' if fixed_v2 else 'TODO: verified existing script or notebook entry point',
+        "BACKEND_LOCK": 'workflows/<workflow_id>/backend.lock.json' if fixed_v2 else 'TODO: verified existing backend lock path',
     }
-    plan = plan_scaffold(target, args.profile, selected_mode)
     if args.apply and not SAFE_DIRFD_SUPPORTED:
         plan["conflicts"].append(
             {
@@ -323,13 +378,16 @@ def main() -> int:
         **plan,
     }
 
-    _, selected_files = profile_spec(args.profile, mode=selected_mode)
+    _, selected_files = configured_profile_spec(args.profile, selected_mode, mapping)
     rendered_files: dict[str, str] = {}
     for relative in plan["create_files"]:
+        if selected_files[relative] == "@project-map":
+            rendered_files[relative] = json.dumps(mapping, ensure_ascii=False, indent=2) + "\n"
+            continue
         source = TEMPLATE_ROOT / selected_files[relative]
         if not source.is_file():
             raise SystemExit(f"Missing skill template: {source}")
-        rendered_files[relative] = render(source.read_text(encoding="utf-8"), context)
+        rendered_files[relative] = render(map_template(source.read_text(encoding="utf-8"), mapping), context)
 
     report["created_directories"] = []
     report["created_files"] = []

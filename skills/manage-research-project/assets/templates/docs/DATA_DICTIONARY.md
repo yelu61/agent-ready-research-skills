@@ -6,7 +6,7 @@ Last updated: {{DATE}}
 
 | Artifact ID | Path/reference | Data type and scale | Source system/release | Raw/derived | Source provenance status | SHA-256/reference | Access class | Parent IDs | Generating run | Lifecycle | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| SRC-TODO | `data/raw/TODO` | TODO | TODO | raw | unverified | TODO | unknown | none | none | current | TODO |
+| SRC-TODO | TODO: verified raw-input path/reference | TODO | TODO | raw | unverified | TODO | unknown | none | none | current | TODO |
 
 ## Identity hierarchy and mapping
 

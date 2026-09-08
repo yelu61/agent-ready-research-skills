@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 
+from project_map import load_map
 from project_contracts import (
     ContractError,
     SOURCE_SCHEMA,
@@ -71,7 +72,10 @@ def main() -> int:
         description="Build a source-integrity manifest without overwriting an existing baseline."
     )
     parser.add_argument("project", type=Path)
-    parser.add_argument("--include", action="append", dest="includes")
+    parser.add_argument(
+        "--include", action="append", dest="includes",
+        help="Source scope; defaults to saved PROJECT_MAP.json raw_roots or data/raw.",
+    )
     parser.add_argument("--exclude", action="append", dest="excludes", default=[])
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
     parser.add_argument("--source-system")
@@ -132,8 +136,10 @@ def main() -> int:
                 f"Refusing to overwrite existing manifest: {project_relative(root, output)}"
             )
         output_relative = project_relative(root, output)
+        mapping = load_map(root)
+        default_includes = mapping["raw_roots"] if mapping else ["data/raw"]
         includes = [
-            portable_project_relative(item) for item in (args.includes or ["data/raw"])
+            portable_project_relative(item) for item in (args.includes or default_includes)
         ]
         excludes = [portable_project_relative(item) for item in (args.excludes or [])]
         for automatic in (".git", ".archive", output_relative):

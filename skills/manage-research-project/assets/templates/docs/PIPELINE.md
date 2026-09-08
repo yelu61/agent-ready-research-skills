@@ -2,17 +2,17 @@
 
 Last updated: {{DATE}}
 
-Document the workflows that actually exist. Keep authored code under
-workflows/<workflow_id>/; keep implementation, execution and validation in
+Document the workflows that actually exist. {{SOURCE_POLICY}}
+Keep implementation, execution and validation in
 separate columns. A completed process is not automatically validated or
 scientifically ready.
 
 ## Workflow map
 
     TODO: input
-      -> workflows/<workflow_id>/scripts/<entrypoint>
-      -> analysis/runs/<workflow_id>__<run_label>/
-      -> results/ (question or domain-module navigation)
+      -> {{ENTRY_POINT}}
+      -> {{RUN_ROOT}} (preserved native run bundle)
+      -> {{RESULTS_ROOT}} (question or domain-module navigation)
 
 ## Stage registry
 
@@ -24,7 +24,7 @@ scientifically ready.
 
 | Stage ID | Depends on | Backend lock | Restartable checkpoint | Integrity check | Scientific/technical validation scope |
 |---|---|---|---|---|---|
-| TODO | TODO | workflows/TODO/backend.lock.json | TODO | TODO | TODO |
+| TODO | TODO | {{BACKEND_LOCK}} | TODO | TODO | TODO |
 
 ## Known gaps
 
@@ -33,5 +33,5 @@ scientifically ready.
 
 ## Minimal reproduction commands
 
-    # TODO: verify workflows/<workflow_id>/backend.lock.json
-    # TODO: run workflows/<workflow_id>/scripts/<entrypoint>
+    # Verify the actual backend lock: {{BACKEND_LOCK}}
+    # Record the actual reproduction command for: {{ENTRY_POINT}}

@@ -1,5 +1,13 @@
 # Research project layout contract v2
 
+## Scope and alternatives
+
+This contract applies to a project that explicitly declares fixed v2 ownership.
+It is the default for new formal scaffolds, not a universal research layout.
+Use [exploratory-profile.md](exploratory-profile.md) for a four-file pilot record
+and [project-map.md](project-map.md) to retain established custom paths. Read
+the project's actual declaration before enforcing any v2-only rule below.
+
 ## Ownership model
 
 A v2 project has four non-overlapping layers:
@@ -71,11 +79,13 @@ Source-run paths belong in provenance; they must not be needed to open results.
 
 ## Layout identity and compatibility
 
-New projects declare v2 in `provenance/PROJECT_LAYOUT.json`. The manifest
+New formal projects without a custom map declare v2 in `provenance/PROJECT_LAYOUT.json`. The manifest
 contains the canonical roots, run-ID pattern and backend policy. Agents and
 domain skills must read it before choosing project paths.
 
-Projects without that manifest are legacy layouts. Audit them against their
+Projects with `PROJECT_MAP.json` use its explicit mapping; the two manifests
+cannot coexist. Projects with neither manifest retain legacy paths (or an
+explicit exploratory profile). Audit formal legacy projects against their
 existing canonical entry points. Retrofit may add missing governance records
 but must not create `workflows/`, move files or synthesize a v2 manifest.
 Migration is a separate, explicitly approved operation.

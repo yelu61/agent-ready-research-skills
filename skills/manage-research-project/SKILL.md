@@ -39,6 +39,31 @@ when checking platform requirements or installing this skill alone.
 If the user does not name a mode, inspect the target first and choose the least
 destructive mode. A populated directory defaults to `retrofit`, never `init`.
 
+## Choose a proportionate profile and layout
+
+Directory names are conventions, not a scientific quality standard. Inspect
+existing ownership and the intended use before choosing a scaffold:
+
+| Need | Profile and layout |
+|---|---|
+| Small question, pilot or short exploration | `exploratory`: four root memory files, no new directories; keep current paths |
+| Sustained analysis with several runs or collaborators | `research`: explicit records for design, execution, provenance and handoff |
+| Manuscript or formal delivery | `manuscript`: research records plus figure/source manifests and author queries |
+| Compatibility with an older compact formal scaffold | `minimal`: retains its existing document/data structure; it is larger than exploratory |
+
+For an established project, preserve its layout. When existing paths differ
+from defaults, use [project-map.md](references/project-map.md) to map document,
+source, raw-input, run and delivery responsibilities. Do not add a second
+`docs/`, `workflows/` or results tree merely to satisfy a template. The fixed v2
+layout is the default for a new formal project with no explicit mapping; it is
+not required for every research activity.
+
+For exploratory work, read [exploratory-profile.md](references/exploratory-profile.md)
+and use `PROJECT_NOTES.md` for the question, inputs, actual actions, observations,
+limits/decisions and next step. The formal document/registry requirements below
+apply when those responsibilities are needed; do not generate a full readiness
+package for a pilot checkpoint. Scientific uncertainty still stays explicit.
+
 ## Load only relevant references
 
 - Read [document-contract.md](references/document-contract.md) whenever creating
@@ -47,6 +72,9 @@ destructive mode. A populated directory defaults to `retrofit`, never `init`.
   legacy-state migration.
 - Read [project-profiles.md](references/project-profiles.md) when tailoring the
   scaffold or analysis checklist to a modality.
+- Read [multimodal-identity.md](references/multimodal-identity.md) when relating
+  donors, specimens, sections, libraries or cells across assays/time points.
+  Its optional validator checks declared relationships, not biological truth.
 - Read [readiness-contract.md](references/readiness-contract.md) when creating,
   validating, interpreting or staling a readiness declaration.
 - Read [analysis-spec-contract.md](references/analysis-spec-contract.md) when
@@ -96,31 +124,33 @@ Apply uses directory-relative, no-follow creation to prevent symlink path
 escape. On platforms without the required `dir_fd` and `O_NOFOLLOW` support,
 the helper safely refuses `--apply`; dry-run inspection remains available.
 
-Profiles:
-
-- `minimal`: agent rules, core project memory and safe data/result directories.
-- `research` (default): minimal plus pipeline, results summary,
-  reproducibility, readiness and run/artifact registries.
-- `manuscript`: research plus author queries and figure/source manifests.
+Select `--profile exploratory` for the four-file profile. The CLI keeps
+`research` as its compatibility default; choose the profile deliberately.
+For an existing custom layout, supply `--mode retrofit --layout-map map.json`
+on the first scaffold. Apply saves `PROJECT_MAP.json`; subsequent scaffold and
+audit calls read it automatically. An audit can inspect an external map with
+`--layout-map` without saving it. Review a map before use; never infer its
+ownership from similar filenames alone.
 
 Safety rules:
 
 - Never overwrite an existing file.
-- Never modify anything under `data/raw/`.
+- Never modify source bytes under `data/raw/` or declared mapped raw roots.
 - Never reorganize an established project unless the user explicitly requests
   that separate action.
 - Prefer documenting the existing layout over forcing the template layout.
-- New projects use `research-project-layout/v2`: authored source is owned only
+- New formal projects without a custom map use `research-project-layout/v2`: authored source is owned only
   by `workflows/<workflow_id>/`, native runs by `analysis/runs/<run_id>/`,
   reviewed deliverables by `results/` and lineage by
   `provenance/`. The scaffold records these roots in
   `provenance/PROJECT_LAYOUT.json`.
 - Retrofit does not create a v2 layout manifest or a speculative `workflows/`
-  root. Treat a project without `PROJECT_LAYOUT.json` as legacy until a
-  separate migration is explicitly approved.
+  root. An explicit `PROJECT_MAP.json` owns mapped paths; projects with neither
+  manifest remain legacy. Both manifests cannot own one project simultaneously.
+  Mapping records ownership without moving files or migrating a layout version.
 - For computational backends, keep each complete native run bundle under
   `analysis/runs/<run_id>/` and only curated deliverables under `results/`
-  (the two-layer contract used by the analysis skills). The scaffold creates
+  in fixed v2, or under the declared mapped roots. The scaffold creates
   `results/`; `analysis/runs/` is created by the pipeline on first run.
 - Notebook and CLI are both valid formal entry points when the domain workflow
   records inputs, parameters, execution order, environment and validation in a
@@ -135,7 +165,9 @@ Safety rules:
   index instead of accumulating `v*` navigation directories.
 - Keep backend repositories outside the project. A workflow binds a cloneable
   source and fixed revision in `workflows/<workflow_id>/backend.lock.json`;
-  do not create project-local backend worktrees.
+  in mapped/legacy projects use the existing canonical source location instead.
+  Do not create project-local backend worktrees. A domain backend must explicitly
+  support any custom run paths; a manager map does not configure that backend.
 - Back up before replacing instructions or retiring a canonical document.
 - Use relative project paths in generated docs and code.
 - If the project lives in a cloud-synced folder (iCloud Drive, Dropbox,
@@ -148,6 +180,12 @@ Safety rules:
   that the project is ready.
 
 ## Phase 3 — Establish the project contract
+
+For exploratory work, fill the corresponding sections of `PROJECT_NOTES.md`
+from evidence and stop when the next task is resumable. For formal projects,
+document names below denote roles; resolve their actual locations from the map.
+Formal machine ledgers remain under `provenance/`, with specs/readiness under
+`analysis/specs/` and `analysis/readiness/`; these paths are not remapped.
 
 After scaffolding, populate only facts supported by the project:
 
@@ -183,9 +221,23 @@ The metadata above are illustrative. Replace them with verified source values;
 omit an unknown optional value instead of copying an example or writing a
 placeholder into a machine contract.
 
-The builder defaults to `data/raw/`, hashes regular files, rejects unsafe paths
+The builder defaults to saved map `raw_roots`, otherwise `data/raw/`;
+`--include` explicitly replaces that scope. It hashes regular files, rejects unsafe paths
 and symlinks, and refuses to overwrite an existing baseline. A checksum proves
 byte identity, not provenance authenticity or scientific validity.
+
+For single-cell, spatial or multi-omics identity records, optionally run:
+
+```bash
+python scripts/validate_sample_map.py --measurements measurements.tsv \
+  --pairs declared-pairs.tsv --json
+```
+
+Retain original pseudonymous IDs and explicit matching evidence. Unpaired or
+partially overlapping assays are allowed. Equal barcodes, nearby sections or
+similar expression do not establish the same cell. Exit 0 means declared
+records are structurally consistent; 1 requests review and 2 identifies invalid
+records. Identity authenticity and scientific validity remain unassessed.
 
 Keep behavior in `AGENTS.md`/`CLAUDE.md`; keep science and task state out of
 those instruction files.
@@ -193,7 +245,9 @@ those instruction files.
 ## Phase 4 — Checkpoint after meaningful work
 
 Treat documentation as part of the task's definition of done. Update only the
-documents whose trigger fired:
+documents whose trigger fired. In exploratory mode, update the matching note
+sections instead of creating all documents below. Link existing inputs, commands,
+outputs and limitations; never invent run IDs or infer validation from a plot.
 
 1. Update `PROJECT_STATUS.md` when completed work, blockers or next task changed.
 2. Replace `SESSION_HANDOFF.md` with the current resumable state.
@@ -234,11 +288,14 @@ legacy `confirmed` or `supported` label into a stronger current claim.
 Run:
 
 ```bash
-python scripts/audit_project.py /path/to/project --profile research
+python scripts/audit_project.py /path/to/project --json
 ```
 
-Use `--json` for machine-readable output and `--strict` when warnings should
-fail CI. The audit checks required files, stale status/handoff dates, unresolved
+The default profile `auto` recognizes an explicit exploratory marker only when
+no formal project records take precedence; otherwise it audits `research`.
+Select `--profile manuscript` for manuscript-specific requirements. An explicit
+exploratory check is a narrow memory check, not a downgrade of a formal project.
+Use `--strict` when warnings should fail CI. The formal audit checks required files, stale status/handoff dates, unresolved
 TODOs, raw-data protection, old absolute paths in active source cells, and
 manifest targets. When a source manifest exists, it also verifies its contract
 and current bytes.
@@ -263,6 +320,12 @@ An audit request authorizes read-only inspection, not broad reorganization.
 Repair only bounded, supported issues; report everything else as an open item.
 
 ## Phase 6 — Archive or hand off
+
+For an exploratory freeze, preserve the note and declared artifacts, record
+included/excluded scope and hashes, verify the copied bytes, and state which
+execution, provenance and scientific checks were not performed. Do not invent
+formal registries or assessments to fill a template. Formal delivery uses the
+full checklist below, proportionate to the declared snapshot scope.
 
 For a phase freeze:
 
@@ -323,7 +386,7 @@ snapshot checklist.
 
 At the end of any mode, report:
 
-1. selected mode and target;
+1. selected mode, profile, layout and target;
 2. files inspected, created, updated, skipped and backed up;
 3. verified project facts versus TODOs/author queries;
 4. decisions, provenance records and orthogonal state changes;
@@ -344,9 +407,10 @@ execution state, outputs and provenance.
 - Run `scripts/audit_project.py`.
 - Validate Markdown links or manifest targets that were added.
 - Confirm existing files were not overwritten.
-- Confirm `data/raw/` was not modified.
-- Confirm `PROJECT_STATUS.md` and `SESSION_HANDOFF.md` agree on the next task.
-- Confirm each new finding has source artifact/run IDs, uncertainty, scope and
+- Confirm raw-input locations, including mapped roots, were not modified.
+- Confirm `PROJECT_STATUS.md` and `SESSION_HANDOFF.md` agree on the next task,
+  or that exploratory `PROJECT_NOTES.md` has one current next step.
+- For formal findings, confirm source artifact/run IDs, uncertainty, scope and
   intended use, requested and authorized claim classes, claim authorization,
   target and achieved validation levels, lifecycle and a hash-bound readiness
   reference.

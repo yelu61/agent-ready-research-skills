@@ -1,7 +1,9 @@
 # Scientific project profiles
 
 Apply only the profile relevant to the project. These are audit prompts, not
-automatic method choices.
+automatic method choices. Modality and management depth are separate choices:
+an exploratory pilot can record relevant unknowns in one note; a sustained or
+formal project needs the corresponding design, lineage and assessment records.
 
 For every profile, identify the independent unit, inclusion/exclusion rule,
 source snapshot, domain, study type, analysis mode, requested claim class,
@@ -44,6 +46,9 @@ choosing methods.
 ## Multi-omics and time courses
 
 - Maintain a cross-modality sample/subject/timepoint key.
+- Use [multimodal-identity.md](multimodal-identity.md) and its optional read-only
+  validator to distinguish same donor, same specimen, same cell and longitudinal
+  relationships. Preserve partial/unpaired designs; no matching is inferred.
 - State which units truly overlap across modalities and how unmatched units are
   handled; sample-count concordance is not proof of identity.
 - Audit missing modalities, nonmatching time points and modality-specific batch.

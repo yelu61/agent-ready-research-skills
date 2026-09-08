@@ -2,6 +2,11 @@
 
 ## Retrofit an established project
 
+Choose the profile first. A small exploration can keep four root files and one
+working note. A formal custom layout can use [project-map.md](project-map.md)
+to reuse existing document/source/input/run/delivery paths without moving them.
+Inspect and reuse an existing canonical document before creating another.
+
 1. Inventory the existing layout and canonical entry points.
 2. Identify duplicate, stale and orphaned documents without moving them.
 3. Determine which results are generated, manually curated or externally
@@ -49,6 +54,13 @@ readiness reports; a separate defect registry is not required.
   intact, and state any necessary downstream correction in the handoff.
 
 ## Freeze an archive or manuscript snapshot
+
+For an exploratory freeze, preserve the working note and explicitly selected
+artifacts, record scope and hashes, verify the copy, and state unperformed
+execution/provenance/scientific checks. Do not fabricate registries or claim a
+full reproducibility archive from sparse notes. For formal snapshots, use the
+applicable records below; include the project map when present so paths remain
+interpretable.
 
 Record:
 

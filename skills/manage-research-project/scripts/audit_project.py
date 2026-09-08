@@ -17,7 +17,9 @@ from project_contracts import (
     resolve_project_relative,
     verify_source_manifest_document,
 )
-from scaffold_project import ACCEPTED_EQUIVALENTS, profile_spec
+from scaffold_project import ACCEPTED_EQUIVALENTS, configured_profile_spec
+from project_map import MAP_FILE, load_map, mapped_path, audit_map
+from exploratory_profile import audit_exploratory, is_exploratory
 
 
 AUDIT_SCHEMA = "project-structure-audit/v2"
@@ -234,7 +236,7 @@ def relative_parts(path: Path, root: Path) -> set[str]:
     return cumulative | set(parts)
 
 
-def scan_absolute_paths(root: Path) -> list[dict[str, str]]:
+def scan_absolute_paths(root: Path, mapping=None) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     candidates = [
         root / "docs",
@@ -247,6 +249,10 @@ def scan_absolute_paths(root: Path) -> list[dict[str, str]]:
         root / "docs" / "PIPELINE.md",
         root / "PIPELINE.md",
     ]
+    if mapping is not None:
+        candidates = [root / mapping['docs_root'], *[root / p for p in mapping['source_roots']],
+                      *[root / p for p in mapping.get('documents', {}).values()],
+                      root / 'README.md', root / 'AGENTS.md', root / 'CLAUDE.md']
     files: list[Path] = []
     for candidate in candidates:
         candidate_relative = candidate.relative_to(root).as_posix()
@@ -529,9 +535,10 @@ def main() -> int:
     parser.add_argument("target", type=Path)
     parser.add_argument(
         "--profile",
-        choices=["minimal", "research", "manuscript"],
-        default="research",
+        choices=["auto", "exploratory", "minimal", "research", "manuscript"],
+        default="auto",
     )
+    parser.add_argument('--layout-map', type=Path, help='Read an explicit map without writing or migrating files.')
     parser.add_argument("--stale-days", type=int, default=30)
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--json", action="store_true")
@@ -540,6 +547,24 @@ def main() -> int:
         parser.error("--stale-days must be non-negative")
 
     root = args.target.expanduser().resolve()
+    if args.profile == 'auto':
+        formal = args.layout_map is not None or any(
+            (root / p).exists() or (root / p).is_symlink() for p in
+            (LAYOUT_MANIFEST, MAP_FILE, 'provenance/RUNS.tsv', 'docs/ANALYSIS_PLAN.md'))
+        args.profile = 'research' if formal else ('exploratory' if is_exploratory(root) else 'research')
+    if args.profile == 'exploratory':
+        findings = audit_exploratory(args.target.expanduser(), args.stale_days)
+        if args.layout_map is not None:
+            findings.append(issue('error', 'exploratory-layout-map', MAP_FILE,
+                                  'Use research to audit a formal project map; exploratory checks only the compact memory.'))
+        counts = {level: sum(x['level'] == level for x in findings) for level in ('error', 'warning', 'info')}
+        report = {'schema_version': AUDIT_SCHEMA, 'audit_kind': 'exploratory-memory', 'target': str(root),
+                  'profile': args.profile, 'layout_generation': 'preserved',
+                  'structure_status': structure_status(findings), 'source_integrity': 'not_assessed',
+                  'scientific_readiness': 'not_assessed', 'counts': counts, 'findings': findings}
+        print(json.dumps(report, ensure_ascii=False, indent=2) if args.json else
+              f"EXPLORATORY AUDIT: {report['structure_status']}; scientific_readiness=not_assessed\n" + '\n'.join(x['message'] for x in findings))
+        return 1 if counts['error'] or (args.strict and counts['warning']) else 0
     structure_findings: list[dict[str, str]] = []
     source_findings: list[dict[str, str]] = []
     source_integrity = "not_assessed"
@@ -554,15 +579,22 @@ def main() -> int:
             )
         )
     else:
-        layout = load_project_layout(root, structure_findings)
-        layout_generation = "v2" if layout is not None else "legacy"
-        _, required_files = profile_spec(
-            args.profile, mode="init" if layout is not None else "retrofit"
-        )
+        mapping = None
+        try:
+            mapping = load_map(root, args.layout_map)
+        except (ContractError, OSError, ValueError) as exc:
+            structure_findings.append(issue('error', 'project-map-invalid', MAP_FILE, str(exc)))
+        layout = load_project_layout(root, structure_findings) if mapping is None else None
+        layout_generation = 'mapped' if mapping is not None else ("v2" if layout is not None else "legacy")
+        _, required_files = configured_profile_spec(args.profile, "init" if layout is not None else "retrofit", mapping)
+        if mapping is not None:
+            structure_findings.extend(audit_map(root, mapping))
+            if args.layout_map is not None and not (root / MAP_FILE).exists():
+                required_files.pop(MAP_FILE, None)
         for relative in required_files:
             path = safe_regular_project_file(root, relative, structure_findings)
             if path is None and layout is None:
-                for equivalent in ACCEPTED_EQUIVALENTS.get(relative, ()):
+                for equivalent in (() if mapping is not None else ACCEPTED_EQUIVALENTS.get(relative, ())):
                     path = safe_regular_project_file(
                         root, equivalent, structure_findings
                     )
@@ -594,20 +626,22 @@ def main() -> int:
                     issue("warning", "agents-read", "AGENTS.md", str(exc))
                 )
             else:
-                if "data/raw" not in agents_text:
+                protected_roots = mapping['raw_roots'] if mapping else ['data/raw']
+                if any(relative not in agents_text for relative in protected_roots):
                     structure_findings.append(
                         issue(
                             "warning",
                             "raw-protection",
                             "AGENTS.md",
-                            "Raw-data protection is not explicit.",
+                            "Raw-input paths are not all named in working agreements; review their protection rules.",
                         )
                     )
 
         document_paths: dict[str, Path | None] = {}
-        for relative in ("docs/PROJECT_STATUS.md", "docs/SESSION_HANDOFF.md"):
+        for canonical in ("docs/PROJECT_STATUS.md", "docs/SESSION_HANDOFF.md"):
+            relative = mapped_path(canonical, mapping)
             path = safe_regular_project_file(root, relative, structure_findings)
-            document_paths[relative] = path
+            document_paths[canonical] = path
             if path is None:
                 continue
             try:
@@ -638,6 +672,7 @@ def main() -> int:
 
         status_path = document_paths["docs/PROJECT_STATUS.md"]
         handoff_path = document_paths["docs/SESSION_HANDOFF.md"]
+        docs_relative = mapping['docs_root'] if mapping else 'docs'
         status_present, status_task = (
             extract_next_task(status_path) if status_path else (False, None)
         )
@@ -649,7 +684,7 @@ def main() -> int:
                 issue(
                     "warning",
                     "next-task",
-                    "docs/PROJECT_STATUS.md",
+                    mapped_path("docs/PROJECT_STATUS.md", mapping),
                     "No next minimal executable task section.",
                 )
             )
@@ -658,7 +693,7 @@ def main() -> int:
                 issue(
                     "warning",
                     "next-task",
-                    "docs/SESSION_HANDOFF.md",
+                    mapped_path("docs/SESSION_HANDOFF.md", mapping),
                     "No next minimal executable task section.",
                 )
             )
@@ -667,7 +702,7 @@ def main() -> int:
                 issue(
                     "warning",
                     "next-task-mismatch",
-                    "docs/SESSION_HANDOFF.md",
+                    mapped_path("docs/SESSION_HANDOFF.md", mapping),
                     "The handoff next task differs from PROJECT_STATUS.md.",
                 )
             )
@@ -676,25 +711,27 @@ def main() -> int:
                 issue(
                     "warning",
                     "next-task-incomplete",
-                    "docs/",
+                    docs_relative + '/',
                     "Only one of PROJECT_STATUS.md and SESSION_HANDOFF.md has a concrete next task.",
                 )
             )
 
         todo_count = 0
-        docs = root / "docs"
+        docs = root / docs_relative
         if docs.is_symlink():
             structure_findings.append(
                 issue(
                     "error",
                     "path-symlink",
-                    "docs",
+                    docs_relative,
                     "Audit inputs must not be symlinks.",
                 )
             )
             document_candidates: list[Path] = []
         else:
             document_candidates = list(docs.glob("*.md")) if docs.is_dir() else []
+            if mapping:
+                document_candidates = list(set(document_candidates + [root / p for p in mapping.get('documents', {}).values()]))
         for candidate in document_candidates:
             relative = candidate.relative_to(root).as_posix()
             path = safe_regular_project_file(root, relative, structure_findings)
@@ -718,7 +755,7 @@ def main() -> int:
                 issue(
                     "info",
                     "todo-count",
-                    "docs/",
+                    docs_relative + '/',
                     f"{todo_count} unresolved TODO placeholders; structure may pass while scientific readiness remains unassessed.",
                 )
             )
@@ -729,6 +766,7 @@ def main() -> int:
             "docs/PIPELINE.md",
             "PIPELINE.md",
         ):
+            relative = mapped_path(relative, mapping)
             path = safe_regular_project_file(root, relative, structure_findings)
             if path is None:
                 continue
@@ -752,7 +790,7 @@ def main() -> int:
                 )
             )
 
-        structure_findings.extend(scan_absolute_paths(root))
+        structure_findings.extend(scan_absolute_paths(root, mapping))
         structure_findings.extend(check_manifest_targets(root))
 
         source_manifest = safe_regular_project_file(

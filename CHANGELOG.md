@@ -7,6 +7,19 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Made project management proportional to scope: added a four-file exploratory
+  profile and narrow memory audit, explicit existing-layout mapping with mapped
+  document/source checks, and mapped default source-baseline scopes. Existing
+  formal profiles and fixed layout v2 remain compatible. Maps preserve paths,
+  reject ownership aliases/collisions, and do not configure analysis backends.
+- Added an optional read-only multimodal measurement/pair validator for donor,
+  specimen, section, cell and longitudinal relationships. Partial/unpaired
+  designs remain valid; ambiguous identity requests review, and record
+  consistency never implies biological authenticity or scientific validation.
+- Added regression fixtures for exploratory selection, non-overwriting mapped
+  retrofit, source drift, unsafe/colliding paths, template rendering and
+  multimodal pairing constraints; documented proportional checkpoint/archive use.
+
 - Corrected scientific claim calibration: causal identification, local
   mechanism, replication, prediction and external validity are separate axes.
   Added material-backed paper-reading cases for replicated association,

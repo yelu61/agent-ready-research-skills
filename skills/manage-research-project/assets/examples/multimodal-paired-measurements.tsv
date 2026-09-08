@@ -1,0 +1,5 @@
+measurement_id	donor_id	specimen_id	modality	timepoint	section_id	cell_namespace	cell_id
+rna-cell-1	D1	S1	scRNA	baseline		capture-S1	cell-A
+atac-cell-1	D1	S1	ATAC	baseline		capture-S1	cell-A
+spatial-section-1	D1	S1	spatial-RNA	baseline	S1-section-1	""	""
+spatial-section-2	D1	S1	spatial-RNA	baseline	S1-section-2	""	""

@@ -1,0 +1,3 @@
+measurement_id,donor_id,specimen_id,modality,timepoint
+rna-before,D1,S1,scRNA,baseline
+spatial-after,D1,S2,spatial-RNA,week-4

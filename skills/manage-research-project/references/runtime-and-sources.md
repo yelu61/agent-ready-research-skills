@@ -11,6 +11,11 @@ where its Python/file dependencies are available.
 reports unsupported runtimes before modifying records. A successful structure
 audit does not establish software reproduction or scientific validity.
 
+The exploratory memory audit also uses POSIX no-follow reads and refuses
+unsupported platforms, aliases and oversized memory files. Project mapping and
+the CSV/TSV sample-relation validator require no third-party Python packages.
+No pipeline or domain backend is installed by these helpers.
+
 No sibling skill, persona, scLucid instance or external service is required.
 Scientific reviewers are optional producers of domain evidence. Without one,
 finish project organization, source integrity and handoff with scientific
@@ -21,6 +26,11 @@ input, software and data requirements.
 
 Last checked: 2026-09-08. The schemas, templates and scripts here are original
 project conventions, not verbatim implementations of an external standard.
+
+The exploratory profile, project-map schema and multimodal identity examples
+are original project-management resources. Examples contain synthetic IDs.
+The identity validator checks supplied records for consistency; it neither
+authenticates specimen provenance nor infers physical same-cell pairing.
 
 | Source | Principle used | Limit |
 |---|---|---|
