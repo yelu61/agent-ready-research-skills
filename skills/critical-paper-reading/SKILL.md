@@ -48,6 +48,13 @@ Ask for additional material only when the missing source or user goal would
 materially change the analysis. Otherwise proceed with a scoped assessment and
 label the limitation.
 
+Record the article identifier, preprint/published version, retrieval date and
+available corrections or retractions. A failed status lookup is `not checked`,
+not evidence that no correction exists. Read [methodology and sources](references/methodology.md)
+for design-specific checks. Other skills are optional: use available tools
+directly, or assess supplied material with explicit coverage limits. No other
+skill or scLucid installation is required.
+
 ### Select a mode
 
 Use the requested mode, or infer the narrowest one that satisfies the request:
@@ -85,22 +92,23 @@ record:
 |---|---|
 | Claim | The authors' substantive assertion |
 | Evidence | The experiment, figure, analysis, or comparison supporting it |
-| Evidence status | Direct, indirect, inferred, external context, or unavailable |
-| Design strength | Descriptive, associative, predictive, perturbational, rescue, or validation |
+| Evidence origin | Reported, inspected, inferred, external, or unavailable |
+| Test relation | Direct, indirect, or not assessed for this exact claim |
+| Evidence dimensions | Measurement, identification, mechanism, replication, external validity |
 | Main caveat | The most consequential alternative explanation or missing control |
 | Verdict | Supported, partially supported, overclaimed, contradicted, or not assessable |
 
-Use these evidence-status labels consistently:
+Use these evidence-origin labels consistently, separately from the verdict:
 
 - **Reported**: the authors state it, but it has not yet been independently
   evaluated in this reading.
-- **Directly supported**: the displayed experiment or analysis directly tests it.
-- **Indirectly supported**: the result is compatible with the claim but also with
-  meaningful alternatives.
+- **Inspected**: the relevant result and available method were read. A direct
+  test addresses the exact claim and can support or contradict it; an indirect
+  test leaves additional explanations. Directness is not a positive verdict.
 - **Inferred**: your interpretation rather than an explicit paper result.
-- **Externally contextualized**: supported or challenged by information outside
+- **External**: supported or challenged by information outside
   the paper.
-- **Unknown**: the necessary evidence is missing or inaccessible.
+- **Unavailable**: the necessary evidence is missing or inaccessible.
 
 When citing evidence, point to the relevant figure, table, method, or supplement
 when available.
@@ -110,18 +118,22 @@ when available.
 Do not equate correlation, prediction, spatial proximity, enrichment, or
 perturbation response with mechanism.
 
-Use the strongest defensible rung:
+Assess distinct dimensions for each claim; there is no universal evidence rank:
 
-1. descriptive difference;
-2. association or co-occurrence;
-3. predictive relationship;
-4. temporal or dose-consistent relationship;
-5. perturbational dependence;
-6. necessity or sufficiency;
-7. rescue or orthogonal mechanistic support;
-8. independent or clinically relevant validation.
+| Dimension | Required reasoning |
+|---|---|
+| Measurement and estimation | What was measured, with what experimental unit, effect and uncertainty? |
+| Causal identification | What estimand and design identify the effect, under which consistency, exchangeability, positivity and timing assumptions? |
+| Mechanism | Which links have specific perturbation, necessity/sufficiency, mediator or rescue evidence in the tested system? |
+| Replication | Are these new independent units, repeated measurements, reanalysis, or orthogonal assays on the same material? |
+| External validity | Which populations, settings and outcomes were independently evaluated? |
 
-Explicitly flag jumps between rungs. A perturbation can still be confounded by
+External or prospective validation of association/prediction does not alone
+establish causality or mechanism. Temporal ordering and dose response are not
+sufficient identification conditions. Assess observational causal analyses
+under their explicit assumptions; lack of randomization alone is not a
+rejection rule. A specific intervention may support a local causal contribution
+without establishing patient benefit. A perturbation can still be confounded by
 off-target effects, toxicity, compensatory responses, or altered cell
 composition. Mechanistic claims generally need orthogonal evidence and a
 plausible chain between cause and phenotype.
@@ -140,7 +152,9 @@ Focus on checks that could change the conclusion.
 - Are effect sizes and uncertainty shown, not only P values?
 - Is multiple testing handled where required?
 - Are model assumptions, sensitivity analyses, and missing-data choices examined?
-- Is the study powered for its principal claim?
+- What prespecified sample-size rationale, detectable effect or interval
+  precision supports the principal claim? Do not substitute post-hoc observed
+  power for uncertainty.
 
 ### Computation and reproducibility
 
@@ -180,6 +194,10 @@ Use only the lenses relevant to the paper.
 | Multi-omics | matched units; layer-specific QC; integration assumptions; feature-selection circularity; concordance versus causality; validation of cross-layer links |
 
 ## Step 7: Judge novelty and importance
+
+For a current novelty or baseline claim, search the relevant literature and
+record the search date, scope and closest comparators. If search is unavailable,
+label novelty as provisional from supplied material.
 
 Separate four questions:
 

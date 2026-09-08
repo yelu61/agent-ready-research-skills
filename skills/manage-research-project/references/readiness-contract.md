@@ -4,6 +4,30 @@ Scientific readiness is scoped to one intended use. It is never a property of
 the whole project, and it is not inferred from folder completeness or a
 successful command.
 
+## Supported interface and prototype boundary
+
+`validate_readiness.py` and `research-readiness/v1` are the current supported
+readiness path. `validate_scientific_readiness.py` and the v2 readiness/policy/spec
+schemas are an experimental library with incomplete integration and validation;
+they are not advertised as an execution, publication or scientific approval gate.
+Direct CLI use exits with an explicit error instead of silently returning zero.
+Do not relabel v2 JSON as v1. A future migration requires an explicit adapter,
+positive and negative semantic fixtures, and a documented compatibility release.
+
+`research-project-layout/v2` is already supported and does not imply readiness
+v2 support. Keep the two version families distinct.
+
+## Composing optional scientific reviews
+
+Other skills are not installation dependencies. A supplied `ReasoningBrief` or
+`WorkflowReview` may inform the question and design, but its draft version and
+stage `READY` do not conform automatically to this readiness contract. Preserve
+question/evidence IDs as provenance and record an explicit mapping to analysis,
+source, artifact and run IDs. Missing bindings remain missing evidence. Only a
+domain assessment with the required policy and evidence can authorize a claim.
+The project manager can finish structure/integrity work while that assessment is
+unavailable; do not invent one or force installation of a named assessor skill.
+
 ## Responsibility boundary
 
 - A domain skill or named expert assessor owns the scientific gate policy and

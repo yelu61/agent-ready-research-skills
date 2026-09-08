@@ -13,10 +13,19 @@ client-specific installations.
 | [`bulk-rnaseq-upstream`](skills/bulk-rnaseq-upstream/) | Validate shared references and run paired-end FASTQ through HISAT2, featureCounts, and optional human-mouse read classification | Core |
 | [`bulk-rnaseq-analysis`](skills/bulk-rnaseq-analysis/) | Route reproducible bulk RNA-seq work between the RNAseq-Templates and TCGA analysis backends | Core |
 | [`critical-paper-reading`](skills/critical-paper-reading/) | Map scientific claims to evidence, calibrate causal strength, audit validity, and design actionable follow-up work | Core |
+| [`scientific-reasoning`](skills/scientific-reasoning/) | Frame biomedical questions, estimands, alternative explanations, falsification and validation plans | Core |
+| [`scrna-analysis-core`](skills/scrna-analysis-core/) | Review single-cell workflows and inspect AnnData, count representations and sample-level design | Core |
 
 Each directory under `skills/` is independently installable. Runtime
-instructions, scripts, references, and assets required by a skill must remain
-inside that skill directory.
+instructions, authored scripts, references, and assets remain inside that skill
+directory. External software and data requirements are declared separately in
+[DEPENDENCIES.md](DEPENDENCIES.md) and in each package's references. Installation
+of a skill does not install analysis software or certify an analysis environment.
+
+scLucid, named researcher perspectives and other skills are optional adapters.
+The two reasoning/review skills complete their core work from supplied materials
+without them. The bulk downstream skill can plan and audit without its execution
+backends; executing an analysis still requires an explicitly resolved backend.
 
 ## Quick start
 
@@ -36,6 +45,12 @@ RNA-seq backend, and produce a reproducible downstream-analysis plan.
 
 Use $critical-paper-reading to map this paper's major claims to evidence,
 identify causal overreach, and propose decisive follow-up experiments.
+
+Use $scientific-reasoning to define the estimand and competing explanations
+for this treatment-response hypothesis, then propose a falsification plan.
+
+Use $scrna-analysis-core to inspect this AnnData object and determine whether
+the requested donor-level contrast is estimable before choosing an analysis.
 ```
 
 Open a new Codex task or restart the agent client after first installation so
@@ -49,6 +64,8 @@ its skill index is refreshed.
 | Process paired-end bulk RNA-seq FASTQ into gene-level counts with a shared immutable reference | `bulk-rnaseq-upstream` | “Validate this FASTQ set and reference bundle, then prepare the upstream run.” |
 | Route a bulk RNA-seq request to local, GEO, or cancer-cohort analysis backends | `bulk-rnaseq-analysis` | “Analyze these raw counts and explain which backend and expression scale are appropriate.” |
 | Critically assess one scientific paper beyond summarization | `critical-paper-reading` | “Build a claim–evidence map and distinguish association from causal support.” |
+| Develop or audit a research question and its evidence requirements | `scientific-reasoning` | “Separate local mechanism, population prediction and treatment-selection claims.” |
+| Plan or review a single-cell RNA-seq workflow and inspect its data contract | `scrna-analysis-core` | “Check counts, biological replication, batch confounding and this contrast.” |
 
 Skills may be combined sequentially. For example, use
 `manage-research-project` to establish the workspace,
@@ -103,7 +120,26 @@ python3 scripts/validate_skills.py
 python3 -m unittest discover -s tests -v
 ```
 
-The GitHub Actions workflow runs the same checks on pushes and pull requests.
+The GitHub Actions workflow runs these checks on pushes and pull requests and
+has a separate numerical dependency job. See [DEPENDENCIES.md](DEPENDENCIES.md)
+for the distinction between wrapper regressions, numerical fixtures, and full
+bioinformatics execution. Prompt cases are evaluation inputs, not proof of
+model-level success unless their actual outputs have been reviewed.
+
+## License and resource provenance
+
+Original code, instructions, schemas and synthetic fixtures are distributed
+under the [MIT License](LICENSE), also included in each standalone package.
+[SOURCES.md](SOURCES.md) identifies methodological sources and maintenance rules.
+Linked publications, external software, databases and researcher identities
+retain their own rights; this license does not relicense them or imply their
+authors endorse these skills. Publisher full text and personal perspective
+skills are not bundled.
+
+This repository is the sole maintenance source for `scientific-reasoning` and
+`scrna-analysis-core` after migration. Local compatibility links may remain in
+the private collection, but edits and releases belong here; do not maintain a
+second private copy.
 
 ## Repository policy
 

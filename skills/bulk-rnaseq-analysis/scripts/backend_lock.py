@@ -71,7 +71,7 @@ def validate_source_url(value: str) -> str:
         raise BackendLockError(
             "Backend source must be a cloneable HTTPS, SSH, git, or SCP-style Git URL."
         )
-    if parsed.scheme == "https" and (parsed.username or parsed.password):
+    if parsed.password or (parsed.scheme == "https" and parsed.username) or parsed.query or parsed.fragment:
         raise BackendLockError("Backend source URL must not contain credentials.")
     return value
 
@@ -158,10 +158,10 @@ def verify_checkout(
     if dirty:
         raise BackendLockError("Backend checkout has uncommitted or untracked changes.")
     source_url = run_git(checkout, "config", "--get", "remote.origin.url")
+    if verify_source:
+        validate_source_url(source_url)
     if verify_source and source_url != lock["source_url"]:
-        raise BackendLockError(
-            f"Backend source drift: expected {lock['source_url']}, found {source_url}."
-        )
+        raise BackendLockError("Backend source drift: origin differs from the locked source.")
     return {
         "status": "verified",
         "backend": lock["backend"],

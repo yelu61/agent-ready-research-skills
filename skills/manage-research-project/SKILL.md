@@ -19,6 +19,13 @@ successful run does not establish validity, reproduction, causality or truth.
 Scientific readiness must come from a named domain assessor using a versioned
 gate policy and is always scoped to an intended use.
 
+The supported readiness interface is `validate_readiness.py` with
+`research-readiness/v1`. The separate v2 prototype is an experimental library,
+not a supported CLI or release gate; see the
+[readiness contract](references/readiness-contract.md). Layout v2 is independent
+of readiness versioning. Use [runtime and sources](references/runtime-and-sources.md)
+when checking platform requirements or installing this skill alone.
+
 ## Select one operating mode
 
 | Mode | Use when | Primary outcome |
@@ -303,6 +310,10 @@ snapshot checklist.
   using them for `PASS` or `NA`.
 - Require a domain-specific gate policy; do not invent generic statistical
   approval rules inside this project-management skill.
+- Domain-assessor skills, scLucid and external project tools are optional.
+  Without them, complete project structure, integrity, provenance and handoff
+  work directly, leaving scientific readiness `not_assessed`. Record missing
+  domain evidence rather than requiring another skill merely to organize files.
 - Report limitations that could change the conclusion near that conclusion.
 - Preserve raw identifiers and explicit mappings to public/display labels.
 - For human data, preserve subject → specimen → library/capture → observation

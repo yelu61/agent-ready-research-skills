@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scientific Reasoning"
+  short_description: "Plan mechanisms, evidence, claims, and expert lenses"
+  default_prompt: "Use $scientific-reasoning to frame this biomedical question, route any requested expert lenses, specify falsifiers, and calibrate claims."

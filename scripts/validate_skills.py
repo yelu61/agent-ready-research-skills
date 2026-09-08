@@ -22,6 +22,14 @@ NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
 
+def package_target(skill: Path, origin: Path, target: str) -> Path:
+    """Resolve a bundled resource without following a dependency outside it."""
+    path = (origin.parent / target).resolve()
+    if not path.is_relative_to(skill.resolve()):
+        raise ValueError("resource resolves outside its independently installable package")
+    return path
+
+
 def frontmatter(text: str) -> dict[str, str]:
     if not text.startswith("---\n"):
         raise ValueError("SKILL.md must start with YAML frontmatter")
@@ -85,14 +93,26 @@ def validate_skill(skill: Path) -> list[str]:
                 f"{openai_yaml.relative_to(ROOT)}: default prompt should reference ${name}"
             )
 
-    for match in LINK_RE.finditer(text):
-        target = match.group(1).split("#", 1)[0]
-        if not target or target.startswith(("http://", "https://", "mailto:", "#")):
+    license_file = skill / "LICENSE"
+    if not license_file.is_file():
+        errors.append(f"{skill.relative_to(ROOT)}: missing standalone LICENSE")
+
+    for resource in skill.rglob("*"):
+        if resource.is_symlink():
+            errors.append(f"{resource.relative_to(ROOT)}: skill packages must not contain symlinks")
+    for markdown in sorted(skill.rglob("*.md")):
+        if not markdown.is_file():
             continue
-        if not (skill / target).exists():
-            errors.append(
-                f"{skill_file.relative_to(ROOT)}: broken relative link {target!r}"
-            )
+        for match in LINK_RE.finditer(markdown.read_text(encoding="utf-8")):
+            target = match.group(1).split("#", 1)[0]
+            if not target or target.startswith(("http://", "https://", "mailto:")):
+                continue
+            try:
+                resolved = package_target(skill, markdown, target)
+                if not resolved.exists():
+                    raise ValueError("resource does not exist")
+            except (OSError, ValueError) as exc:
+                errors.append(f"{markdown.relative_to(ROOT)}: invalid bundled link {target!r}: {exc}")
 
     prompt_file = skill / "test-prompts.json"
     if prompt_file.exists():
@@ -102,10 +122,29 @@ def validate_skill(skill: Path) -> list[str]:
                 errors.append(
                     f"{prompt_file.relative_to(ROOT)}: expected a non-empty JSON list"
                 )
+            else:
+                ids = set()
+                for item in prompts:
+                    if not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"].strip():
+                        errors.append(f"{prompt_file.relative_to(ROOT)}: each case needs a nonempty id")
+                        continue
+                    if item["id"] in ids:
+                        errors.append(f"{prompt_file.relative_to(ROOT)}: duplicate case id {item['id']!r}")
+                    ids.add(item["id"])
+                    if not isinstance(item.get("prompt"), str) or not item["prompt"].strip():
+                        errors.append(f"{prompt_file.relative_to(ROOT)}: case {item['id']} lacks a prompt")
+                    if "material" in item:
+                        try:
+                            if not isinstance(item["material"], str):
+                                raise ValueError("material must be a package-relative path")
+                            if not package_target(skill, prompt_file, item["material"]).is_file():
+                                raise ValueError("material file does not exist")
+                        except (OSError, ValueError) as exc:
+                            errors.append(f"{prompt_file.relative_to(ROOT)}: case {item['id']}: {exc}")
         except (json.JSONDecodeError, UnicodeError) as exc:
             errors.append(f"{prompt_file.relative_to(ROOT)}: {exc}")
 
-    for script in sorted((skill / "scripts").glob("*.py")):
+    for script in sorted((skill / "scripts").rglob("*.py")):
         try:
             compile(
                 script.read_text(encoding="utf-8"),
@@ -145,4 +184,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

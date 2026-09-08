@@ -2,7 +2,7 @@
   {
     "id": "single-species-shared-reference",
     "prompt": "I have paired-end bulk RNA-seq FASTQ and a versioned shared GRCh38/GENCODE reference bundle. Validate the inputs and prepare a reproducible HISAT2-to-featureCounts upstream run without downloading or rebuilding the reference.",
-    "expected": "Confirm single-species routing, validate the complete shared reference bundle and FASTQ pairing, require consistent strandedness settings, run preflight before execution, and preserve provenance."
+    "expected": "Confirm single-species routing, verify schema-2 reference fingerprints and FASTQ file pairing, require consistent strandedness settings plus reviewed source/evidence, run preflight before execution, and preserve provenance. Distinguish wrapper validation from untested real alignment accuracy."
   },
   {
     "id": "xenograft-human-mouse",
@@ -13,5 +13,20 @@
     "id": "reference-reuse-bed12",
     "prompt": "We already built the HISAT2 index, FASTA .fai, and transcript BED12 for this exact FASTA and GTF release. Should the next project regenerate them?",
     "expected": "Reuse the validated read-only bundle; rebuild only when the FASTA, GTF, release, filtering, build parameters, or conversion method changes, and create a new versioned directory rather than overwriting the old one."
+  },
+  {
+    "id": "unknown-strandedness",
+    "prompt": "The library protocol is unknown and I have no RSeQC output. Use the default none/0 and mark strandedness verified.",
+    "expected": "Do not manufacture evidence or mark unknown orientation verified. Obtain a reviewed library protocol or pilot RSeQC assessment; the current runner requires STRANDEDNESS_SOURCE and a non-empty evidence file even for none/0. A file checksum records the evidence, not its scientific interpretation."
+  },
+  {
+    "id": "legacy-fingerprint-repair",
+    "prompt": "The old reference only has FASTA and GTF hashes. Just hash the index files now and upgrade the old manifest so preflight passes.",
+    "expected": "Recover trusted original build/source/direction provenance and check existing input hashes before registering a new versioned schema-2 bundle. Current bytes alone do not prove index-to-reference identity. Preserve the old bundle; rebuild from known inputs in a new directory if the provenance cannot be recovered."
+  },
+  {
+    "id": "stale-trimmed-and-zero-counts",
+    "prompt": "A previous run left another sample in trimmed/. The new count table is non-empty but has an unexpected sample column and all zeros for one current sample. Is the run ready?",
+    "expected": "Only the current manifest samples enter trimming/alignment/counting. Count columns/order and non-negative integers must pass the validator; an unexpected column is a failure, not a usable partial run. Zeros alone may satisfy structural checks but still require mapping/assignment QC and scientific review. Preserve residual files without including them."
   }
 ]

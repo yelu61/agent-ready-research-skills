@@ -13,7 +13,7 @@ handoff here.
 
 ## Workflow
 
-1. Discover and validate both backends:
+1. Discover candidate backends:
 
    ```bash
    python3 scripts/backend_router.py discover --json
@@ -22,6 +22,12 @@ handoff here.
    Prefer `RNASEQ_TEMPLATES_ROOT` and `TCGA_TOOLKIT_ROOT` when set. Otherwise
    use the discovered repositories. Do not assume a user-specific absolute
    path.
+
+   Discovery reports locations, not execution readiness. With no backend,
+   complete the question, design, scale, spec and capability audit; state
+   `execution_ready=false`. Obtain a user-authorized checkout or existing
+   source/commit lock when execution is required. No public canonical backend
+   URL is assumed. See [runtime and sources](references/runtime-and-sources.md).
 
 2. Inspect the request and available inputs before choosing an analysis:
    identify data source, assay scale, species, sample metadata, experimental
@@ -48,22 +54,20 @@ handoff here.
    - Analysis spec and claim gating: [references/analysis-spec.md](references/analysis-spec.md)
    - Final delivery and provenance: [references/output-contract.md](references/output-contract.md)
 
-5. Gate the claim, not just the route. The router only selects a backend and
+5. Audit capability compatibility, not just the route. The router selects a backend and
    blocks scale-incompatible requests (e.g. TPM→DESeq2, exit code 3). Before
    any confirmatory/predictive claim, write a BulkAnalysisSpec v1 (see
    [references/analysis-spec.md](references/analysis-spec.md)) and run:
 
    ```bash
-   python3 scripts/preflight.py check --spec spec.json --backend-revision <rev>
+   python3 scripts/preflight.py check --spec spec.json --mode audit
    ```
 
-   Preflight compares the requested `claim_class` against
-   `assets/backend-capabilities.json`; exit 3 means the claim is blocked and
-   the gate's `min_fix` says what is missing. Readiness records are
-   hash-stamped: re-run `preflight.py verify` after any spec/input/backend
-   change — a stale record invalidates the previous verdict. This is a backend
-   capability preflight, not the project's scientific assessment or approval
-   of the observed results. Keep execution checks and domain review separate.
+   The legacy field `claim_class` selects an explicitly supported mode; it is
+   not a universal evidence ranking. A compatible audit returns `plan-only`
+   with `execution_ready=false`; exit 3 means blocked and includes a remedy.
+   Execution readiness is checked after locking the backend in step 7.
+   This is not scientific assessment or approval of observed results.
 
 6. Inspect real column names, group sizes, identifiers, and repository state
    before writing configuration. Reuse existing templates and task runners.
@@ -98,6 +102,27 @@ handoff here.
    Use `materialize` when the locked revision is not installed. It clones into
    an external user cache and refuses a cache inside the project. Lock creation
    refuses a dirty checkout, a non-cloneable/local-only origin, or overwrite.
+
+   Reuse the capability binding for that exact source/commit, or create it
+   once from existing verifiable backend review/test artifacts using
+   `preflight.py prepare-review` and `bind-capabilities`, as documented in
+   [analysis spec](references/analysis-spec.md). Do not mark a template or
+   untested assertion as a passing review. The bundled catalog is unbound.
+   Then run:
+
+   ```bash
+   python3 scripts/preflight.py check --spec spec.json --mode execute \
+     --capabilities <bound-capabilities.json> \
+     --backend-lock workflows/bulk-rnaseq/backend.lock.json \
+     --backend-root <discovered-backend-root>
+   python3 scripts/preflight.py verify --spec spec.json \
+     --readiness spec.readiness.json
+   ```
+
+   Proceed only when `execution_ready=true`. Verify re-reads the saved
+   capability/lock paths and actual checkout, and hashes inputs, review
+   artifacts, schemas and evaluator code. Stale records exit 4; a current
+   blocked record still exits 3. A current planning record never permits a run.
 
 8. Declare a namespaced run ID
    (`bulk-rnaseq__<run_label>`) and separate the complete backend-native bundle
@@ -156,6 +181,10 @@ handoff here.
 
 - Require integer-like raw counts for DESeq2. Do not silently run DESeq2 on
   TPM, FPKM, VST, rlog, or arbitrary normalized values.
+- The implemented DESeq2, limma-voom and time-course routes share a raw-count
+  whitelist. Direct TPM/log-TPM input to voom is blocked too; limma on
+  appropriately modeled log-expression is a different workflow. Supported
+  tximport/tximeta workflows elsewhere are not implemented by these routes.
 - Never treat VST/rlog as TPM or attempt to invert it. TME workflows requiring
   abundance-scale input must use TPM or raw counts plus gene lengths.
 - Match species, gene identifier type, genome annotation, and gene-set
@@ -167,6 +196,12 @@ handoff here.
   t-test is the wrong model, not a simpler one.
 - Inspect event coding, time units, missingness, and sample overlap before
   survival modelling.
+- Predictive external validation needs actual model metadata and backend
+  config plus hashed training/validation patient membership linked to the
+  expression and clinical files. Three lock booleans do not establish this.
+  Check the current external-model limitations in
+  [analysis spec](references/analysis-spec.md); capability compatibility does
+  not establish calibration, performance, causal mechanism or clinical utility.
 - Report sample sizes and filtering losses. Flag underpowered comparisons and
   do not present exploratory thresholds as confirmatory findings.
 - Keep counts, normalized matrices, metadata, and feature annotations as

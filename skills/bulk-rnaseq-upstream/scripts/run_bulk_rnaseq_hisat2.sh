@@ -17,6 +17,8 @@ Required variables:
   OUTDIR
   HISAT2_STRANDNESS    none | FR | RF
   FEATURECOUNTS_STRAND 0 | 1 | 2
+  STRANDEDNESS_SOURCE  rseqc | library_protocol
+  STRANDEDNESS_EVIDENCE Path to reviewed RSeQC output or library protocol record
   DO_TRIM              yes | no
 
 Required model variable:
@@ -52,7 +54,7 @@ set -a
 source "${CONFIG}"
 set +a
 
-for var in THREADS REFERENCE_DIR REFERENCE_ID ANNOTATION_ID FASTQ_DIR OUTDIR HISAT2_STRANDNESS FEATURECOUNTS_STRAND DO_TRIM MODEL_MODE; do
+for var in THREADS REFERENCE_DIR REFERENCE_ID ANNOTATION_ID FASTQ_DIR OUTDIR HISAT2_STRANDNESS FEATURECOUNTS_STRAND STRANDEDNESS_SOURCE STRANDEDNESS_EVIDENCE DO_TRIM MODEL_MODE; do
   [[ -n "${!var:-}" ]] || { echo "Missing config variable: ${var}" >&2; exit 1; }
 done
 
@@ -97,6 +99,14 @@ case "${HISAT2_STRANDNESS}:${FEATURECOUNTS_STRAND}" in
     exit 1
     ;;
 esac
+
+case "${STRANDEDNESS_SOURCE}" in
+  rseqc|library_protocol) ;;
+  *) echo "Strandedness source is unknown: review RSeQC or the library protocol before counting" >&2; exit 1 ;;
+esac
+[[ -s "${STRANDEDNESS_EVIDENCE}" ]] || {
+  echo "Missing or empty strandedness evidence: ${STRANDEDNESS_EVIDENCE}" >&2; exit 1;
+}
 
 for value_name in DO_TRIM RUN_FASTQC RUN_MULTIQC ALLOW_OVERWRITE; do
   value="${!value_name}"
@@ -151,12 +161,19 @@ RAW_R1=( "${FASTQ_DIR}"/*"${R1_SUFFIX}" )
 }
 
 RAW_FASTQ=()
+SAMPLES=()
 for r1 in "${RAW_R1[@]}"; do
   name=$(basename "${r1}")
   sample=${name%"${R1_SUFFIX}"}
   [[ -n "${sample}" ]] || { echo "Cannot derive sample name from: ${r1}" >&2; exit 1; }
   r2="${FASTQ_DIR}/${sample}${R2_SUFFIX}"
   [[ -f "${r2}" ]] || { echo "Missing pair for ${r1}: ${r2}" >&2; exit 1; }
+  for field in "${sample}" "${r1}" "${r2}" "${OUTDIR}"; do
+    [[ "${field}" != *$'\t'* && "${field}" != *$'\n'* && "${field}" != *$'\r'* ]] || {
+      echo "Sample/path contains a tab or newline and cannot be represented in the TSV manifest" >&2; exit 1;
+    }
+  done
+  SAMPLES+=( "${sample}" )
   RAW_FASTQ+=( "${r1}" "${r2}" )
 done
 
@@ -215,12 +232,12 @@ mkdir -p \
   "${OUTDIR}/multiqc_report" \
   "${OUTDIR}/provenance"
 
-printf 'sample\tr1\tr2\n' > "${OUTDIR}/provenance/sample_manifest.tsv"
-for r1 in "${RAW_R1[@]}"; do
-  name=$(basename "${r1}")
-  sample=${name%"${R1_SUFFIX}"}
+printf 'sample\tr1\tr2\tbam\n' > "${OUTDIR}/provenance/sample_manifest.tsv"
+for sample in "${SAMPLES[@]}"; do
+  r1="${FASTQ_DIR}/${sample}${R1_SUFFIX}"
   r2="${FASTQ_DIR}/${sample}${R2_SUFFIX}"
-  printf '%s\t%s\t%s\n' "${sample}" "${r1}" "${r2}" >> "${OUTDIR}/provenance/sample_manifest.tsv"
+  printf '%s\t%s\t%s\t%s\n' "${sample}" "${r1}" "${r2}" "${OUTDIR}/hisat2/${sample}.sorted.bam" \
+    >> "${OUTDIR}/provenance/sample_manifest.tsv"
 done
 
 config_sha256="UNAVAILABLE"
@@ -255,6 +272,9 @@ r2_suffix	${R2_SUFFIX}
 sample_count	${#RAW_R1[@]}
 hisat2_strandness	${HISAT2_STRANDNESS}
 featurecounts_strand	${FEATURECOUNTS_STRAND}
+strandedness_source	${STRANDEDNESS_SOURCE}
+strandedness_evidence	${STRANDEDNESS_EVIDENCE}
+strandedness_evidence_sha256	$(python3 -c 'import hashlib,sys; print(hashlib.sha256(open(sys.argv[1], "rb").read()).hexdigest())' "${STRANDEDNESS_EVIDENCE}")
 do_trim	${DO_TRIM}
 config	${CONFIG}
 config_sha256	${config_sha256}
@@ -284,9 +304,10 @@ fi
 
 if [[ "${DO_TRIM}" == "yes" ]]; then
   echo "=== 2. Trimmomatic ==="
-  for r1 in "${RAW_R1[@]}"; do
-    name=$(basename "${r1}")
-    sample=${name%"${R1_SUFFIX}"}
+  ALIGN_R1=()
+  TRIMMED_FASTQ=()
+  for sample in "${SAMPLES[@]}"; do
+    r1="${FASTQ_DIR}/${sample}${R1_SUFFIX}"
     r2="${FASTQ_DIR}/${sample}${R2_SUFFIX}"
 
     trimmomatic PE -threads "${THREADS}" -phred33 \
@@ -295,13 +316,13 @@ if [[ "${DO_TRIM}" == "yes" ]]; then
       "${OUTDIR}/trimmed/${sample}_R2_paired.fastq.gz" "${OUTDIR}/trimmed/${sample}_R2_unpaired.fastq.gz" \
       ILLUMINACLIP:"${TRIMMOMATIC_ADAPTERS}":2:30:10 \
       LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+    ALIGN_R1+=( "${OUTDIR}/trimmed/${sample}_R1_paired.fastq.gz" )
+    TRIMMED_FASTQ+=( "${OUTDIR}/trimmed/${sample}_R1_paired.fastq.gz" "${OUTDIR}/trimmed/${sample}_R2_paired.fastq.gz" )
   done
 
-  ALIGN_R1=( "${OUTDIR}"/trimmed/*_R1_paired.fastq.gz )
   ALIGN_R1_SUFFIX="_R1_paired.fastq.gz"
   ALIGN_R2_SUFFIX="_R2_paired.fastq.gz"
   if [[ "${RUN_FASTQC}" == "yes" ]]; then
-    TRIMMED_FASTQ=( "${OUTDIR}"/trimmed/*_R1_paired.fastq.gz "${OUTDIR}"/trimmed/*_R2_paired.fastq.gz )
     fastqc "${TRIMMED_FASTQ[@]}" -t "${THREADS}" -o "${OUTDIR}/fastqc_trimmed"
   fi
 else
@@ -355,6 +376,10 @@ featureCounts \
   -g gene_id \
   -o "${OUTDIR}/counts/gene_counts.txt" \
   "${BAMS[@]}"
+
+python3 "${SCRIPT_DIR}/validate_gene_counts.py" \
+  --counts "${OUTDIR}/counts/gene_counts.txt" \
+  --sample-manifest "${OUTDIR}/provenance/sample_manifest.tsv"
 
 if [[ "${RUN_MULTIQC}" == "yes" ]]; then
   echo "=== 5. MultiQC ==="

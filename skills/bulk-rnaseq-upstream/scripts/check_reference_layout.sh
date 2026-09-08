@@ -16,6 +16,8 @@ fi
 
 REFDIR="$1"
 PREFIX="${2:-${REFDIR}/hisat2_index/genome_hisat2_index}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+command -v python3 >/dev/null 2>&1 || { echo "Missing command: python3" >&2; exit 1; }
 
 missing=0
 
@@ -95,27 +97,7 @@ if [[ -e "${REFDIR}/.build_incomplete" ]]; then
   missing=1
 fi
 
-if [[ -e "${REFDIR}/reference.meta.tsv" ]]; then
-  metadata_valid=1
-  for key in reference_id annotation_id fasta_sha256 gtf_sha256 bed12_sha256 index_prefix; do
-    value=$(awk -F '\t' -v wanted="${key}" '$1 == wanted {print $2; exit}' "${REFDIR}/reference.meta.tsv")
-    if [[ -z "${value}" || "${value}" == "UNAVAILABLE" || "${value}" == "UNRECORDED" ]]; then
-      echo "Invalid: reference.meta.tsv lacks a recorded ${key}" >&2
-      metadata_valid=0
-    fi
-  done
-  recorded_prefix=$(awk -F '\t' '$1 == "index_prefix" {print $2; exit}' "${REFDIR}/reference.meta.tsv")
-  if [[ -n "${recorded_prefix}" && "${recorded_prefix}" != "$(basename "${PREFIX}")" ]]; then
-    echo "Invalid: requested index prefix $(basename "${PREFIX}") does not match metadata ${recorded_prefix}" >&2
-    metadata_valid=0
-  fi
-  if [[ "${metadata_valid}" -eq 1 ]]; then
-    echo "OK: ${REFDIR}/reference.meta.tsv"
-  else
-    missing=1
-  fi
-else
-  echo "Missing: reference.meta.tsv is required for reference provenance" >&2
+if ! python3 "${SCRIPT_DIR}/verify_reference_fingerprints.py" hisat2 "${REFDIR}" "${PREFIX}"; then
   missing=1
 fi
 

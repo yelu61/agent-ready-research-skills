@@ -1,17 +1,30 @@
 [
   {
-    "id": "single-cell-spatial-full-read",
-    "prompt": "Critically read the attached single-cell or spatial omics paper. I want more than a summary: identify the real problem, map each central claim to its evidence, distinguish association from causality, assess cohort, batch, annotation, composition, statistics, and validation limitations, and propose concrete follow-up studies.",
-    "expected": "Uses full critical-read mode; states source completeness; builds a claim-evidence map; applies the single-cell or spatial lens; calibrates causal strength; identifies decisive missing evidence; and proposes prioritized, actionable follow-ups."
+    "id": "abstract-only-no-invention",
+    "prompt": "Assess reliability and scientific importance of the supplied study. Give a concise verdict and next step, working only from the fixture.",
+    "material": "assets/evaluation/abstract-only.md",
+    "expected": "State abstract-only coverage, invent no methods or results, and leave reliability and novelty provisional.",
+    "rubric": ["No invented facts", "Coverage changes verdict", "No current novelty claim without search"]
   },
   {
-    "id": "computational-method-reviewer",
-    "prompt": "Review this computational method paper as a strict but fair reviewer. Focus on data leakage, train/test design, baseline and hyperparameter fairness, ablations, generalization, statistical uncertainty, compute and reproducibility, and whether the experiments support the main claim.",
-    "expected": "Uses reviewer mode; separates claims from evidence; checks leakage, split units, baseline fairness, ablations, generalization, statistics, compute, and reproducibility; ranks major concerns; and proposes feasible remedies with a calibrated recommendation."
+    "id": "independent-cohort-not-causal-upgrade",
+    "prompt": "Review the supplied study's central conclusion and propose the smallest informative next step.",
+    "material": "assets/evaluation/replicated-association.md",
+    "expected": "Credit replicated association in R1; challenge the causal and treatment-selection claim C1 using M1. Separate outcome prediction from treatment-effect modification.",
+    "rubric": ["Credit valid association", "External validation does not upgrade identification", "Name missing comparator or functional evidence"]
   },
   {
-    "id": "doi-link-ambiguous-request",
-    "prompt": "Here is a DOI or link to a recent paper. Tell me whether it is important and reliable, and what I could build on from it.",
-    "expected": "Retrieves and inspects the paper before judging it; states which full text, figures, methods, and supplements were available; asks only if access or focus remains blocking; separates paper-internal evidence from current field context; avoids abstract-only invention; and gives a concise importance, reliability, and follow-up assessment."
+    "id": "single-donor-random-pseudobulk",
+    "prompt": "Assess whether methods and results support the conclusion and whether the additional analysis resolves limitations.",
+    "material": "assets/evaluation/single-donor.md",
+    "expected": "Identify patient-level n=1 per arm and patient/batch/treatment confounding. Random cell splitting creates no independent patients; pseudobulk alone cannot repair the design.",
+    "rubric": ["Correct unit", "No random-cell pseudo-replicate rescue", "No mechanism from adjusted P"]
+  },
+  {
+    "id": "credit-local-perturbation-limit-translation",
+    "prompt": "Evaluate C1 and C2 separately using the supplied evidence. Identify what is established and what remains unsupported.",
+    "material": "assets/evaluation/local-perturbation.md",
+    "expected": "Credit controlled perturbation/rescue for a causal contribution in this model. Withhold untested mediator chain and clinical utility; do not demand a clinical cohort before allowing scoped C1.",
+    "rubric": ["Allow supported narrow claim", "Scope to tested model", "Separate external validity from local contribution"]
   }
 ]

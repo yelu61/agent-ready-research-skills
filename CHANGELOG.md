@@ -7,6 +7,41 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Corrected scientific claim calibration: causal identification, local
+  mechanism, replication, prediction and external validity are separate axes.
+  Added material-backed paper-reading cases for replicated association,
+  pseudoreplication, incomplete source material and justified local causality.
+- Hardened bulk upstream reference/index byte validation, current-sample
+  processing, count-column and integer validation, Xengsort identity/direction,
+  and explicit strandedness evidence. Reference manifests now use schema 2;
+  old unbound manifests require recovery/rebuild before execution.
+- Hardened downstream input-scale compatibility, formula-derived interaction
+  checks, patient-level external prediction validation, claim-class eligibility,
+  and revision/capability-bound execution readiness. Planning remains possible
+  without an execution backend.
+- Marked project-manager readiness v2 as an experimental library with an explicit
+  failing CLI; readiness v1 remains the supported interface. Added unsupported
+  locking-runtime errors before registry mutation and documented proportional
+  exploratory checkpoints.
+- Made scLucid, named researcher perspectives and sibling skills optional,
+  with native reasoning/review fallback and explicit unperformed execution.
+- Added recursive standalone-resource validation, package licenses, dependency
+  and methodological-source ledgers, and a numerical CI regression environment.
+
+### Added
+
+- Promoted `scientific-reasoning` and `scrna-analysis-core` into this canonical
+  public source collection. The private source is retired through local
+  compatibility links after independent-install validation.
+- Added compatible, package-local handoff validation and single-cell regressions
+  covering same-file/alias overwrite prevention, atomic reports, invalid counts,
+  missing labels, storage-consistent sampling and contrast estimability in
+  disconnected batch-condition designs.
+- Added MIT licensing at repository and standalone-package scope. External
+  sources and runtimes retain their own rights and are not bundled.
+
+### Earlier unreleased changes
+
 - Added scoped historical-result review after backend defects: the bulk skill
   checks the actual revision, execution path and affected calculations; the
   manager preserves original runs and records correction lineage and dependent

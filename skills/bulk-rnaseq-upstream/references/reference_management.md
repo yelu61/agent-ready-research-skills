@@ -56,24 +56,56 @@ Never replace files inside a bundle already used by a completed or active run.
 
 ## Existing local references
 
-An existing bundle may be reused without rebuilding when it already satisfies
-the layout checker and its assembly/annotation identity is known. Add or repair
-`reference.meta.tsv` once at the reference-store level; do not create a separate
-metadata copy in each analysis project. The run manifest records the selected
-bundle path, expected IDs, and metadata checksum.
+An existing bundle may be reused without rebuilding when it satisfies the
+schema-2 layout/fingerprint checker and its assembly/annotation identity is
+known. The checker streams and hashes every FASTA, FAI, GTF, BED12 and all eight
+index files each time; allow time for this read-only pass on large bundles.
+The run manifest records the selected bundle path, expected IDs and metadata
+checksum. Hash agreement detects drift from recorded bytes; it does not prove
+biological compatibility when the original build record was incorrect.
 
 At minimum, the metadata table must contain:
 
 ```text
 key\tvalue
-bundle_schema_version\t1
+bundle_schema_version\t2
 reference_id\tGRCh38
 annotation_id\tGENCODE_v49
 fasta_sha256\t<sha256>
+fai_sha256\t<sha256>
 gtf_sha256\t<sha256>
 bed12_sha256\t<sha256>
 index_prefix\tgenome_hisat2_index
+index_suffix\tht2
+index_1_sha256\t<sha256>
+... index_2_sha256 through index_8_sha256 ...
 ```
 
 Use the real identifiers and checksums for the local bundle. Do not copy these
 example values into another species or release.
+
+## Legacy bundles and Xengsort
+
+Schema-1 metadata with only FASTA/GTF/BED12 fields no longer passes. Do not
+blindly hash the files now present and call that evidence of the historical
+build. First recover the original FASTA/GTF releases, build logs/parameters,
+index version and a trusted record establishing that the index/BED12/FAI were
+derived from those inputs. Check the old recorded input hashes before adding
+new fields. With that evidence, a reference-store administrator may register a
+new versioned metadata bundle describing the unchanged verified bytes, retaining
+the old metadata; projects should not patch the old bundle in place. If source
+identity cannot be recovered, build a fresh reference from known inputs in a
+new directory. There is no automatic schema-upgrade command.
+
+New Xengsort builds additionally require `--host-label`, `--graft-label`,
+`--host-reference-id` and `--graft-reference-id`. The builder records these
+alongside source FASTA counts, per-FASTA fingerprints and SHA-256 of `.hash`
+and `.info`. Classification compares all four identities to the run config
+before execution. Original FASTA paths need not remain mounted when reusing
+a frozen index; their identities/hashes are preserved provenance, while both
+index files are always checked. Legacy Xengsort indices require recovered
+direction/build evidence and schema-2 registration, or a new verified build.
+
+Only one complete HISAT2 `.ht2` or `.ht2l` set is permitted per index prefix.
+Mixed formats are rejected rather than letting the aligner choose a set other
+than the one that was verified.

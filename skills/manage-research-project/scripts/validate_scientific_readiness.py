@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate purpose-specific scientific readiness without claiming scientific truth."""
+"""Experimental v2 readiness library; not a supported CLI or scientific gate."""
 
 from __future__ import annotations
 
@@ -10,6 +10,18 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+
+def main() -> int:
+    """Reject accidental CLI use until v2 has a validated release interface."""
+    print(json.dumps({
+        "status": "error",
+        "code": "experimental-readiness-v2",
+        "use_permitted": False,
+        "message": "Readiness v2 is an experimental library without a supported CLI. "
+                   "Use validate_readiness.py for v1 documents; do not relabel v2 as v1.",
+    }))
+    return 2
 
 from project_contracts import (
     ContractError,
@@ -2383,3 +2395,7 @@ def validate_document_v2(
         "counts": counts,
         "findings": findings,
     }
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

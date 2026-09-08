@@ -122,3 +122,10 @@ history. Bump `Last updated` on every edit.
 - Mark input, spec, gate policy, code, environment or backend changes as
   readiness-currency-staling events until reassessed.
 - Never put direct identifiers, linkage keys or credentials in project memory.
+
+For a narrow exploratory checkpoint, update only triggered records and expose
+question, actual inputs/run, observation, uncertainty and next action. Preserve
+the distinct scientific axes without forcing a full new readiness package for
+every exploratory plot. A formal claim or delivery relying on readiness still
+requires its scoped domain assessment and bindings; sparse notes never promote
+an exploratory result into an authorized claim.

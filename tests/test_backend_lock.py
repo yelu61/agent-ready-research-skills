@@ -47,6 +47,13 @@ def make_rnaseq_backend(root: Path) -> Path:
 
 
 class BackendLockTests(unittest.TestCase):
+    def test_credentials_and_query_tokens_are_rejected_without_echoing_them(self):
+        for value in ("https://user:SECRET@example.test/repo.git", "https://example.test/repo.git?token=SECRET", "ssh://git:SECRET@example.test/repo.git"):
+            with self.subTest(scheme=value.split(":")[0]):
+                with self.assertRaises(BACKEND_LOCK.BackendLockError) as caught:
+                    BACKEND_LOCK.validate_source_url(value)
+                self.assertNotIn("SECRET", str(caught.exception))
+
     def test_build_lock_records_cloneable_origin_and_full_commit(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             backend = make_rnaseq_backend(Path(temporary) / "backend")

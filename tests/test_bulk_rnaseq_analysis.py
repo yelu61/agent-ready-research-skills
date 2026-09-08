@@ -54,9 +54,9 @@ class BulkRnaSeqRouterTests(unittest.TestCase):
     def test_reports_incompatible_expression_scales(self) -> None:
         tpm = ROUTER.route("local", "tpm", {"deseq2"})
         vst = ROUTER.route("local", "vst", {"tme"})
-        self.assertTrue(any("DESeq2 requires" in item for item in tpm["blocks"]))
+        self.assertTrue(any("raw-counts" in item for item in tpm["blocks"]))
         self.assertTrue(tpm["blocked"])
-        self.assertTrue(any("VST/rlog" in item for item in vst["blocks"]))
+        self.assertTrue(any("vst" in item for item in vst["blocks"]))
         self.assertTrue(vst["blocked"])
 
     def test_unknown_analysis_terms_warn_instead_of_silent_drop(self) -> None:
@@ -116,6 +116,14 @@ class BulkRnaSeqRouterTests(unittest.TestCase):
             )
             self.assertEqual(result["rnaseq-templates"]["version"], "0.9.0")
             self.assertEqual(result["tcga-toolkit"]["version"], "0.3.0")
+            self.assertFalse(result["rnaseq-templates"]["execution_ready"])
+            self.assertFalse(result["tcga-toolkit"]["execution_ready"])
+
+    def test_count_engine_scale_whitelist_covers_every_scale(self):
+        for task in ("deg", "deseq2", "limma-voom", "time-course"):
+            for scale in ("raw-counts", "tpm", "log-tpm", "vst", "rlog", "normalized", "other", "unknown"):
+                with self.subTest(task=task, scale=scale):
+                    self.assertEqual(ROUTER.route("local", scale, {task})["blocked"], scale != "raw-counts")
 
     def test_accepts_tcga_toolkit_directory_as_configured_root(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

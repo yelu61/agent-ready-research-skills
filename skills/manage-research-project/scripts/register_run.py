@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib
 import io
 import json
 import os
@@ -18,6 +19,16 @@ from project_contracts import (
 
 
 TEMPLATES = Path(__file__).resolve().parents[1] / "assets" / "templates" / "provenance"
+
+
+def append_runtime():
+    """Check write requirements before creating directories or registry rows."""
+    if any(not hasattr(os, flag) for flag in ("O_NOFOLLOW", "O_DIRECTORY")):
+        raise ContractError("Registry writes require POSIX O_NOFOLLOW/O_DIRECTORY; use Linux, macOS or WSL. Dry run remains available.")
+    try:
+        return importlib.import_module("fcntl")
+    except ImportError as exc:
+        raise ContractError("Registry writes require fcntl locking; use Linux, macOS or WSL. Dry run remains available.") from exc
 
 
 def artifact_id(analysis_id: str, path: str, digest: str) -> str:
@@ -190,11 +201,11 @@ def main() -> int:
         document = load_json_object(metadata)
         plan = plan_registration(root, document)
         if args.apply:
+            fcntl = append_runtime()
             provenance = resolve_project_relative(root, "provenance")
             provenance.mkdir(exist_ok=True)
             # Serialize all importers on the provenance directory, without
             # leaving a new project-level lock or parallel registry file.
-            import fcntl
             fd = os.open(provenance, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX)

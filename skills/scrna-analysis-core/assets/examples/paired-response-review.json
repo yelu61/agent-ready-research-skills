@@ -1,0 +1,45 @@
+{
+  "schema_name": "WorkflowReview",
+  "schema_version": "0.2-draft",
+  "question_id": "Q7",
+  "review_id": "WR7",
+  "input_reasoning_version": "0.2-draft",
+  "example_source": "Synthetic authored evaluation output; no workflow was executed.",
+  "overall_status": "REVIEW",
+  "evidence_coverage": [
+    {
+      "evidence_id": "E1",
+      "feasibility": "partial",
+      "limitation": "Need count provenance, cell-type donor coverage, full paired design and diagnostics."
+    },
+    {
+      "evidence_id": "E2",
+      "feasibility": "infeasible",
+      "limitation": "No functional perturbation, spatial or protein evidence provided."
+    }
+  ],
+  "stages": [
+    {
+      "stage": "paired sample-level inference",
+      "status": "REVIEW"
+    },
+    {
+      "stage": "causal mechanism identification",
+      "status": "BLOCKED"
+    }
+  ],
+  "claim_boundary": {
+    "supported": [],
+    "exploratory": [
+      "paired state association after adequate design checks"
+    ],
+    "unsupported": [
+      "CAF protection proven by ligand-receptor ranking"
+    ]
+  },
+  "missing_evidence": [
+    "authoritative counts",
+    "complete sample metadata",
+    "targeted functional validation"
+  ]
+}

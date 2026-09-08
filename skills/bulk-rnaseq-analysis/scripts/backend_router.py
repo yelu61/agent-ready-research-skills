@@ -7,8 +7,12 @@ import argparse
 import json
 import os
 import re
+import sys
 from pathlib import Path
 from typing import Iterable
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from analysis_contract import INPUT_SCALES, scale_error
 
 
 RNASEQ_SENTINELS = (
@@ -146,6 +150,12 @@ def discover(start: Path) -> dict[str, object]:
     tcga = discover_one("TCGA", "TCGA_TOOLKIT_ROOT", TCGA_SENTINELS, start)
     rnaseq["version"] = repository_version(rnaseq["root"], "rnaseq-templates")
     tcga["version"] = repository_version(tcga["root"], "tcga-toolkit")
+    for item in (rnaseq, tcga):
+        item["execution_ready"] = False
+        item["status"] = "discovered-unverified" if item["found"] else "missing"
+        item["next_step"] = ("Verify a backend lock and capability binding before execution."
+                             if item["found"] else
+                             "Planning/audit remain available. Obtain an authorized backend checkout or existing lock; no canonical public URL is assumed.")
     return {"rnaseq-templates": rnaseq, "tcga-toolkit": tcga}
 
 
@@ -173,22 +183,10 @@ def route(source: str, input_type: str, analyses: set[str]) -> dict[str, object]
             + ". Check for typos; known terms are listed in SKILL.md routing rules."
         )
 
-    if {"deseq2", "deg"} & analyses and input_type in {
-        "tpm",
-        "vst",
-        "rlog",
-        "normalized",
-    }:
-        blocks.append(
-            "DESeq2 requires integer-like raw counts; running it on "
-            f"{input_type} is never valid. Provide raw counts or choose a "
-            "scale-compatible method (e.g. limma on log-scale values)."
-        )
-    if "tme" in analyses and input_type in {"vst", "rlog"}:
-        blocks.append(
-            "TME deconvolution requires abundance-scale input; VST/rlog cannot "
-            "be used as TPM. Provide TPM or raw counts plus gene lengths."
-        )
+    for task in sorted(analyses):
+        problem = scale_error(task, input_type)
+        if problem:
+            blocks.append(problem)
 
     if source in TCGA_SOURCES:
         backends = ["tcga-toolkit"]
@@ -241,11 +239,7 @@ def parser() -> argparse.ArgumentParser:
         "--input-type",
         default="unknown",
         choices=(
-            "raw-counts",
-            "tpm",
-            "vst",
-            "rlog",
-            "normalized",
+            *INPUT_SCALES,
             "maf",
             "cnv",
             "methylation",

@@ -52,7 +52,7 @@
   {
     "id": "external-validation-lock",
     "prompt": "Validate my TCGA-trained risk model on this GEO cohort; recompute the cutoff on the new cohort if it looks off.",
-    "expected": "Apply locked features/coefficients/transform/cutoff from model_meta_file. Recomputing the cutoff on the external cohort invalidates the validation claim; without locks the result is labelled EXPLORATORY."
+    "expected": "Inspect actual hashed model_meta_file, backend_config, expression/clinical files and linked training/validation patient membership. Three lock booleans are insufficient; check patient overlap in a reconciled namespace, complete feature coverage, transform and unsupported covariates. Reject cutoff refitting as locked external validation. Current capability-compatible prediction still requires exact backend evidence and does not certify performance or clinical utility."
   },
   {
     "id": "prognostic-patient-split",

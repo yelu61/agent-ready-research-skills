@@ -7,7 +7,7 @@
 | --- | --- | --- | --- |
 | 人 | GRCh38 | GENCODE / Ensembl / NCBI | `<REFERENCE_ROOT>/human/GRCh38_<annotation_release>` |
 | 小鼠 | GRCm39 | GENCODE / Ensembl / NCBI | `<REFERENCE_ROOT>/mouse/GRCm39_<annotation_release>` |
-| 大鼠 | mRatBN7.2 | Ensembl / NCBI | `<REFERENCE_ROOT>/rat/mRatBN7.2_<annotation_release>` |
+| 大鼠 | GRCr8 | Ensembl / NCBI | `<REFERENCE_ROOT>/rat/GRCr8_<annotation_release>` |
 | 斑马鱼 | GRCz11 | Ensembl / NCBI | `<REFERENCE_ROOT>/zebrafish/GRCz11_<annotation_release>` |
 | 果蝇 | BDGP6 | FlyBase / Ensembl Metazoa | `<REFERENCE_ROOT>/fly/BDGP6_<annotation_release>` |
 | 线虫 | WBcel235 | WormBase / Ensembl Metazoa | `<REFERENCE_ROOT>/worm/WBcel235_<annotation_release>` |
@@ -29,3 +29,10 @@
 
 每个标准参考目录至少包含 genome.fa、genome.fa.fai、genes.gtf、
 genes.bed12、reference.meta.tsv 和 hisat2_index/genome_hisat2_index.*。
+
+大鼠候选最后核查：2026-09-08。[Ensembl 2024-07-19 公告](https://www.ensembl.info/2024/07/19/updated-gene-annotation-for-rattus-norvegicus-norway-rat/)
+确认 GRCr8（GCA_036323735.1）取代 mRatBN7.2 为参考。旧项目仍应保留原装配；
+新项目须同时比较目标基因的注释覆盖与既有数据兼容性，不能仅按新旧选择。
+其他物种行是路由起点，并未在本次大鼠更新中逐项重新核查；实际选参考时仍应查询
+对应机构当前装配与 annotation release。依赖/方法的核查记录见
+[runtime and sources](runtime-and-sources.md)。

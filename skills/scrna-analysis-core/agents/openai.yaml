@@ -1,0 +1,4 @@
+interface:
+  display_name: "scRNA Workflow Review"
+  short_description: "Audit scRNA workflows, parameters, and claims"
+  default_prompt: "Use $scrna-analysis-core to audit this single-cell workflow, explain the results, and identify the smallest defensible next step."

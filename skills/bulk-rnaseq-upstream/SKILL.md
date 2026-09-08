@@ -66,13 +66,20 @@ runner. Host-pathogen dual RNA-seq requires a dedicated workflow.
 
 Do not assume strandedness. Use a representative alignment and the bundle's
 transcript BED12 with RSeQC, then keep HISAT2 and featureCounts settings paired
-as `none/0`, `FR/1`, or `RF/2`.
+as `none/0`, `FR/1`, or `RF/2`. Set `STRANDEDNESS_SOURCE` to `rseqc` or
+`library_protocol` and `STRANDEDNESS_EVIDENCE` to the reviewed output/protocol
+file. Unknown or missing evidence blocks preflight, including an unstranded
+`none/0` choice. The runner records the evidence checksum; it does not interpret
+the evidence or certify that the chosen protocol applies to every sample.
 
 ## Human-mouse mixture
 
 1. Build and freeze one Xengsort index for the selected human/mouse reference
    pair with `scripts/prepare_reference_xengsort.sh`.
 2. Copy [the Xengsort configuration](assets/xenograft_human_mouse.env.example).
+   Set host/graft labels and reference IDs to the intended direction. Preflight
+   checks these against the index's schema-2 manifest and verifies both index
+   files by SHA-256 before classifying any reads.
 3. Preflight and run `scripts/split_xenograft_xengsort.sh`.
 4. Run the HISAT2 runner separately on `.graft.1/2.fq.gz` and
    `.host.1/2.fq.gz`, using distinct reference bundles and output directories.
@@ -93,4 +100,15 @@ FASTA index, metadata, and source checksums.
   MultiQC provenance.
 - Use a new output directory for a changed sample set or configuration.
 - Do not delete FASTQ, BAM, reference, or classification bins automatically.
-- Confirm that the expected count table exists and is non-empty before handoff.
+- Align/count only the current sample manifest's files, including after trimming.
+- Require count columns to match that manifest's BAMs in order, unique gene rows,
+  and non-negative integer counts before handoff. A zero-count sample still needs
+  biological/QC review; structural validation is not a quality threshold.
+
+## Runtime and compatibility
+
+Read [runtime and sources](references/runtime-and-sources.md) for external tools,
+the tested boundary, method sources and compatibility changes. Reference metadata
+now requires schema 2 and actual FASTA/GTF/BED12/FAI plus index fingerprints.
+Legacy bundles fail with an actionable migration message; never manufacture a
+new manifest to hide unknown source or build provenance.

@@ -72,6 +72,10 @@ if [[ -z "${FASTA}" || -z "${GTF}" || -z "${OUTDIR}" || -z "${REFERENCE_ID}" || 
 fi
 
 [[ "${THREADS}" =~ ^[1-9][0-9]*$ ]] || { echo "--threads must be a positive integer" >&2; exit 1; }
+[[ -n "${PREFIX}" && "${PREFIX}" != */* && "${PREFIX}" != . && "${PREFIX}" != .. ]] || {
+  echo "--prefix must be an index basename" >&2; exit 1;
+}
+command -v python3 >/dev/null 2>&1 || { echo "Missing command: python3" >&2; exit 1; }
 command -v hisat2-build >/dev/null 2>&1 || { echo "Missing command: hisat2-build" >&2; exit 1; }
 command -v samtools >/dev/null 2>&1 || { echo "Missing command: samtools" >&2; exit 1; }
 command -v gtfToGenePred >/dev/null 2>&1 || { echo "Missing command: gtfToGenePred" >&2; exit 1; }
@@ -148,12 +152,13 @@ sha256_file() {
 
 cat > "${OUTDIR}/reference.meta.tsv" <<EOF
 key	value
-bundle_schema_version	1
+bundle_schema_version	2
 reference_id	${REFERENCE_ID}
 annotation_id	${ANNOTATION_ID}
 fasta_source	${FASTA_ABS}
 gtf_source	${GTF_ABS}
 fasta_sha256	$(sha256_file "${OUTDIR}/genome.fa")
+fai_sha256	$(sha256_file "${OUTDIR}/genome.fa.fai")
 gtf_sha256	$(sha256_file "${OUTDIR}/genes.gtf")
 bed12_sha256	$(sha256_file "${OUTDIR}/genes.bed12")
 outdir	${OUTDIR}
@@ -164,6 +169,17 @@ hisat2_build_version	$(hisat2-build --version 2>&1 | head -n 1)
 samtools_version	$(samtools --version 2>&1 | head -n 1)
 build_date	$(date -u '+%Y-%m-%dT%H:%M:%SZ')
 EOF
+
+INDEX_SUFFIX="ht2"
+if [[ -s "${INDEX_PREFIX}.1.ht2l" ]]; then INDEX_SUFFIX="ht2l"; fi
+printf 'index_suffix\t%s\n' "${INDEX_SUFFIX}" >> "${OUTDIR}/reference.meta.tsv"
+for part in {1..8}; do
+  [[ -s "${INDEX_PREFIX}.${part}.${INDEX_SUFFIX}" ]] || {
+    echo "Missing or empty index part: ${INDEX_PREFIX}.${part}.${INDEX_SUFFIX}" >&2; exit 1;
+  }
+  printf 'index_%s_sha256\t%s\n' "${part}" "$(sha256_file "${INDEX_PREFIX}.${part}.${INDEX_SUFFIX}")" \
+    >> "${OUTDIR}/reference.meta.tsv"
+done
 
 rm -f "${BUILD_MARKER}"
 if ! "${SCRIPT_DIR}/check_reference_layout.sh" "${OUTDIR}" "${INDEX_PREFIX}"; then

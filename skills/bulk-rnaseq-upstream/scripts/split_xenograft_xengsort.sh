@@ -12,6 +12,8 @@ Required variables:
   MODEL_MODE=cross_species
   HOST_LABEL
   GRAFT_LABEL
+  HOST_REFERENCE_ID
+  GRAFT_REFERENCE_ID
   THREADS
   XENGSORT_INDEX
   FASTQ_DIR
@@ -46,7 +48,7 @@ set -a
 source "${CONFIG}"
 set +a
 
-for var in MODEL_MODE HOST_LABEL GRAFT_LABEL THREADS XENGSORT_INDEX FASTQ_DIR OUTDIR; do
+for var in MODEL_MODE HOST_LABEL GRAFT_LABEL HOST_REFERENCE_ID GRAFT_REFERENCE_ID THREADS XENGSORT_INDEX FASTQ_DIR OUTDIR; do
   [[ -n "${!var:-}" ]] || { echo "Missing config variable: ${var}" >&2; exit 1; }
 done
 
@@ -62,6 +64,9 @@ ALLOW_OVERWRITE="${ALLOW_OVERWRITE:-no}"
   exit 1
 }
 [[ "${THREADS}" =~ ^[1-9][0-9]*$ ]] || { echo "THREADS must be a positive integer" >&2; exit 1; }
+[[ -n "${R1_SUFFIX}" && -n "${R2_SUFFIX}" && "${R1_SUFFIX}" != "${R2_SUFFIX}" ]] || {
+  echo "R1_SUFFIX and R2_SUFFIX must be non-empty and different" >&2; exit 1;
+}
 case "${XENGSORT_MODE}" in count|coverage|quick) ;; *) echo "Invalid XENGSORT_MODE: ${XENGSORT_MODE}" >&2; exit 1 ;; esac
 case "${RUN_FASTQC}" in yes|no) ;; *) echo "RUN_FASTQC must be yes or no" >&2; exit 1 ;; esac
 case "${RUN_MULTIQC}" in yes|no) ;; *) echo "RUN_MULTIQC must be yes or no" >&2; exit 1 ;; esac
@@ -75,6 +80,12 @@ case "${ALLOW_OVERWRITE}" in yes|no) ;; *) echo "ALLOW_OVERWRITE must be yes or 
 
 command -v xengsort >/dev/null 2>&1 || { echo "Missing command: xengsort" >&2; exit 1; }
 command -v gzip >/dev/null 2>&1 || { echo "Missing command: gzip" >&2; exit 1; }
+command -v python3 >/dev/null 2>&1 || { echo "Missing command: python3" >&2; exit 1; }
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INDEX_MANIFEST="${XENGSORT_INDEX}.manifest.tsv"
+python3 "${SCRIPT_DIR}/verify_reference_fingerprints.py" xengsort "${XENGSORT_INDEX}" \
+  --host-label "${HOST_LABEL}" --graft-label "${GRAFT_LABEL}" \
+  --host-reference-id "${HOST_REFERENCE_ID}" --graft-reference-id "${GRAFT_REFERENCE_ID}"
 if [[ "${RUN_FASTQC}" == "yes" ]]; then
   command -v fastqc >/dev/null 2>&1 || { echo "Missing command: fastqc" >&2; exit 1; }
 fi
@@ -246,16 +257,13 @@ sha256_file() {
   fi
 }
 
-INDEX_MANIFEST="${XENGSORT_INDEX}.manifest.tsv"
-if [[ ! -s "${INDEX_MANIFEST}" ]]; then
-  echo "WARN: Xengsort index manifest is missing: ${INDEX_MANIFEST}" >&2
-fi
-
 cat > "${OUTDIR}/run_manifest.tsv" <<EOF
 key	value
 model_mode	${MODEL_MODE}
 host_label	${HOST_LABEL}
 graft_label	${GRAFT_LABEL}
+host_reference_id	${HOST_REFERENCE_ID}
+graft_reference_id	${GRAFT_REFERENCE_ID}
 xengsort_index	${XENGSORT_INDEX}
 xengsort_index_manifest	${INDEX_MANIFEST}
 xengsort_index_manifest_sha256	$(sha256_file "${INDEX_MANIFEST}")
