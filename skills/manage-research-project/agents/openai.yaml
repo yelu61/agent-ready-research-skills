@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent-Ready Research Project"
-  short_description: "Manage research state, provenance, readiness, and archives"
-  default_prompt: "Use $manage-research-project to organize this scientific project, preserve source/artifact/run lineage, separate structure from scientific readiness, and establish durable project memory without inventing facts."
+  short_description: "Plan research priorities, milestones, records and provenance"
+  default_prompt: "Use $manage-research-project for the requested project decision or record update, selecting only the relevant mode and preserving evidence, ownership and scientific boundaries."

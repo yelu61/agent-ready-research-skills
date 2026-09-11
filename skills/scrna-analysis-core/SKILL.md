@@ -1,6 +1,6 @@
 ---
 name: scrna-analysis-core
-description: Plan, audit, and troubleshoot executable single-cell RNA-seq workflows from count-matrix provenance and AnnData integrity through QC, preprocessing, integration, clustering, annotation, sample-level differential or compositional inference, pathways, trajectories, RNA velocity, regulatory networks, and cell-cell communication. Use for h5ad, AnnData, Scanpy, scVI, scVelo, 10x matrices, UMAP, clusters, marker genes, cell identities, pseudobulk, parameter selection, result interpretation, or scRNA-seq pipeline review.
+description: Plan, troubleshoot or review scRNA-seq workflow decisions and sample-level inference; skip isolated syntax, format conversion and plot styling. Use for 单细胞流程审查、分析设计、注释依据、批次整合判断、患者级统计 and interpretation of scientific results. A file type, package name or UMAP alone is not a trigger.
 ---
 
 # scRNA Analysis Core
@@ -17,6 +17,12 @@ The core review is self-contained. `scientific-reasoning`, statistical-review
 skills and scLucid are optional: if absent, define the question, experimental
 unit, evidence needs and claim boundary here, then complete the review and
 portable handoff. Do not require installation of another skill.
+
+Scope the review to the requested decision or failure and the prerequisites
+that can change it. A focused code/API or presentation edit stays a focused
+task even if this skill is explicitly named; do not expand it into a pipeline
+review. Add another skill only for a distinct unresolved specialist question,
+not to repeat an adequate review of the same evidence.
 
 ## Select the Operating Mode
 
@@ -51,7 +57,10 @@ and missing evidence; do not silently redefine the scientific question.
 
 ## Inspect Before Recommending
 
-When a local `.h5ad` is available, run:
+When the requested scientific decision depends on local AnnData integrity,
+metadata or count representation, inspect the relevant object. Reuse current
+inspection evidence when it covers the same unchanged object and question;
+otherwise run:
 
 ```bash
 python /path/to/this-skill/scripts/inspect_anndata.py INPUT.h5ad
@@ -62,6 +71,10 @@ key discovery is ambiguous. Treat the script as structural evidence, not proof
 of biological validity. For Seurat, SingleCellExperiment, notebooks, or result
 directories, inspect equivalent matrix provenance, metadata, sample design,
 and parameter records manually.
+
+The presence of an h5ad file alone does not require this inspection. For
+isolated syntax, conversion or plot styling, perform only the checks needed
+to preserve the requested data or presentation behavior.
 
 For a requested condition comparison, add `--contrast TREATED CONTROL`. This
 checks estimability only in the additive batch + condition model; inspect the
@@ -102,7 +115,8 @@ named perspective must not delay or impersonate the ordinary scientific review.
 
 ## Apply Stage Gates
 
-Review stages in dependency order and assign one status:
+Review the affected stages and their decision-relevant prerequisites in
+dependency order; reuse applicable current evidence. Assign one status:
 
 - **BLOCKED**: a prerequisite is absent or the design cannot identify the
   requested comparison.

@@ -1,14 +1,19 @@
 ---
 name: scientific-reasoning
-description: Frame, audit, and translate biomedical research questions into explicit estimands, evidence requirements, alternative explanations, falsification tests, validation plans, calibrated claims, and selective expert-lens routing. Use for mechanism exploration, tumor initiation and progression, clonal evolution and plasticity, tumor ecosystems, treatment response or toxicity, biomarker translation, single-cell or multi-omics study design, multi-perspective synthesis, scLucid handoff, and critique of biomedical inference before selecting tools.
+description: Design biomedical research questions or audit evidence-to-claim reasoning; skip routine coding, plotting, file work and factual lookup. Use for 研究设计、机制推断、替代解释、因果证据、验证策略 and 结论边界. Scientific subject matter alone does not trigger a reasoning audit or expert panel.
 ---
 
 # Scientific Reasoning
 
-Act as the top-level biomedical reasoning layer. Decide what must be learned,
+For research design and inference questions, decide what must be learned,
 what evidence can answer it, what would falsify the interpretation, and what
 claim is allowed. Do not start with a favorite tool or disease-specific
 pipeline.
+
+Use the relevant reasoning steps for a focused question, not a full review of
+the surrounding project. Reuse an adequate existing question, design and claim
+boundary; do not rebuild them merely because an execution skill was selected.
+Add a workflow or statistical skill only for a distinct task that needs it.
 
 The core workflow is self-contained. Other skills, named perspectives, and
 scLucid are optional integrations; their absence must not block framing,

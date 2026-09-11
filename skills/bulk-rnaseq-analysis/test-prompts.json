@@ -1,5 +1,10 @@
 [
   {
+    "id": "standalone-plot-style-only",
+    "prompt": "In this standalone R plotting snippet, change theme_bw(base_size = 10) to base_size = 14. The plot uses an unchanged saved results table; I am only changing display typography.",
+    "expected": "Make the requested display edit and perform relevant syntax or rendering checks if available. Do not discover backends, generate an analysis spec/lock, refit models or conduct a scientific audit solely because the plot contains bulk RNA-seq results. If exporting a newly delivered artifact, retain its actual source attribution without inventing a new analysis run."
+  },
+  {
     "id": "historical-backend-defect-scope",
     "prompt": "Our older General notebook used paired samples and batch, and its GSVA plot P values differ from the table. The new template tests pass, so can we keep all historical conclusions?",
     "expected": "Inspect the saved old revision/source, actual formula, sample map, entry point and correction evidence. Distinguish a dropped model covariate from secondary-test or adjustment differences; do not clear the project using the new test suite. Refit if the model is affected, otherwise recompute only affected secondary tests and consumers in a new parent-linked run, preserve old files, and review changed claims. Unknown historical provenance stays unknown."

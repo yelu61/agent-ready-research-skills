@@ -1,5 +1,54 @@
 [
   {
+    "id": "legacy-task-blocked-is-not-readiness",
+    "prompt": "An imported legacy task T3 is labelled blocked because a collaborator's sample table is pending. There is no scientific readiness assessment for this project. Preserve the task meaning in our current records.",
+    "expected": "Keep the collaborator dependency as task-level blocked or waiting according to actual feasibility and the existing vocabulary. Scientific readiness remains not_assessed; do not apply the legacy scientific-state migration table to task labels, pause the project or invent a failed scientific gate."
+  },
+  {
+    "id": "portfolio-capacity-and-dependency",
+    "prompt": "Recommend how to use the six available hours across these projects. State what should wait and what evidence would change the recommendation.",
+    "material": "assets/evaluation/portfolio.md",
+    "expected": "Use portfolio mode from the supplied summaries. Fit the recommendation to capacity, prioritize the feasible near-term delivery, retain useful pilot work, and condition B execution on the missing dictionary. Do not silently pause projects, invent arrival dates, scan every project or expand A into a new analysis because a new method exists."
+  },
+  {
+    "id": "acceptance-negative-and-unsupported-mechanism",
+    "prompt": "Assess whether M-1 and M-2 can close under their agreed criteria. Keep this read-only.",
+    "material": "assets/evaluation/milestones.md",
+    "expected": "Allow M-1's scoped milestone acceptance from the supplied report/review without requiring a positive result, explicitly limit inspection coverage and keep scientific readiness unassessed. Do not accept M-2's causal claim or infer evidence from a user done label; identify missing agreed evidence without asserting experiments do not exist. Do not write task status, fabricate a readiness record or run an analysis."
+  },
+  {
+    "id": "unavailable-external-task-owner",
+    "prompt": "Reflect the user's completion update in the project records using the supplied ownership information.",
+    "material": "assets/evaluation/record-ownership.md",
+    "expected": "Preserve the confirmed external owner and source version. Record the dated user report and pending owner update in an appropriate existing local note when authorized; do not convert the snapshot to a master, overwrite mirrored formal status as verified, claim a remote write or invent scientific acceptance."
+  },
+  {
+    "id": "delivery-blocker-and-bounded-assignment",
+    "prompt": "Diagnose why this report is not finished and prepare the smallest useful execution assignment. Do not execute it.",
+    "material": "assets/evaluation/project-blocker.md",
+    "expected": "Use review/plan from inspected evidence: caption-to-source traceability is the stated remaining criterion. Define a bounded assignment with inputs, artifact references, output, verification and unknown owner; distinguish reported review from independently inspected data. Do not automatically recluster, conduct a literature review, audit the full structure, create agents or change project scope."
+  },
+  {
+    "id": "repeat-completed-checkpoint",
+    "prompt": "The same update E-12 has arrived again: T1 is done and T2 is next. E-12 is already recorded, the owning task record and handoff agree, and nothing else changed.",
+    "expected": "Recognize the existing event/task and current facts; report no new record change. Do not duplicate the task, append another decision, rewrite unchanged handoff dates or claim implementation of a durable event service."
+  },
+  {
+    "id": "next-is-not-running",
+    "prompt": "The backlog labels T3 NEXT, but no execution has started. Reconcile the project status with the supplied facts.",
+    "expected": "Keep T3 as a planned next task under the project's existing vocabulary; do not label it in progress solely from NEXT. Preserve the independent meanings of task readiness, execution and scientific readiness; perform only the supported authorized record update."
+  },
+  {
+    "id": "records-only-next-action",
+    "prompt": "Update the existing project records: input registration T1 is complete and the next action is T2, checking the sample table. No input, code, model or analysis result changed. The project already has current status and handoff records.",
+    "expected": "Use checkpoint mode, inspect and update only affected status/handoff facts, and verify their consistency. Do not retrofit the directory, scaffold missing governance, rerun analysis or invoke a full structural audit solely for this records-only change. Do not infer scientific readiness."
+  },
+  {
+    "id": "read-only-no-memory-churn",
+    "prompt": "Use manage-research-project to explain the next action already recorded in SESSION_HANDOFF.md. I have no new progress or decision to add.",
+    "expected": "Read the relevant current record and explain it. An explicit skill invocation does not turn unchanged facts into a checkpoint or justify rewriting memory, scaffolding, an audit or a new restart prompt. Surface a material inconsistency if actually found."
+  },
+  {
     "id": "exploratory-small-question",
     "prompt": "This is a two-day pilot with one matrix and one notebook. Keep a resumable project record and a next step, without adding a large directory framework or running a new analysis.",
     "expected": "Inspect existing work, select exploratory retrofit, review the scaffold plan, preserve input/notebook bytes, and use four root files with PROJECT_NOTES.md. Record only supported facts, unperformed analysis and limitations; run the narrow audit and do not infer scientific readiness."

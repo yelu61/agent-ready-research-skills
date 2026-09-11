@@ -7,6 +7,29 @@ skill-scoped semantic-version tags.
 
 ### Changed
 
+- Integrated the authored `research-program-manager` draft into the existing
+  `manage-research-project` entry, with on-demand project review, planning,
+  milestone acceptance and portfolio modules. Retired the separate draft from
+  installable packages; preserved existing helper interfaces and discovery name.
+- Moved detailed workspace, checkpoint, audit/handoff and scientific-boundary
+  instructions into package-local references so planning and small record edits
+  do not load every lifecycle procedure.
+- Reconciled local/external task ownership and management-state semantics:
+  source-linked projections do not become competing masters, task completion
+  does not imply milestone/scientific acceptance, and NEXT alone does not mean
+  execution has started. Added synthetic management and regression requests.
+
+- Narrowed implicit discovery for the five core research skills by putting
+  task scope and exclusions before broad scientific keywords. Focused syntax,
+  format and styling requests no longer imply a workflow or inference audit.
+- Separated records-only project checkpoints from full structural audits,
+  made handoff updates conditional on changed resumable state, and aligned
+  the formal project instruction template and document contract.
+- Scoped scRNA object inspection and stage review to decision-relevant
+  evidence, and moved bulk request inspection before backend discovery.
+  Existing scientific, provenance and execution gates remain in force where
+  the requested analysis or claim depends on them.
+
 - Made project management proportional to scope: added a four-file exploratory
   profile and narrow memory audit, explicit existing-layout mapping with mapped
   document/source checks, and mapped default source-baseline scopes. Existing
@@ -42,6 +65,11 @@ skill-scoped semantic-version tags.
   and methodological-source ledgers, and a numerical CI regression environment.
 
 ### Added
+
+- Added a Chinese usage guide covering the six published skills, the unified
+  manager's modes, concrete invocation examples and boundaries for lightweight
+  work. Aligned README discovery/update instructions, dependencies, source
+  provenance and contribution/publication guidance with the current packages.
 
 - Promoted `scientific-reasoning` and `scrna-analysis-core` into this canonical
   public source collection. The private source is retired through local

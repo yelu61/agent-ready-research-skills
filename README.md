@@ -5,11 +5,14 @@ Ye. This public repository is the canonical source for publishable authored
 skills; it does not vendor third-party, package-managed, plugin-managed, or
 client-specific installations.
 
+[中文使用指南](USAGE.zh-CN.md) · [Dependencies and validation](DEPENDENCIES.md) ·
+[Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
+
 ## Included skills
 
 | Skill | Purpose | Status |
 |---|---|---|
-| [`manage-research-project`](skills/manage-research-project/) | Maintain lightweight or formal project memory, preserve custom layouts, check declared sample relations, and manage provenance, handoff and archives | Core |
+| [`manage-research-project`](skills/manage-research-project/) | Plan projects and portfolio priorities, diagnose blockers, assess milestones, and maintain scoped records, workspaces, provenance and handoffs | Core |
 | [`bulk-rnaseq-upstream`](skills/bulk-rnaseq-upstream/) | Validate shared references and run paired-end FASTQ through HISAT2, featureCounts, and optional human-mouse read classification | Core |
 | [`bulk-rnaseq-analysis`](skills/bulk-rnaseq-analysis/) | Route reproducible bulk RNA-seq work between the RNAseq-Templates and TCGA analysis backends | Core |
 | [`critical-paper-reading`](skills/critical-paper-reading/) | Map scientific claims to evidence, calibrate causal strength, audit validity, and design actionable follow-up work | Core |
@@ -37,6 +40,30 @@ an established directory layout. No folder convention establishes scientific
 validity. The optional [sample-relation check](skills/manage-research-project/references/multimodal-identity.md)
 helps document partial multi-omics matching without inferring biological identity.
 
+The same `manage-research-project` entry also supports project review, stage
+planning, milestone acceptance and portfolio prioritization. These modules load
+only for the relevant request; a record update does not run a strategy review
+or full audit. Task completion, milestone acceptance and scientific readiness
+remain separate. Existing record ownership is preserved; external task owners
+use source-linked local views, not a second editable backlog.
+
+The former `research-program-manager` instruction draft is incorporated into
+this entry rather than distributed as a second skill. Its deployment sketches
+do not establish working synchronization, scheduling or transaction adapters.
+
+| Management mode | Requested outcome | On-demand module |
+|---|---|---|
+| `review` / `plan` / `accept` | Diagnose a delivery blocker, plan bounded work, or assess agreed milestone criteria | [Project decisions](skills/manage-research-project/references/project-decisions.md) |
+| `portfolio` | Compare named projects within actual capacity and dependencies | [Portfolio review](skills/manage-research-project/references/portfolio-review.md) |
+| `init` / `retrofit` | Establish records or adapt an existing workspace without disrupting paths | [Workspace setup](skills/manage-research-project/references/workspace-setup.md) |
+| `checkpoint` | Update only changed task, state, decision or artifact records | [Checkpoint](skills/manage-research-project/references/checkpoint.md) |
+| `audit` / `handoff` / `archive` | Check scoped integrity, preserve resumable state or freeze a declared delivery | [Audit and handoff](skills/manage-research-project/references/audit-and-handoff.md) |
+
+These are agent workflow choices, not additional CLI flags. Use ordinary
+language to specify the project, intended outcome and any material constraints.
+Portfolio work needs named projects and accessible records; installing a skill
+does not grant access to every project or automatically discover their state.
+
 After installation, invoke a skill explicitly with its `$skill-name`, or make a
 natural-language request that matches its description. Explicit invocation is
 recommended when several installed skills could handle the same request.
@@ -44,6 +71,12 @@ recommended when several installed skills could handle the same request.
 ```text
 Use $manage-research-project to initialize this study as a
 manuscript-ready research workspace without overwriting existing files.
+
+Use $manage-research-project to diagnose this project's main delivery blocker
+and propose the next milestone with evidence-based acceptance criteria.
+
+Use $manage-research-project to prioritize these three projects within this
+week's confirmed capacity, using their supplied current summaries.
 
 Use $bulk-rnaseq-upstream to validate my paired-end FASTQ and shared reference
 bundle, then prepare a reproducible HISAT2-to-featureCounts upstream run.
@@ -61,14 +94,16 @@ Use $scrna-analysis-core to inspect this AnnData object and determine whether
 the requested donor-level contrast is estimable before choosing an analysis.
 ```
 
-Open a new Codex task or restart the agent client after first installation so
-its skill index is refreshed.
+Codex detects skill changes automatically. If a new or updated skill does not
+appear, restart Codex. See the [official skill documentation](https://learn.chatgpt.com/docs/build-skills)
+for discovery and invocation behavior.
 
 ## Which skill should I use?
 
 | Goal | Skill | Example request |
 |---|---|---|
 | Start, retrofit, audit, checkpoint, hand off, or archive a research project | `manage-research-project` | “Audit this project for reproducibility and create the missing project-memory records.” |
+| Review project progress, plan a stage, accept a milestone or compare portfolio priorities | `manage-research-project` | “Identify the critical delivery gap and give the smallest defensible next step.” |
 | Process paired-end bulk RNA-seq FASTQ into gene-level counts with a shared immutable reference | `bulk-rnaseq-upstream` | “Validate this FASTQ set and reference bundle, then prepare the upstream run.” |
 | Route a bulk RNA-seq request to local, GEO, or cancer-cohort analysis backends | `bulk-rnaseq-analysis` | “Analyze these raw counts and explain which backend and expression scale are appropriate.” |
 | Critically assess one scientific paper beyond summarization | `critical-paper-reading` | “Build a claim–evidence map and distinguish association from causal support.” |
@@ -80,6 +115,17 @@ Skills may be combined sequentially. For example, use
 `bulk-rnaseq-upstream` to create an auditable count matrix from FASTQ,
 `bulk-rnaseq-analysis` for downstream analysis, and finally
 `critical-paper-reading` to evaluate literature supporting the interpretation.
+
+Combine only the capabilities the actual request needs. Installation does not
+make every skill mandatory: isolated syntax, format conversion, plot styling,
+ordinary paper summaries and unchanged records should not expand into full
+workflow reviews. Reuse adequate current evidence; refresh it when the object,
+design, source or intended use changes. Explicitly naming a skill also does
+not authorize unrequested analysis, project reorganization or external writes.
+
+Project management records and assesses evidence, while domain workflows carry
+out analysis and supply its scientific review. A completed task, accepted
+milestone, successful command and scientifically authorized claim are distinct.
 
 ## Install from GitHub
 
@@ -99,29 +145,32 @@ git clone https://github.com/yelu61/agent-ready-research-skills.git \
   "$HOME/Skills/agent-ready-research-skills"
 
 skill_name="manage-research-project"
+mkdir -p "$HOME/.agents/skills"
 ln -s \
   "$HOME/Skills/agent-ready-research-skills/skills/$skill_name" \
   "$HOME/.agents/skills/$skill_name"
 ```
 
-Restart or open a new Codex task after first installation. Edits made through
-the repository checkout are then immediately available to linked agent clients.
+Do not overwrite an existing installation or link without checking its owner.
+Linked files reflect checkout edits; client discovery refresh follows the
+official behavior described above.
 
 ## Update a local checkout
 
-Pull the repository; linked installations update immediately because they point
-to the checkout rather than copied skill directories:
+Inspect local changes before pulling; preserve work in progress rather than
+discarding it to update the skills. Linked installations point to the checkout:
 
 ```bash
+git -C "$HOME/Skills/agent-ready-research-skills" status --short
 git -C "$HOME/Skills/agent-ready-research-skills" pull --ff-only
 ```
 
-After an update that changes skill metadata, open a new task so the client
-rebuilds its skill index.
+If a changed skill is not reflected in the client, restart Codex. Updating the
+checkout does not install external analysis dependencies or start any workflow.
 
 ## Validate
 
-Run both repository validation and behavioral smoke tests:
+Run package validation and repository regression tests:
 
 ```bash
 python3 scripts/validate_skills.py
@@ -133,6 +182,12 @@ has a separate numerical dependency job. See [DEPENDENCIES.md](DEPENDENCIES.md)
 for the distinction between wrapper regressions, numerical fixtures, and full
 bioinformatics execution. Prompt cases are evaluation inputs, not proof of
 model-level success unless their actual outputs have been reviewed.
+
+Management planning/review requires a capable agent and current project
+evidence. Local helpers perform specific filesystem and contract operations;
+they do not implement external task-system synchronization, durable event
+processing, transaction recovery or a scheduler. See [DEPENDENCIES.md](DEPENDENCIES.md)
+for these execution and validation boundaries.
 
 ## License and resource provenance
 

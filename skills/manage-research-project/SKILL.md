@@ -1,424 +1,141 @@
 ---
 name: manage-research-project
-description: Build and maintain an agent-ready scientific research workspace across its full lifecycle. Use when starting a research project, safely retrofitting an existing analysis directory, establishing reproducible bioinformatics or multi-omics structure, recording source/artifact/run provenance, indexing domain scientific-readiness reports, updating project memory after substantive work, auditing stale documentation or integrity, preparing a session handoff, or freezing a manuscript/archive snapshot. Triggers include project initialization, project organization, agent-ready structure, research project audit, 项目初始化, 项目整理, 持续记录, 项目交接, 项目归档, and 分析项目管理.
+description: Plan research priorities, diagnose project blockers, assess milestones, and maintain workspaces or changed records. Use for 项目规划、卡点诊断、里程碑验收、跨项目优先级、项目初始化、状态更新、来源追踪、交接 and 归档. Skip isolated coding, plotting, factual lookup and unchanged records; select only the relevant management mode.
 ---
 
-# Manage an Agent-Ready Research Project
+# Manage Research Projects
 
-Create durable project memory without turning agent instructions into a project
-encyclopedia. Preserve existing work, distinguish evidence from interpretation,
-and update documentation in the same session as the analysis it describes.
+Connect goals, evidence, decisions, tasks and deliverables while preserving
+existing work. Manage one project or a supplied portfolio through the same
+entry point; load only the module needed for the current request.
 
-Unknown scientific facts must remain `TODO:` or enter `AUTHOR_QUERIES.md`. Never
-invent sample counts, group identities, methods, file provenance, results, or
-database versions.
+A management request does not automatically start an analysis, literature
+search, project audit, external write or recurring service. A focused code,
+display or explanatory task remains focused even when this skill is named.
 
-This skill manages contracts and lineage; it is not a universal scientific
-assessor. A passing structure audit does not establish scientific readiness. A
-successful run does not establish validity, reproduction, causality or truth.
-Scientific readiness must come from a named domain assessor using a versioned
-gate policy and is always scoped to an intended use.
+## Select the requested mode
 
-The supported readiness interface is `validate_readiness.py` with
-`research-readiness/v1`. The separate v2 prototype is an experimental library,
-not a supported CLI or release gate; see the
-[readiness contract](references/readiness-contract.md). Layout v2 is independent
-of readiness versioning. Use [runtime and sources](references/runtime-and-sources.md)
-when checking platform requirements or installing this skill alone.
+| Mode | Request | Read on demand | Outcome |
+| --- | --- | --- | --- |
+| `review` | Diagnose a project-level blocker or review progress | [Project decisions](references/project-decisions.md) | Evidence-backed diagnosis and smallest useful next action |
+| `plan` | Plan a stage or prepare an execution assignment | [Project decisions](references/project-decisions.md) | Bounded tasks, dependencies, deliverables and acceptance criteria |
+| `accept` | Decide whether a milestone can close | [Project decisions](references/project-decisions.md) | Criterion-by-criterion assessment, with unresolved evidence visible |
+| `portfolio` | Prioritize across named projects | [Portfolio review](references/portfolio-review.md) | Feasible priority recommendation and resource tradeoffs |
+| `init` / `retrofit` | Initialize or organize a workspace | [Workspace setup](references/workspace-setup.md) | Proportionate structure and preserved paths |
+| `checkpoint` | State, decisions, artifact records or next action changed | [Checkpoint](references/checkpoint.md) | Only triggered records updated and checked |
+| `audit` | Inspect structure, provenance or record integrity | [Audit and handoff](references/audit-and-handoff.md) | Scoped audit findings and supported repairs |
+| `handoff` / `archive` | Prepare resumption or freeze a declared delivery | [Audit and handoff](references/audit-and-handoff.md) | Resumable handoff or verified snapshot |
 
-## Select one operating mode
+Choose from the requested outcome. A populated directory alone does not imply
+retrofit; a project-level blocker does not imply a code refactor. An ordinary
+debugging question does not require project management. Combine modes only
+when the request needs distinct outputs: for example, plan a stage and then
+record the accepted plan. Updating T1 to T2 does not require a new project review.
 
-| Mode | Use when | Primary outcome |
-|---|---|---|
-| `init` | A new project path is empty or nearly empty | Safe scaffold and first executable task |
-| `retrofit` | Analysis files already exist | Current layout documented; missing controls added without reorganization |
-| `checkpoint` | Meaningful analysis or writing just changed | Status, handoff, decisions, evidence and manifests updated |
-| `audit` | The project may be stale, inconsistent or hard to resume | Evidence-backed gap report and bounded repair |
-| `archive` | A phase, manuscript version or handoff is being frozen | Immutable snapshot manifest and explicit open issues |
+A restart handoff preserves current state; an execution assignment specifies
+work to be done. Do not turn either into an archive or run it as a new task
+unless the user requested that action. Mode names describe instructions, not
+new CLI flags or implemented service endpoints.
 
-If the user does not name a mode, inspect the target first and choose the least
-destructive mode. A populated directory defaults to `retrofit`, never `init`.
+## Establish scope from current evidence
 
-## Choose a proportionate profile and layout
+1. Resolve the named project, actual paths or supplied portfolio. Read relevant
+   project instructions, current goal, status and next milestone first.
+2. Follow current record ownership and task/decision IDs. Use chat history only
+   as dated context; newer text is not automatically more authoritative.
+3. Inspect the inputs that can change the requested decision. Add methods,
+   results, manifests or full texts only when a concrete uncertainty needs them.
+4. State material access gaps and source age. Unreadable is not absent, a
+   recorded claim is not an independently checked result, and an old suggestion
+   is not a current decision.
+5. Resolve routine choices from evidence and existing authorization. Ask only
+   when an unresolved choice changes correctness, scope, authorization or an
+   irreversible outcome; continue independent work meanwhile.
 
-Directory names are conventions, not a scientific quality standard. Inspect
-existing ownership and the intended use before choosing a scaffold:
+For a review, report a recommendation without silently changing goals, owners,
+deadlines or project lifecycle. When the user has authorized a bounded local
+update, complete it and verify it; no separate approval ceremony is required.
 
-| Need | Profile and layout |
-|---|---|
-| Small question, pilot or short exploration | `exploratory`: four root memory files, no new directories; keep current paths |
-| Sustained analysis with several runs or collaborators | `research`: explicit records for design, execution, provenance and handoff |
-| Manuscript or formal delivery | `manuscript`: research records plus figure/source manifests and author queries |
-| Compatibility with an older compact formal scaffold | `minimal`: retains its existing document/data structure; it is larger than exploratory |
+## One record owner per responsibility
 
-For an established project, preserve its layout. When existing paths differ
-from defaults, use [project-map.md](references/project-map.md) to map document,
-source, raw-input, run and delivery responsibilities. Do not add a second
-`docs/`, `workflows/` or results tree merely to satisfy a template. The fixed v2
-layout is the default for a new formal project with no explicit mapping; it is
-not required for every research activity.
+Use [the document contract](references/document-contract.md) when establishing
+ownership or changing task, state, decision, result or handoff records.
+Preserve the project's existing authority. Local `TODO.md` is the default for
+a local task list; a confirmed external task owner is represented locally by a
+source-linked pointer or derived snapshot, not a second editable master.
 
-For exploratory work, read [exploratory-profile.md](references/exploratory-profile.md)
-and use `PROJECT_NOTES.md` for the question, inputs, actual actions, observations,
-limits/decisions and next step. The formal document/registry requirements below
-apply when those responsibilities are needed; do not generate a full readiness
-package for a pilot checkpoint. Scientific uncertainty still stays explicit.
+An ordinary checkpoint does not migrate ownership. An unavailable authoritative
+source leaves its current state unknown; do not promote a cache or stale local
+copy to master. Keep project facts in project records, not in this skill.
 
-## Load only relevant references
+Record observed facts, user reports, inferences, proposals and approved
+decisions distinctly. Preserve stable IDs and superseded history. Before an
+authorized write, compare the current value/version, apply only supported
+changes, then reread. Repeated input should reuse existing tasks or decisions;
+read-before-write alone is not an atomic concurrency guarantee.
 
-- Read [document-contract.md](references/document-contract.md) whenever creating
-  or changing project state, results or handoff records. It defines
-  responsibility-specific sources of truth, orthogonal states, ownership and
-  legacy-state migration.
-- Read [project-profiles.md](references/project-profiles.md) when tailoring the
-  scaffold or analysis checklist to a modality.
-- Read [multimodal-identity.md](references/multimodal-identity.md) when relating
-  donors, specimens, sections, libraries or cells across assays/time points.
-  Its optional validator checks declared relationships, not biological truth.
-- Read [readiness-contract.md](references/readiness-contract.md) when creating,
-  validating, interpreting or staling a readiness declaration.
-- Read [analysis-spec-contract.md](references/analysis-spec-contract.md) when
-  creating or validating the generic spec envelope that binds project and
-  domain analysis contracts.
-- Read [provenance-contract.md](references/provenance-contract.md) for source
-  baselines, checkpointing, result curation or archives; its generic
-  `register_run.py` imports domain metadata into existing RUNS/ARTIFACTS records
-  without creating a scientific readiness declaration.
-- Read [human-data-and-access.md](references/human-data-and-access.md) only for
-  human, clinical, controlled-access or otherwise sensitive data.
-- Read [retrofit-and-archive.md](references/retrofit-and-archive.md) for
-  `retrofit` or `archive`.
-- Read [layout-contract.md](references/layout-contract.md) when initializing a
-  project, selecting executable paths, composing with an analysis skill, or
-  auditing multiple source/result roots.
+Task status, milestone acceptance, execution, scientific readiness and claim
+authorization are separate. A user-reported completion can be recorded as such;
+it does not manufacture missing deliverables, acceptance evidence or scientific
+approval. A negative result can satisfy a well-designed task's acceptance.
 
-## Phase 1 — Inspect before asking
+## Preserve scientific and execution boundaries
 
-1. Resolve the exact target directory.
-2. Inspect existing `AGENTS.md`, `CLAUDE.md`, README, docs, workflows, legacy
-   notebooks/scripts, data directories, results, manifests and environment
-   files.
-3. Determine whether the directory is new, established or manuscript-stage.
-4. Infer stable facts only from files or explicit user statements.
-5. Ask only for a missing choice that changes the scaffold or scientific
-   meaning. For a new project, target path is mandatory; project name, type,
-   objective and stage may remain `TODO:` if the user prefers.
+For analysis/result curation or readiness-dependent work, read
+[Scientific integrity](references/scientific-integrity.md) and the relevant
+contracts below. A structure audit, successful command or completed task never
+proves biological validity, causality or clinical utility.
 
-Do not ask for information that can be discovered locally. Do not postpone safe
-work merely because optional metadata are unknown.
+- [Readiness contract](references/readiness-contract.md): when reading, creating,
+  validating or staling a domain readiness declaration. Supported interface:
+  `validate_readiness.py`, `research-readiness/v1`; v2 remains experimental.
+- [Analysis specification](references/analysis-spec-contract.md): when binding
+  an intended analysis to its inputs, parameters and evidence requirements.
+- [Provenance](references/provenance-contract.md): when inputs, runs,
+  deliverables or source baselines change. Use the existing registration helpers.
+- [Project map](references/project-map.md) and [layout](references/layout-contract.md):
+  when paths or workspaces are being established, mapped or structurally audited.
+- [Multimodal identity](references/multimodal-identity.md): when donor, specimen,
+  section, library or cell relationships affect the requested task.
+- [Human data and access](references/human-data-and-access.md): when handling
+  human, clinical, restricted or otherwise sensitive material.
 
-## Phase 2 — Initialize or retrofit safely
+Keep domain analysis and scientific reasoning in available specialist tools
+when their distinct work is needed. Do not load every specialist, rerun an
+adequate review or summon named researcher perspectives by default. Missing
+optional skills must not block project planning, organization or handoff;
+explain unresolved domain evidence instead of inventing it.
 
-Use the deterministic scaffold script for missing files:
+## Complete and verify the selected work
 
-```bash
-python scripts/scaffold_project.py /path/to/project \
-  --profile research \
-  --project-name "Project name" \
-  --project-type "bulk RNA-seq + proteomics" \
-  --objective "Main scientific question"
-```
+For a records-only checkpoint, verify changed facts, affected links and
+status/handoff consistency; no full structural audit or new governance scaffold
+is required. Reading, explaining or styling with no changed facts needs no
+memory rewrite.
 
-The command is a dry run by default. Review its plan, then rerun with `--apply`.
-Apply uses directory-relative, no-follow creation to prevent symlink path
-escape. On platforms without the required `dir_fd` and `O_NOFOLLOW` support,
-the helper safely refuses `--apply`; dry-run inspection remains available.
+For a review, plan, portfolio or acceptance assessment, verify that conclusions
+and proposed actions follow the inspected evidence and resource constraints.
+Do not run a structural audit solely to generate a management recommendation.
+Only claim a record was updated after a successful write and reread.
 
-Select `--profile exploratory` for the four-file profile. The CLI keeps
-`research` as its compatibility default; choose the profile deliberately.
-For an existing custom layout, supply `--mode retrofit --layout-map map.json`
-on the first scaffold. Apply saves `PROJECT_MAP.json`; subsequent scaffold and
-audit calls read it automatically. An audit can inspect an external map with
-`--layout-map` without saving it. Review a map before use; never infer its
-ownership from similar filenames alone.
+Initialization, retrofit, a requested audit and archives use the applicable
+helpers in [Audit and handoff](references/audit-and-handoff.md). Source, spec,
+code, environment or backend changes and readiness-dependent delivery still
+require the relevant integrity, freshness and domain checks.
 
-Safety rules:
+Report the requested result first, then the evidence, changes, checks, limits
+and next action that matter to it. A short answer may be the complete output;
+do not generate every template or a restart prompt for every mode.
 
-- Never overwrite an existing file.
-- Never modify source bytes under `data/raw/` or declared mapped raw roots.
-- Never reorganize an established project unless the user explicitly requests
-  that separate action.
-- Prefer documenting the existing layout over forcing the template layout.
-- New formal projects without a custom map use `research-project-layout/v2`: authored source is owned only
-  by `workflows/<workflow_id>/`, native runs by `analysis/runs/<run_id>/`,
-  reviewed deliverables by `results/` and lineage by
-  `provenance/`. The scaffold records these roots in
-  `provenance/PROJECT_LAYOUT.json`.
-- Retrofit does not create a v2 layout manifest or a speculative `workflows/`
-  root. An explicit `PROJECT_MAP.json` owns mapped paths; projects with neither
-  manifest remain legacy. Both manifests cannot own one project simultaneously.
-  Mapping records ownership without moving files or migrating a layout version.
-- For computational backends, keep each complete native run bundle under
-  `analysis/runs/<run_id>/` and only curated deliverables under `results/`
-  in fixed v2, or under the declared mapped roots. The scaffold creates
-  `results/`; `analysis/runs/` is created by the pipeline on first run.
-- Notebook and CLI are both valid formal entry points when the domain workflow
-  records inputs, parameters, execution order, environment and validation in a
-  native run. Honor the user's entry preference; do not require notebook logic
-  to be copied into a script or rerun solely for curation. The optional legacy
-  `analysis/notebook_output/<workflow_id>/` path is for scratch work; inspect
-  provenance before promoting outputs and never assume it is safe to delete.
-- Let the domain and user choose question or module folders within `results/`.
-  A delivery may include complete reviewed modules plus a focused report.
-  Register intentional delivery copies and their source files; make shared
-  results readable without access to the native run. Keep one current delivery
-  index instead of accumulating `v*` navigation directories.
-- Keep backend repositories outside the project. A workflow binds a cloneable
-  source and fixed revision in `workflows/<workflow_id>/backend.lock.json`;
-  in mapped/legacy projects use the existing canonical source location instead.
-  Do not create project-local backend worktrees. A domain backend must explicitly
-  support any custom run paths; a manager map does not configure that backend.
-- Back up before replacing instructions or retiring a canonical document.
-- Use relative project paths in generated docs and code.
-- If the project lives in a cloud-synced folder (iCloud Drive, Dropbox,
-  OneDrive), judge run completion by the expected output files on disk, not by
-  exit code or the synced file listing — sync can lag, evict, or revert files.
-  Confirm key outputs exist before declaring success, and re-check a file that
-  looks missing before assuming a step failed.
-- The research scaffold creates `analysis/specs/`, `analysis/readiness/` and
-  `provenance/`. It does not create a scientific readiness declaration or claim
-  that the project is ready.
+## Runtime and evaluation
 
-## Phase 3 — Establish the project contract
+[Runtime and sources](references/runtime-and-sources.md) covers standalone
+installation and helper limits. Resolve bundled script paths from this skill's
+directory, not the project's working directory. Planning needs neither an analysis backend
+nor a connected project service. External schemas, write adapters, durable
+event deduplication, transaction recovery and scheduling are not implemented
+by these instructions.
 
-For exploratory work, fill the corresponding sections of `PROJECT_NOTES.md`
-from evidence and stop when the next task is resumable. For formal projects,
-document names below denote roles; resolve their actual locations from the map.
-Formal machine ledgers remain under `provenance/`, with specs/readiness under
-`analysis/specs/` and `analysis/readiness/`; these paths are not remapped.
-
-After scaffolding, populate only facts supported by the project:
-
-1. `PROJECT_BRIEF.md`: stable meaning, design and constraints.
-2. `DATA_DICTIONARY.md`: data inventory, sample mapping and transformation state.
-3. `ANALYSIS_PLAN.md`: planned comparisons, statistical units, validation and
-   risks.
-4. `PROJECT_STATUS.md`: current state and one next minimal executable task.
-5. `docs/PIPELINE.md`: actual entry points, dependencies, outputs and execution
-   status—not the intended workflow alone.
-6. `REPRODUCIBILITY.md`: environment, versions, commands and unresolved gaps.
-7. `READINESS.md`: index only domain-assessor declarations by intended use;
-   never self-promote a structure audit to readiness.
-8. `provenance/ARTIFACTS.tsv` and `provenance/RUNS.tsv`: register actual
-   artifact lineage and executions using stable IDs. For each analysis, make
-   the spec's data requirement and entry points explicit; bind every entry
-   point in the code manifest, every run input/output/validation ID to an
-   artifact row, propagate assessed source IDs through those artifacts, and
-   bind every output artifact back to its generating run.
-
-For data-bearing projects, establish a non-overwriting source-integrity baseline
-after confirming its scope and access rules:
-
-```bash
-python scripts/build_source_manifest.py /path/to/project --json
-python scripts/build_source_manifest.py /path/to/project --apply \
-  --source-system GEO --source-reference GSE12345 \
-  --acquired-at 2026-09-03T00:00:00Z --data-freeze-id GSE12345-2026-09-03
-python scripts/verify_source_manifest.py /path/to/project --json
-```
-
-The metadata above are illustrative. Replace them with verified source values;
-omit an unknown optional value instead of copying an example or writing a
-placeholder into a machine contract.
-
-The builder defaults to saved map `raw_roots`, otherwise `data/raw/`;
-`--include` explicitly replaces that scope. It hashes regular files, rejects unsafe paths
-and symlinks, and refuses to overwrite an existing baseline. A checksum proves
-byte identity, not provenance authenticity or scientific validity.
-
-For single-cell, spatial or multi-omics identity records, optionally run:
-
-```bash
-python scripts/validate_sample_map.py --measurements measurements.tsv \
-  --pairs declared-pairs.tsv --json
-```
-
-Retain original pseudonymous IDs and explicit matching evidence. Unpaired or
-partially overlapping assays are allowed. Equal barcodes, nearby sections or
-similar expression do not establish the same cell. Exit 0 means declared
-records are structurally consistent; 1 requests review and 2 identifies invalid
-records. Identity authenticity and scientific validity remain unassessed.
-
-Keep behavior in `AGENTS.md`/`CLAUDE.md`; keep science and task state out of
-those instruction files.
-
-## Phase 4 — Checkpoint after meaningful work
-
-Treat documentation as part of the task's definition of done. Update only the
-documents whose trigger fired. In exploratory mode, update the matching note
-sections instead of creating all documents below. Link existing inputs, commands,
-outputs and limitations; never invent run IDs or infer validation from a plot.
-
-1. Update `PROJECT_STATUS.md` when completed work, blockers or next task changed.
-2. Replace `SESSION_HANDOFF.md` with the current resumable state.
-3. Append to `DECISION_LOG.md` when a threshold, model, exclusion, annotation,
-   reference, interpretation or deliverable choice was made.
-4. Update `DATA_DICTIONARY.md` when data, fields, IDs, missing encodings or
-   transformation state changed.
-5. Update `ANALYSIS_PLAN.md` and `docs/PIPELINE.md` when planned or actual logic
-   changed.
-6. Add current findings to `RESULTS_SUMMARY.md` with quantitative support,
-   artifact/run IDs, scope and intended use, requested and authorized claim
-   classes, target and achieved validation levels, a hash-bound readiness
-   report, claim authorization and boundary—including important null or
-   conflicting results.
-7. Update artifact/run/figure/source records when an input, execution or
-   deliverable is created, selected, superseded or archived. Readiness evidence
-   that cites an artifact, run or decision must include the canonical record
-   SHA-256; do not treat a recomputed digest as a substitute for required row
-   content or lineage closure. Run evidence additionally binds its log SHA-256
-   and the exact record digest of every input, output and validation artifact.
-8. Add unresolvable experimental or reporting facts to `AUTHOR_QUERIES.md`.
-
-When a known backend defect may affect existing results, follow the correction
-procedure in [retrofit-and-archive.md](references/retrofit-and-archive.md).
-Ask the domain workflow to establish the affected scope; preserve old bytes,
-record the correction and parent lineage, and update only dependent claims and
-delivery selections. Directory compliance cannot clear a numerical concern.
-9. Mark affected declarations `currency_status=stale` when any bound input,
-   analysis spec, gate policy, code manifest, environment snapshot, backend or
-   dependency changes. Do not rewrite their historical `readiness_status`.
-
-Do not rewrite append-only history. Mark replaced conclusions `superseded` and
-link the decision/artifact that replaced them. Do not automatically translate a
-legacy `confirmed` or `supported` label into a stronger current claim.
-
-## Phase 5 — Audit
-
-Run:
-
-```bash
-python scripts/audit_project.py /path/to/project --json
-```
-
-The default profile `auto` recognizes an explicit exploratory marker only when
-no formal project records take precedence; otherwise it audits `research`.
-Select `--profile manuscript` for manuscript-specific requirements. An explicit
-exploratory check is a narrow memory check, not a downgrade of a formal project.
-Use `--strict` when warnings should fail CI. The formal audit checks required files, stale status/handoff dates, unresolved
-TODOs, raw-data protection, old absolute paths in active source cells, and
-manifest targets. When a source manifest exists, it also verifies its contract
-and current bytes.
-
-The audit output separates `structure_status`, `source_integrity` and
-`scientific_readiness`. `scientific_readiness` is always `not_assessed` here.
-To validate a domain declaration without redoing its science, run:
-
-```bash
-python scripts/validate_readiness.py /path/to/project \
-  analysis/readiness/A-001.json --require-ready \
-  --current-code-revision COMMIT_OR_SNAPSHOT \
-  --current-code-dirty false \
-  --current-backend-revision BACKEND_VERSION --json
-```
-
-Interpret `declared_ready_and_current` literally: it is a current,
-policy-conformant declaration, not an independent scientific certificate. Read
-the assessor's gate policy and evidence before relying on it.
-
-An audit request authorizes read-only inspection, not broad reorganization.
-Repair only bounded, supported issues; report everything else as an open item.
-
-## Phase 6 — Archive or hand off
-
-For an exploratory freeze, preserve the note and declared artifacts, record
-included/excluded scope and hashes, verify the copied bytes, and state which
-execution, provenance and scientific checks were not performed. Do not invent
-formal registries or assessments to fill a template. Formal delivery uses the
-full checklist below, proportionate to the declared snapshot scope.
-
-For a phase freeze:
-
-1. Reconcile `PROJECT_STATUS.md`, `RESULTS_SUMMARY.md`, `DECISION_LOG.md`,
-   `docs/PIPELINE.md`, `REPRODUCIBILITY.md` and manifests.
-2. Record executed versus merely planned analyses.
-3. Freeze exact source/artifact IDs, run records, analysis specs, code revision
-   and dirty state, environment/backend versions, readiness records and open
-   author queries.
-4. Record snapshot ID, parent snapshot, included/excluded scope and hashes, then
-   verify the copied snapshot.
-5. Copy or package recoverably; do not move the live project or raw data.
-   Reference restricted raw data rather than copying it unless authorized.
-6. Generate a restart prompt that names the next task and required reading but
-   contains no credentials or direct identifiers.
-
-Follow [retrofit-and-archive.md](references/retrofit-and-archive.md) for the
-snapshot checklist.
-
-## Scientific integrity rules
-
-- State the experimental unit before statistical testing.
-- Separate technical replicates, biological replicates, samples, cells and
-  features. List the declared unit hierarchy from the independent level toward
-  nested observations and require the named independent and observation units
-  to occur in it; domain review must still test whether independence is true.
-- Record comparisons, models, covariates, thresholds and multiple-testing rules.
-- Separate source provenance, source integrity, implementation, execution,
-  technical validation, readiness, contract, currency, policy, analysis mode,
-  claim authorization, target/achieved validation, lifecycle and reproduction
-  states.
-- Do not infer causality from association, enrichment, co-purification,
-  correlation or cross-omics concordance alone.
-- Keep exploratory and confirmatory outputs visibly distinct.
-- Bind each readiness assessment to one intended use, exact source IDs,
-  analysis spec, gate policy, code manifest, environment snapshot and relevant
-  backend. Require policy assessor name/version and domain to match, and policy
-  applicability to include the spec study type and explicit data requirement.
-- Require data-bearing specs to bind source IDs, a domain spec and domain
-  parameters; a data-free declaration is valid only with no source IDs and a
-  null domain spec. The generic validator cannot infer a false declaration
-  from prose, so the domain assessor must check semantic truth.
-- Require evidence runs to match the assessed spec, declared entry point, code
-  state, backend and environment; close their artifact IDs and logs before
-  using them for `PASS` or `NA`.
-- Require a domain-specific gate policy; do not invent generic statistical
-  approval rules inside this project-management skill.
-- Domain-assessor skills, scLucid and external project tools are optional.
-  Without them, complete project structure, integrity, provenance and handoff
-  work directly, leaving scientific readiness `not_assessed`. Record missing
-  domain evidence rather than requiring another skill merely to organize files.
-- Report limitations that could change the conclusion near that conclusion.
-- Preserve raw identifiers and explicit mappings to public/display labels.
-- For human data, preserve subject → specimen → library/capture → observation
-  hierarchy without recording direct identifiers or re-identification keys.
-
-## Output contract
-
-At the end of any mode, report:
-
-1. selected mode, profile, layout and target;
-2. files inspected, created, updated, skipped and backed up;
-3. verified project facts versus TODOs/author queries;
-4. decisions, provenance records and orthogonal state changes;
-5. checks run and their outcomes;
-6. structure/source-integrity status and readiness by intended use, explicitly
-   separating readiness (`not_assessed`, `ready`, `review`, `blocked`) from
-   currency (`not_assessed`, `current`, `unknown`, `stale`), contract and policy
-   status;
-7. next minimal executable task;
-8. copy-paste restart prompt.
-
-Do not claim the project is reproducible merely because folders exist. A
-reproducible project must expose current inputs, code, parameters, environment,
-execution state, outputs and provenance.
-
-## Validation before completion
-
-- Run `scripts/audit_project.py`.
-- Validate Markdown links or manifest targets that were added.
-- Confirm existing files were not overwritten.
-- Confirm raw-input locations, including mapped roots, were not modified.
-- Confirm `PROJECT_STATUS.md` and `SESSION_HANDOFF.md` agree on the next task,
-  or that exploratory `PROJECT_NOTES.md` has one current next step.
-- For formal findings, confirm source artifact/run IDs, uncertainty, scope and
-  intended use, requested and authorized claim classes, claim authorization,
-  target and achieved validation levels, lifecycle and a hash-bound readiness
-  reference.
-- Confirm planned and executed analyses are not conflated.
-- Verify the source manifest when present and validate any readiness report used
-  to gate execution or curation.
-- Confirm spec/input/code/environment/backend changes did not leave a stale
-  readiness declaration marked current.
-- Confirm archive completion is not described as reproduction or validation.
-- For script or notebook changes, run syntax/parse checks and proportional
-  execution tests.
+[Evaluation requests](test-prompts.json) cover management, lightweight-task
+and scientific boundaries. Their expected outcomes are review criteria, not
+claims of executed tests or permanent reliability.

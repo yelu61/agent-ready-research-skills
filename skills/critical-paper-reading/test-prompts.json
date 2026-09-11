@@ -1,5 +1,12 @@
 [
   {
+    "id": "plain-summary-boundary",
+    "prompt": "Summarize the supplied abstract in three Chinese sentences.",
+    "material": "assets/evaluation/abstract-only.md",
+    "expected": "Give a source-grounded three-sentence summary. This ordinary summary does not implicitly need a critical-paper-reading workflow, novelty search, full review rubric or extra critique deliverable; retain any uncertainty necessary to avoid overstating the abstract.",
+    "rubric": ["Requested summary completed", "No invented evidence", "No unrequested review workflow"]
+  },
+  {
     "id": "abstract-only-no-invention",
     "prompt": "Assess reliability and scientific importance of the supplied study. Give a concise verdict and next step, working only from the fixture.",
     "material": "assets/evaluation/abstract-only.md",

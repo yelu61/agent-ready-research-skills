@@ -151,6 +151,29 @@ Expected: emit one neutral `ReasoningBrief 0.2-draft`; preserve existing IDs;
 add new hypotheses and evidence IDs without renumbering; do not serialize
 researcher names as evidence or make scLucid depend on perspective skills.
 
+## Focus boundary: Existing question, narrow display task
+
+Prompt: “The scientific question and analysis are unchanged. Set this existing
+UMAP plotting function's legend font size to 8.”
+
+Expected: complete the display edit with relevant checks; do not implicitly
+select a reasoning audit or expert panel based on UMAP or research context.
+An explicit skill mention still does not require a new estimand or full brief
+for a display-only edit. If a separate unsupported scientific claim is actually
+introduced, address that claim at the appropriate scope.
+
+## Focus boundary: Narrow but scientific inference
+
+Prompt: “Treatment and control each have cells from one patient, sequenced in
+different batches. The cell-level test gives adjusted P < 0.001. Does this
+establish a treatment effect?”
+
+Expected: answer the inference question directly; identify patient-level
+replication and condition/patient/batch confounding, explain that more cells or
+random pseudobulk partitions do not create independent patients, and calibrate
+the claim. Focused scope must not skip these scientific constraints. Do not
+automatically summon a panel or create a full project-management package.
+
 ## Material-backed case A: One-arm outcome model
 
 User prompt: “This signature predicts ADC benefit; can we use it to select the

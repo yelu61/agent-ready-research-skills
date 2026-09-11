@@ -33,6 +33,70 @@ Raw-byte integrity does not prove provenance authenticity; execution success
 does not prove design validity; statistical significance does not prove
 causality or truth.
 
+## Task and decision ownership
+
+Preserve established ownership. In a local-first project, the mapped/local
+`TODO.md`, `PROJECT_STATUS.md` and `DECISION_LOG.md` own their respective task,
+status and decision facts by default. If an already-confirmed external system
+owns particular fields, use its verified schema and object IDs. Do not assume
+a named vendor or the most recently edited copy is authoritative.
+
+When ownership needs to be established or clarified, record the field group,
+authoritative location/object, permitted writer and any derived view in the
+existing project brief or equivalent record. Do not create another database
+or require an ownership table for a routine checkpoint whose ownership is clear.
+Changing the owner is a migration decision, not an incidental status update.
+
+External ownership makes local task/status views source-linked pointers or
+derived snapshots with version and last-verification time. Do not independently
+edit their mirrored state or use them to overwrite the owner. If the owner is
+unavailable, preserve last-known state with an explicit freshness limitation;
+do not promote the snapshot to master or claim a successful remote write.
+Local analysis manifests and run/artifact ledgers keep ownership of actual
+computation evidence even when a remote system owns task progress.
+
+`PROJECT_MAP.json` maps local file responsibilities only; it does not accept
+remote URLs or configure synchronization. For formal local records, retain an
+appropriate local pointer/snapshot where needed; audits inspect those local
+files, not the external service's contents or synchronization correctness.
+
+Before an authorized state change, read the owning value/version, match stable
+task/decision/event IDs, compare proposed changes and reread at write time.
+Reuse an existing record for repeated input. On conflicting edits, preserve
+both versions and resolve the affected field instead of overwriting blindly.
+Use a conditional-write API when available; rereading alone does not provide
+atomicity. Record partial success per target and do not replay a successful
+non-idempotent write. These are operating requirements, not implemented remote
+adapters or a durable event-processing service.
+
+## Management state and acceptance
+
+Reuse existing milestone/task fields. For a substantive plan, link task ID,
+milestone/deliverable, purpose, inputs, dependencies, owner if known, output,
+acceptance criteria and next action. Unknown dates, owners and effort stay
+unknown; do not add every field to a small administrative task.
+
+Task states may distinguish `proposed`, `ready`, `in_progress`, `review`,
+`done`, `waiting`, `blocked`, `paused` and `cancelled` when useful. Preserve
+existing vocabularies and record mappings rather than bulk-converting history.
+`ready` means the task has enough scope, inputs and authorization to proceed;
+it is not scientific readiness. `waiting` describes pending input; `blocked`
+requires an identified dependency that prevents the task. Neither automatically
+pauses or cancels the whole project.
+
+Milestone acceptance is separately `not_assessed`, `passed`, `conditional` or
+`failed`, supported by agreed criteria and evidence. Record user-reported
+completion as a user report. It can support administrative status when that
+matches the agreed task, but cannot stand in for missing deliverables, required
+checks or scientific acceptance. A task may be done while a scientific claim
+remains exploratory or unauthorized. A valid negative result can satisfy the
+task. Keep project lifecycle, task status, acceptance and the scientific axes
+below distinct; stale information is a freshness property, not a lifecycle.
+
+Execution assignments specify approved work and expected return evidence;
+session handoffs preserve resumable state. Both link the same owning task and
+evidence records, without creating a second editable backlog.
+
 ## Orthogonal scientific state model
 
 Never compress these dimensions into a single evidence label:
@@ -63,9 +127,15 @@ validation is a plan; achieved validation is evidence-backed history. `ready`
 is scoped to an intended use and does not mean a claim is true. Staleness is a
 `currency_status`, never a fourth readiness result.
 
-## Legacy-state migration
+## Legacy scientific-state migration
 
-Do not rewrite historical records or automatically upgrade legacy labels:
+This mapping applies only to historical scientific-evidence/readiness labels,
+after identifying which object and state axis they described. Task status,
+milestone acceptance and project lifecycle must not be converted through this
+table. An old task marked `blocked` by a missing collaborator input does not
+therefore have `readiness_status=blocked`.
+
+Do not rewrite historical records or automatically upgrade legacy scientific labels:
 
 - `confirmed` or `supported`: preserve the original wording, set current
   readiness to `review`, and split the record across the new axes after review;
@@ -88,7 +158,7 @@ Log any migration decision and, when paths or many records change, use
 | `CLAUDE.md` | Compact operational entry | Tool/runtime instructions change |
 | `PROJECT_BRIEF.md` | Stable question, design and constraints | Scientific scope/design confirmed or changed |
 | `PROJECT_STATUS.md` | Current stage, structural status, blockers and next task | Meaningful task changes state |
-| `SESSION_HANDOFF.md` | Exact resumable state | End of meaningful session |
+| `SESSION_HANDOFF.md` | Exact resumable state | Resumable state/next action changes or a handoff is requested |
 | `DECISION_LOG.md` | Append-only decisions and supersessions | Analysis or interpretation decision |
 | `DATA_DICTIONARY.md` | Data/artifact identity, IDs, fields and transformations | New/changed data or semantics |
 | `DATA_GOVERNANCE.md` | Sensitive-data authority and use boundaries | Access, agreement or disclosure rule changes |
@@ -105,19 +175,24 @@ Log any migration decision and, when paths or many records change, use
 
 ## Task backlog format (`TODO.md`)
 
-`TODO.md` is the canonical task list and sync contract with external tools. One
-checkbox line per task:
+When the local project owns tasks, `TODO.md` (or its mapped equivalent) is the
+canonical backlog. An external owner instead uses the pointer/derived-view
+rules above; the format below is not an implemented synchronization protocol.
+Use one checkbox line per local task:
 
 - Status markers: `- [ ]` Backlog · `- [>]` In progress · `- [~]` Paused ·
   `- [x]` Done · `- [-]` Canceled.
 - Optional suffixes: `#T01` stable task ID (assign once, never reuse) · `#high`
   / `#low` priority · `@YYYY-MM-DD` due date.
 - A section carrying `P0`/`P1`/`P2` implies High/Medium/Low priority.
-- Table statuses `NEXT`, `QUEUED`, `OPTIONAL`, `BLOCKED`, `DONE` map to In
-  progress, Backlog, Backlog + Low, Paused and Done.
+- A `NEXT` or `QUEUED` label alone does not prove execution started. Retain the
+  actual task state; annotate `waiting`, `blocked` or `review` when the coarse
+  checkbox cannot express it. Do not convert a blocked dependency into a
+  deliberate pause or a proposed next task into in-progress work.
 
-Update a task marker in place; do not turn completed work into unsupported prose
-history. Bump `Last updated` on every edit.
+Update the owning task marker in place when supported; preserve IDs and dated
+evidence, and do not invent completion. Bump `Last updated` on actual edits;
+repeated unchanged input needs no new task, decision or timestamp churn.
 
 ## Update discipline
 
@@ -135,6 +210,12 @@ history. Bump `Last updated` on every edit.
 - Mark input, spec, gate policy, code, environment or backend changes as
   readiness-currency-staling events until reassessed.
 - Never put direct identifiers, linkage keys or credentials in project memory.
+
+For any records-only checkpoint, leave unchanged records untouched. Reading,
+explanation or cosmetic edits alone do not justify a new handoff or decision
+entry unless they change project state, decisions, artifact records or the next
+action. A failed run or newly discovered limitation can change that state even
+when no scientific result was produced.
 
 For a narrow exploratory checkpoint, update only triggered records and expose
 question, actual inputs/run, observation, uncertainty and next action. Preserve

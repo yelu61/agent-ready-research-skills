@@ -1,6 +1,6 @@
 ---
 name: critical-paper-reading
-description: "Critically read, review, or assess a scientific paper beyond summary. Use for claim–evidence mapping, causal calibration, novelty and assumption checks, statistical and reproducibility critique, reviewer-style assessment, journal clubs, or actionable follow-up design from a paper, preprint, PDF, DOI, or link."
+description: "Critically evaluate a scientific paper's claims, methods and evidence; skip ordinary summaries, translation and slide formatting. Use for 批判性阅读、论文证据审查、研究局限、审稿式评估 and journal-club scientific discussion. Keep focused questions focused."
 ---
 
 # Critical Paper Reading

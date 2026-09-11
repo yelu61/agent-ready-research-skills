@@ -1,6 +1,6 @@
 ---
 name: bulk-rnaseq-analysis
-description: Orchestrate reproducible bulk RNA-seq downstream analysis across local expression matrices, GEO datasets, and TCGA/TARGET/GTEx cancer cohorts. Use for raw-count, TPM, VST/rlog, clinical, MAF, CNV, or methylation inputs; template selection; QC; DESeq2 or limma-voom differential expression; ORA/GSEA/GSVA; time-course analysis; TME deconvolution; WGCNA; survival and clinical association; pan-cancer, mutation, multi-omics, prognostic, external-validation, drug-response, and report workflows. Route generic matrix-based work to RNAseq-Templates and cancer-cohort or multi-omic work to the TCGA toolkit.
+description: Plan, run or audit bulk RNA-seq and cancer-cohort workflows; skip isolated plotting, package syntax and generic statistical explanations. Use for bulk转录组流程、差异分析工作流、通路分析流程 and TCGA/TARGET/GTEx multi-omics work needing backend routing, input checks and provenance.
 ---
 
 # Bulk RNA-seq Analysis
@@ -11,9 +11,21 @@ downstream analysis. Keep project-authored analysis logic in one
 perform discovery, routing, configuration, validation, execution, and result
 handoff here.
 
+Choose the requested scope before starting the workflow. A focused explanation,
+code fix or display change uses only the relevant source and checks, without
+discovering backends, creating analysis specifications or locking a checkout.
+If a change affects estimates, model design, input scale or claim eligibility,
+apply the relevant design and execution gates before a new analysis or claim.
+Preserve existing pipeline/layout decisions unless the request changes them.
+
 ## Workflow
 
-1. Discover candidate backends:
+1. Inspect the request and available inputs before choosing an analysis:
+   identify data source, assay scale, species, sample metadata, experimental
+   design, primary comparison, and requested deliverables.
+
+2. When the requested workflow needs backend selection, capability assessment
+   or execution, discover candidate backends:
 
    ```bash
    python3 scripts/backend_router.py discover --json
@@ -28,10 +40,6 @@ handoff here.
    `execution_ready=false`. Obtain a user-authorized checkout or existing
    source/commit lock when execution is required. No public canonical backend
    URL is assumed. See [runtime and sources](references/runtime-and-sources.md).
-
-2. Inspect the request and available inputs before choosing an analysis:
-   identify data source, assay scale, species, sample metadata, experimental
-   design, primary comparison, and requested deliverables.
 
 3. Route the request:
 

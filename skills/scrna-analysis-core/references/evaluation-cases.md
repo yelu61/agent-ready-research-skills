@@ -151,3 +151,25 @@ the existing annotation if adequate; choose the smallest justified rerun scope.
 Do not automatically round or declare every fractional estimate biologically
 invalid. The helper test verifies REVIEW rather than automatic BLOCKED for
 finite nonnegative fractional sampled values.
+
+## Case 12: Display-only UMAP edit
+
+Prompt: “Set legend_fontsize=8 in this existing sc.pl.umap call. The data,
+embedding, labels and scientific interpretation are unchanged.”
+
+Expected: make the display edit and check the relevant syntax/API or rendering
+when available. A UMAP call or nearby h5ad file does not alone require object
+inspection, integration review, a WorkflowReview or a scientific-reasoning
+handoff. Do not claim to have rendered or validated data that were not supplied.
+
+## Case 13: Reuse adequate evidence, refresh changed evidence
+
+Input: a current integrity report is bound to the exact unchanged h5ad and
+documents counts and specimen/patient metadata. Prompt: “Explain the report's
+sample-versus-patient distinction.” Then a separate request says the object has
+been replaced and asks to run count-based differential analysis using that report.
+
+Expected: explain the first request from adequate existing evidence without
+rerunning the inspector. For the changed object, inspect current relevant
+provenance and design before new inference; do not reuse stale counts or
+experimental-unit evidence merely to keep the task lightweight.

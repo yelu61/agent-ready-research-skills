@@ -22,6 +22,29 @@ finish project organization, source integrity and handoff with scientific
 readiness `not_assessed`. Installed analysis tools remain governed by their own
 input, software and data requirements.
 
+## Management modules and implementation limits
+
+Project review, planning, milestone acceptance and portfolio prioritization
+are instruction workflows over supplied or actually inspected project records.
+They are self-contained and require no external project application. A real
+remote read/write still requires the host's available tools, actual schema and
+authorization; no vendor is assumed to own the user's tasks.
+
+This package does not implement external write adapters, durable event
+deduplication, transactional recovery, background monitoring or scheduling.
+Version checks and rereads should be used where applicable but are not an
+atomic compare-and-swap guarantee. Do not execute conceptual function names or
+report an integration as deployed merely because instructions describe it.
+
+On 2026-09-11, the locally authored `research-program-manager` v0.1 draft's
+decision/portfolio protocols and logical state rules were integrated here.
+Its reusable decision material is in [Project decisions](project-decisions.md),
+[Portfolio review](portfolio-review.md) and [Document contract](document-contract.md).
+The former deployment roadmap and project-specific setup examples are not
+distributed as runnable capability. Existing helper code and CLI interfaces
+remain unchanged. Synthetic evaluation requests are not evidence of a live
+external integration or long-term management performance.
+
 ## Methodological provenance
 
 Last checked: 2026-09-08. The schemas, templates and scripts here are original

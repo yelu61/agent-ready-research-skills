@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -14,6 +15,26 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "skills/manage-research-project/
 
 
 class ReleaseBoundaryTests(unittest.TestCase):
+    def test_all_manager_references_have_a_discovery_path(self):
+        skill = SCRIPTS.parent.resolve()
+        pending = [skill / "SKILL.md"]
+        visited = set()
+        while pending:
+            document = pending.pop()
+            if document in visited:
+                continue
+            visited.add(document)
+            for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", document.read_text()):
+                target = target.split("#", 1)[0]
+                if not target or "://" in target or target.startswith("mailto:"):
+                    continue
+                resource = (document.parent / target).resolve()
+                if resource.is_relative_to(skill) and resource.is_file() and resource.suffix == ".md":
+                    pending.append(resource)
+        references = set((skill / "references").rglob("*.md"))
+        self.assertTrue(references)
+        self.assertEqual(references - visited, set(), "A bundled reference lost its on-demand entry path")
+
     def test_v2_cli_cannot_silently_authorize_a_run(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

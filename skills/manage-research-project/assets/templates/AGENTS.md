@@ -81,10 +81,14 @@ access boundaries.
 
 ## Project memory is part of done
 
-After meaningful work:
+Update only records whose facts changed. Routine reading, explanation or
+cosmetic edits require no memory rewrite unless they change project state,
+decisions, artifact records or the next action. A failed run or newly found
+limitation may still need recording.
 
 - update `docs/PROJECT_STATUS.md` if state, blockers or next task changed;
-- replace `docs/SESSION_HANDOFF.md` with a resumable handoff;
+- update `docs/SESSION_HANDOFF.md` when resumable state or next action changed,
+  or a handoff is requested;
 - append `docs/DECISION_LOG.md` for scientific/computational decisions;
 - update `docs/DATA_DICTIONARY.md`, `docs/ANALYSIS_PLAN.md`, `docs/PIPELINE.md`,
   `docs/READINESS.md`, `docs/RESULTS_SUMMARY.md` and provenance records only when
